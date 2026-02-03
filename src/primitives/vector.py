@@ -2,7 +2,7 @@ from typing import Iterator
 
 
 class Vector:
-    def __init__(self, data: list[float | int]) -> None:
+    def __init__(self, data: list[int | float]) -> None:
         if not (
             isinstance(data, list) and
             all(isinstance(x, (int, float)) for x in data)
