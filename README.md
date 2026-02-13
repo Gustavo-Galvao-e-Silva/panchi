@@ -84,12 +84,14 @@ Mathrix uses modern type hinting techniques for internal development. Users **ru
 ## Example (Conceptual)
 
 ```python
-from mathrix import Vector, Matrix
+from mathrix.primitives import Vector, Matrix
+from mathrix import dot
 
 v = Vector([1, 2])
 w = Vector([3, 1])
 
 u = v + w
+d = dot(u, w)
 ```
 
 Visualization utilities allow you to see these operations geometrically.
