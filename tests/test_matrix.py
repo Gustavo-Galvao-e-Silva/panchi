@@ -163,7 +163,7 @@ class TestMatrixMultiplication:
     def test_multiply_2x2_matrices(self):
         m1 = Matrix([[1, 2], [3, 4]])
         m2 = Matrix([[5, 6], [7, 8]])
-        result = m1 * m2
+        result = m1 @ m2
         print(
             f"\n✓ [[1,2],[3,4]] * [[5,6],[7,8]] = {result.data} (expected [[19,22],[43,50]])"
         )
@@ -172,7 +172,7 @@ class TestMatrixMultiplication:
     def test_multiply_matrix_by_vector(self):
         m = Matrix([[1, 2], [3, 4]])
         v = Vector([5, 6])
-        result = m * v
+        result = m @ v
         print(f"\n✓ [[1,2],[3,4]] * [5,6] = {result.data} (expected [17,39])")
         assert isinstance(result, Vector)
         assert result.data == [17, 39]
@@ -180,7 +180,7 @@ class TestMatrixMultiplication:
     def test_multiply_3x2_by_2x3(self):
         m1 = Matrix([[1, 2], [3, 4], [5, 6]])
         m2 = Matrix([[1, 2, 3], [4, 5, 6]])
-        result = m1 * m2
+        result = m1 @ m2
         print(f"\n✓ (3x2) * (2x3) → shape={result.shape}, data={result.data}")
         assert result.shape == (3, 3)
         assert result.data == [[9, 12, 15], [19, 26, 33], [29, 40, 51]]
@@ -190,12 +190,12 @@ class TestMatrixMultiplication:
         m2 = Matrix([[1, 2], [3, 4]])  # 2x2
         print(f"\n✓ (1x3) * (2x2) → raises ValueError (incompatible)")
         with pytest.raises(ValueError):
-            _ = m1 * m2
+            _ = m1 @ m2
 
     def test_multiply_identity_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
         identity = Matrix([[1, 0], [0, 1]])
-        result = m * identity
+        result = m @ identity
         print(f"\n✓ M * I = {result.data} (expected [[1,2],[3,4]])")
         assert result.data == [[1, 2], [3, 4]]
 
@@ -308,25 +308,6 @@ class TestMatrixTranspose:
         print(f"\n✓ Transpose(3x1) = {t.data}, shape={t.shape} (expected (1,3))")
         assert t.data == [[1, 2, 3]]
         assert t.shape == (1, 3)
-
-
-class TestMatrixApply:
-    """Test cases for Matrix.apply() method."""
-
-    def test_apply_to_vector(self):
-        m = Matrix([[1, 2], [3, 4]])
-        v = Vector([5, 6])
-        result = m.apply(v)
-        print(f"\n✓ M.apply([5,6]) = {result.data} (expected [17,39])")
-        assert isinstance(result, Vector)
-        assert result.data == [17, 39]
-
-    def test_apply_identity(self):
-        identity = Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
-        v = Vector([3, 4, 5])
-        result = identity.apply(v)
-        print(f"\n✓ I.apply([3,4,5]) = {result.data} (expected [3,4,5])")
-        assert result.data == [3, 4, 5]
 
 
 class TestMatrixStringRepresentation:
@@ -485,8 +466,8 @@ class TestMatrixGetMethods:
         cols = m.get_cols(to_vector=True)
         print(f"\n✓ get_cols(to_vector=True) returns Vectors")
         assert all(isinstance(col, Vector) for col in cols)
-        assert cols[0].data == [1, 3]
-        assert cols[1].data == [2, 4]
+        assert cols[0].to_list() == [1, 3]
+        assert cols[1].to_list() == [2, 4]
 
 
 class TestMatrixTransform:
@@ -537,13 +518,13 @@ class TestMatrixIdentityProperties:
 
     def test_left_identity_multiplication(self):
         m = Matrix([[1, 2], [3, 4]])
-        result = m.left_identity * m
+        result = m.left_identity @ m
         print(f"\n✓ I_left * M = M")
         assert result.data == m.data
 
     def test_right_identity_multiplication(self):
         m = Matrix([[1, 2], [3, 4]])
-        result = m * m.right_identity
+        result = m @ m.right_identity
         print(f"\n✓ M * I_right = M")
         assert result.data == m.data
 
