@@ -55,7 +55,7 @@ class Matrix:
                 f"All rows must be lists. Found invalid row type(s): {', '.join(set(bad_types))}"
             )
 
-        if data:  # Check elements only if data is not empty
+        if data:
             for i, row in enumerate(data):
                 for j, elem in enumerate(row):
                     if not isinstance(elem, (int, float)):
@@ -75,46 +75,6 @@ class Matrix:
                         f"All rows must have the same number of columns. "
                         f"Expected {expected_cols} columns, but row {i} has {len(row)} columns."
                     )
-
-    def _apply_transformation(self, other: Vector | Matrix) -> Vector | Matrix:
-        """
-        Internal method to apply matrix multiplication transformation.
-
-        Handles both matrix-vector and matrix-matrix multiplication.
-
-        Parameters
-        ----------
-        other : Vector | Matrix
-            The vector or matrix to multiply with.
-
-        Returns
-        -------
-        Vector | Matrix
-            Result of the multiplication. Returns Vector if other is Vector,
-            Matrix if other is Matrix.
-        """
-        if isinstance(other, Vector):
-            other_data = [[x] for x in other]
-            return_vector = True
-        else:
-            other_data = other.copy()
-            return_vector = False
-
-        result = []
-        for i in range(self.rows):
-            new_row = []
-            for j in range(len(other_data[0])):
-                val = 0
-                for k in range(self.cols):
-                    val += self[i][k] * other_data[k][j]
-                new_row.append(val)
-            result.append(new_row)
-
-        if return_vector:
-            flattened = [item for row in result for item in row]
-            return Vector(flattened)
-        else:
-            return Matrix(result)
 
     def __getitem__(self, index: int) -> list[int | float]:
         """
@@ -156,7 +116,7 @@ class Matrix:
                 f"so valid indices are 0 to {self.rows - 1}."
             )
 
-        return self[index]
+        return self.data[index]
 
     def __len__(self) -> int:
         """
@@ -306,31 +266,27 @@ class Matrix:
 
         return Matrix(result)
 
-    def __mul__(self, other: Vector | Matrix) -> Vector | Matrix:
+    def __mul__(self, other: Vector) -> Vector:
         """
-        Multiply matrix by a vector or another matrix.
+        Multiply matrix by a vector.
 
         For matrix-vector multiplication, the number of columns in the matrix
         must equal the dimension of the vector.
 
-        For matrix-matrix multiplication, the number of columns in the first
-        matrix must equal the number of rows in the second matrix.
-
         Parameters
         ----------
-        other : Vector | Matrix
-            The vector or matrix to multiply with.
+        other : Vector
+            The vector to multiply with.
 
         Returns
         -------
-        Vector | Matrix
-            The result of the multiplication. Returns a Vector when multiplying
-            by a Vector, and a Matrix when multiplying by a Matrix.
+        Vector
+            The result of the multiplication.
 
         Raises
         ------
         TypeError
-            If other is not a Vector or Matrix.
+            If other is not a Vector.
         ValueError
             If dimensions are incompatible for multiplication.
 
@@ -341,35 +297,84 @@ class Matrix:
         >>> result = m * v
         >>> print(result)
         [17, 39]
+        """
+        if not isinstance(other, Vector):
+            raise TypeError(
+                f"Cannot multiply Matrix by {type(other).__name__}. "
+                f"Expected Vector."
+            )
 
+        if self.cols != other.dims:
+            raise ValueError(
+                f"Cannot multiply {self.rows}×{self.cols} matrix by {other.dims}-dimensional vector. "
+                f"Matrix columns ({self.cols}) must equal vector dimension ({other.dims})."
+            )
+
+        result = []
+        for i in range(self.rows):
+            val = 0
+            for j in range(self.cols):
+                val += self[i][j] * other[j]
+            result.append(val)
+
+        return Vector(result)
+
+    def __matmul__(self, other: Matrix) -> Matrix:
+        """
+        Multiply matrix by another matrix.
+
+        For matrix-matrix multiplication, the number of columns in the first
+        matrix must equal the number of rows in the second matrix.
+
+        Parameters
+        ----------
+        other : Matrix
+            The matrix to multiply with.
+
+        Returns
+        -------
+        Matrix
+            The result of the multiplication.
+
+        Raises
+        ------
+        TypeError
+            If other is not a Matrix.
+        ValueError
+            If dimensions are incompatible for multiplication.
+
+        Examples
+        --------
         >>> m1 = Matrix([[1, 2], [3, 4]])
         >>> m2 = Matrix([[5, 6], [7, 8]])
-        >>> m3 = m1 * m2
+        >>> m3 = m1 @ m2
         >>> print(m3)
         [[19, 22],
          [43, 50]]
         """
-        if not isinstance(other, (Matrix, Vector)):
+        if not isinstance(other, Matrix):
             raise TypeError(
                 f"Cannot multiply Matrix by {type(other).__name__}. "
-                f"Can only multiply by Vector or Matrix."
+                f"Expected Matrix."
             )
 
-        other_rows = other.rows if isinstance(other, Matrix) else other.dims
+        if self.cols != other.rows:
+            raise ValueError(
+                f"Cannot multiply {self.rows}×{self.cols} matrix by {other.rows}×{other.cols} matrix. "
+                f"First matrix columns ({self.cols}) must equal second matrix rows ({other.rows})."
+            )
 
-        if self.cols != other_rows:
-            if isinstance(other, Vector):
-                raise ValueError(
-                    f"Cannot multiply {self.rows}×{self.cols} matrix by {other.dims}-dimensional vector. "
-                    f"Matrix columns ({self.cols}) must equal vector dimension ({other.dims})."
-                )
-            else:
-                raise ValueError(
-                    f"Cannot multiply {self.rows}×{self.cols} matrix by {other.rows}×{other.cols} matrix. "
-                    f"First matrix columns ({self.cols}) must equal second matrix rows ({other.rows})."
-                )
+        result = []
+        for i in range(self.rows):
+            new_row = []
+            for j in range(other.cols):
+                val = 0
+                for k in range(self.cols):
+                    val += self[i][k] * other[k][j]
+                new_row.append(val)
+            result.append(new_row)
 
-        return self._apply_transformation(other)
+        return Matrix(result)
 
     def __rmul__(self, other: int | float) -> Matrix:
         """
@@ -475,7 +480,7 @@ class Matrix:
 
         result = self.copy()
         for _ in range(exponent - 1):
-            result = result * self
+            result = result @ self
 
         return result
 
@@ -927,7 +932,7 @@ class Matrix:
 
         Examples
         --------
-        >>> m = Matrix([[2, 0], [0, 3]])  # Scaling transformation
+        >>> m = Matrix([[2, 0], [0, 3]])
         >>> v = Vector([1, 1])
         >>> transformed = m.transform(v)
         >>> print(transformed)
@@ -1002,7 +1007,7 @@ class Matrix:
         >>> m1 = Matrix([[1, 2], [3, 4]])
         >>> m2 = m1.copy()
         >>> m2[0][0] = 99
-        >>> print(m1[0][0])  # Original unchanged
+        >>> print(m1[0][0])
         1
         """
         return Matrix(self.get_rows())

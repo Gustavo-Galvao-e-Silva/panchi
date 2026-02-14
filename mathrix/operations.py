@@ -1,8 +1,8 @@
 import random
 from math import pi, cos, sin
 
-from mathrix.primitives.matrix import Matrix
 from mathrix.primitives.vector import Vector
+from mathrix.primitives.matrix import Matrix
 
 
 def identity(n: int) -> Matrix:
@@ -25,6 +25,8 @@ def identity(n: int) -> Matrix:
 
     Raises
     ------
+    TypeError
+        If n is not an integer.
     ValueError
         If n is not a positive integer.
 
@@ -62,6 +64,8 @@ def zero_matrix(rows: int, cols: int) -> Matrix:
 
     Raises
     ------
+    TypeError
+        If rows or cols is not an integer.
     ValueError
         If rows or cols is not positive.
 
@@ -102,6 +106,8 @@ def one_matrix(rows: int, cols: int) -> Matrix:
 
     Raises
     ------
+    TypeError
+        If rows or cols is not an integer.
     ValueError
         If rows or cols is not positive.
 
@@ -138,12 +144,13 @@ def zero_vector(dims: int) -> Vector:
 
     Returns
     -------
-    A
     Vector
         A vector with all components equal to zero.
 
     Raises
     ------
+    TypeError
+        If dims is not an integer.
     ValueError
         If dims is not positive.
 
@@ -177,6 +184,8 @@ def one_vector(dims: int) -> Vector:
 
     Raises
     ------
+    TypeError
+        If dims is not an integer.
     ValueError
         If dims is not positive.
 
@@ -215,18 +224,20 @@ def unit_vector(dims: int, index: int) -> Vector:
 
     Raises
     ------
+    TypeError
+        If dims or index is not an integer.
     ValueError
         If dims is not positive or index is out of range.
 
     Examples
     --------
-    >>> e2 = unit_vector(3, 1)  # Second standard basis vector in ℝ³
+    >>> e2 = unit_vector(3, 1)
     >>> print(e2)
     [0, 1, 0]
     """
     if not isinstance(dims, int) or not isinstance(index, int):
         raise TypeError(
-            f"Dimension and index must be integers. Got dimension: {type(dimension).__name__}, index: {type(index).__name__}."
+            f"Dimension and index must be integers. Got dimension: {type(dims).__name__}, index: {type(index).__name__}."
         )
     if dims <= 0:
         raise ValueError(f"Dimension must be positive. Got {dims}.")
@@ -237,11 +248,65 @@ def unit_vector(dims: int, index: int) -> Vector:
 
 
 def diagonal(values: list[int | float] | Vector) -> Matrix:
+    """
+    Create a diagonal matrix from a list of values.
+
+    A diagonal matrix has the specified values on its main diagonal
+    and zeros everywhere else.
+
+    Parameters
+    ----------
+    values : list[int | float] | Vector
+        The diagonal values.
+
+    Returns
+    -------
+    Matrix
+        A square matrix with values on the diagonal.
+
+    Examples
+    --------
+    >>> D = diagonal([1, 2, 3])
+    >>> print(D)
+    [[1, 0, 0],
+     [0, 2, 0],
+     [0, 0, 3]]
+    """
     n = len(values)
-    return Matrix([[values[n] if i == j else 0 for j in range(n)] for i in range(n)])
+    return Matrix([[values[i] if i == j else 0 for j in range(n)] for i in range(n)])
 
 
 def random_vector(dims: int, low: int | float = 0.0, high: int | float = 1.0) -> Vector:
+    """
+    Create a vector with random components.
+
+    Components are uniformly distributed in the range [low, high).
+
+    Parameters
+    ----------
+    dims : int
+        Number of components in the vector.
+    low : int | float, optional
+        Lower bound of the random range (inclusive). Default is 0.0.
+    high : int | float, optional
+        Upper bound of the random range (exclusive). Default is 1.0.
+
+    Returns
+    -------
+    Vector
+        A vector with random components.
+
+    Raises
+    ------
+    ValueError
+        If low is not smaller than high.
+
+    Examples
+    --------
+    >>> v = random_vector(3, low=-1.0, high=1.0)
+    >>> v.dims
+    3
+    """
     if low >= high:
         raise ValueError(
             f"Low must be smaller than high. Got low: {low}, high: {high}."
@@ -253,6 +318,38 @@ def random_vector(dims: int, low: int | float = 0.0, high: int | float = 1.0) ->
 def random_matrix(
     rows: int, cols: int, low: int | float = 0.0, high: int | float = 1.0
 ) -> Matrix:
+    """
+    Create a matrix with random elements.
+
+    Elements are uniformly distributed in the range [low, high).
+
+    Parameters
+    ----------
+    rows : int
+        Number of rows in the matrix.
+    cols : int
+        Number of columns in the matrix.
+    low : int | float, optional
+        Lower bound of the random range (inclusive). Default is 0.0.
+    high : int | float, optional
+        Upper bound of the random range (exclusive). Default is 1.0.
+
+    Returns
+    -------
+    Matrix
+        A matrix with random elements.
+
+    Raises
+    ------
+    ValueError
+        If low is not smaller than high.
+
+    Examples
+    --------
+    >>> m = random_matrix(2, 3, low=0.0, high=10.0)
+    >>> m.shape
+    (2, 3)
+    """
     if low >= high:
         raise ValueError(
             f"Low must be smaller than high. Got low: {low}, high: {high}."
@@ -264,6 +361,34 @@ def random_matrix(
 
 
 def rotation_matrix_2d(angle: int | float, radians: bool = True) -> Matrix:
+    """
+    Create a 2D rotation matrix.
+
+    Produces a matrix that rotates vectors in 2D space by the specified angle
+    counterclockwise around the origin.
+
+    Parameters
+    ----------
+    angle : int | float
+        The rotation angle.
+    radians : bool, optional
+        If True, angle is in radians. If False, angle is in degrees.
+        Default is True.
+
+    Returns
+    -------
+    Matrix
+        A 2×2 rotation matrix.
+
+    Examples
+    --------
+    >>> import math
+    >>> R = rotation_matrix_2d(math.pi / 2)
+    >>> v = Vector([1, 0])
+    >>> rotated = R * v
+    >>> print(rotated)
+    [0.0, 1.0]
+    """
     angle_radians = angle if radians else (angle * pi / 180)
     cos_angle = cos(angle_radians)
     sin_angle = sin(angle_radians)
@@ -274,6 +399,42 @@ def rotation_matrix_2d(angle: int | float, radians: bool = True) -> Matrix:
 def rotation_matrix_3d(
     angle: int | float, axis: Vector, radians: bool = True
 ) -> Matrix:
+    """
+    Create a 3D rotation matrix using Rodrigues' rotation formula.
+
+    Produces a matrix that rotates vectors in 3D space by the specified angle
+    around the given axis vector.
+
+    Parameters
+    ----------
+    angle : int | float
+        The rotation angle.
+    axis : Vector
+        The axis of rotation (will be normalized automatically).
+    radians : bool, optional
+        If True, angle is in radians. If False, angle is in degrees.
+        Default is True.
+
+    Returns
+    -------
+    Matrix
+        A 3×3 rotation matrix.
+
+    Raises
+    ------
+    ValueError
+        If the axis is the zero vector.
+
+    Examples
+    --------
+    >>> import math
+    >>> axis = Vector([0, 0, 1])
+    >>> R = rotation_matrix_3d(math.pi / 2, axis)
+    >>> v = Vector([1, 0, 0])
+    >>> rotated = R * v
+    >>> print(rotated)
+    [0.0, 1.0, 0.0]
+    """
     if axis.magnitude == 0:
         raise ValueError("Rotation axis cannot be the zero vector.")
 
@@ -307,6 +468,36 @@ def rotation_matrix_3d(
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> float:
+    """
+    Compute the dot product (inner product) of two vectors.
+
+    The dot product is the sum of the products of corresponding components.
+    It measures the extent to which two vectors point in the same direction.
+
+    Parameters
+    ----------
+    vector_1 : Vector
+        The first vector.
+    vector_2 : Vector
+        The second vector.
+
+    Returns
+    -------
+    float
+        The dot product of the two vectors.
+
+    Raises
+    ------
+    ValueError
+        If the vectors have different dimensions.
+
+    Examples
+    --------
+    >>> v1 = Vector([1, 2, 3])
+    >>> v2 = Vector([4, 5, 6])
+    >>> dot(v1, v2)
+    32
+    """
     if vector_1.dims != vector_2.dims:
         raise ValueError(
             f"Vector dimensions must match for dot product. Got vector_1: {vector_1.dims}, vector_2: {vector_2.dims}."
@@ -317,6 +508,37 @@ def dot(vector_1: Vector, vector_2: Vector) -> float:
 
 
 def cross(vector_1: Vector, vector_2: Vector) -> Vector:
+    """
+    Compute the cross product of two 3D vectors.
+
+    The cross product produces a vector perpendicular to both input vectors.
+    Its magnitude equals the area of the parallelogram formed by the vectors.
+
+    Parameters
+    ----------
+    vector_1 : Vector
+        The first 3D vector.
+    vector_2 : Vector
+        The second 3D vector.
+
+    Returns
+    -------
+    Vector
+        The cross product vector, perpendicular to both inputs.
+
+    Raises
+    ------
+    ValueError
+        If either vector is not 3-dimensional.
+
+    Examples
+    --------
+    >>> v1 = Vector([1, 0, 0])
+    >>> v2 = Vector([0, 1, 0])
+    >>> v3 = cross(v1, v2)
+    >>> print(v3)
+    [0, 0, 1]
+    """
     if not (vector_1.dims == 3 and vector_2.dims == 3):
         raise ValueError(
             f"Both vectors must be 3D. Got vector_1: {vector_1.dims}, vector_2: {vector_2.dims}."

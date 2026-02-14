@@ -12,3 +12,6 @@ build/
 
 # Local env files
 .env
+
+# Random stuff
+.DS_Store
