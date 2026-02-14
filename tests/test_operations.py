@@ -265,7 +265,7 @@ class TestRotationMatrix3D:
         print(f"\n✓ rotation_matrix_3d(90° around z-axis)")
         assert R.shape == (3, 3)
         v = mx.Vector([1, 0, 0])
-        result = R * v
+        result = R @ v
         assert isclose(result[0], 0, abs_tol=1e-10)
         assert isclose(result[1], 1, abs_tol=1e-10)
         assert isclose(result[2], 0, abs_tol=1e-10)
@@ -361,7 +361,7 @@ class TestLinearAlgebraOperations:
         """Test applying a transformation matrix to a vector (rotation example)."""
         rotation = mx.Matrix([[0, -1], [1, 0]])
         v = mx.Vector([1, 0])
-        result = rotation * v
+        result = rotation @ v
         print(f"\n✓ Rotation(90°) * [1,0] = {result.data} (expected [0,1])")
         assert result.data == [0, 1]
 
@@ -450,7 +450,7 @@ class TestMatrixOperations:
         composed = rotate @ scale
 
         v = mx.Vector([1, 0])
-        result = composed * v
+        result = composed @ v
         print(f"\n✓ (Rotate ∘ Scale) * [1,0] = {result.data} (expected [0,2])")
         assert result.data == [0, 2]
 
@@ -473,7 +473,7 @@ class TestMatrixOperations:
         assert isinstance(2 * m1, mx.Matrix)
         assert isinstance(-m1, mx.Matrix)
         assert isinstance(m1.T, mx.Matrix)
-        assert isinstance(m1 * v, mx.Vector)
+        assert isinstance(m1 @ v, mx.Vector)
 
 
 class TestMixedOperations:
@@ -487,8 +487,8 @@ class TestMixedOperations:
         v1 = mx.Vector([1, 0])
         v2 = mx.Vector([0, 1])
 
-        r1 = m * v1
-        r2 = m * v2
+        r1 = m @ v1
+        r2 = m @ v2
 
         print(f"\n✓ M*v1 = {r1.data}, M*v2 = {r2.data}")
         assert r1.data == [1, 3]
@@ -499,7 +499,7 @@ class TestMixedOperations:
         m = mx.Matrix([[2, 3], [4, 5]])
         v = mx.Vector([1, 2])
 
-        result_multiply = m * v
+        result_multiply = m @ v
         result_transform = m.transform(v)
 
         print(
@@ -515,8 +515,8 @@ class TestMixedOperations:
         v2 = mx.Vector([3, 4])
         v3 = mx.Vector([1, 2, 3])
 
-        assert (identity_2d * v2).data == v2.data
-        assert (identity_3d * v3).data == v3.data
+        assert (identity_2d @ v2).data == v2.data
+        assert (identity_3d @ v3).data == v3.data
         print(f"\n✓ Identity matrices preserve vectors")
 
 
@@ -542,7 +542,7 @@ class TestOperationsIntegration:
         original_mag = v.magnitude
 
         R = mx.rotation_matrix_2d(pi / 4)
-        rotated = R * v
+        rotated = R @ v
 
         print(f"\n✓ Rotation preserves magnitude: {rotated.magnitude} ≈ {original_mag}")
         assert isclose(rotated.magnitude, original_mag, abs_tol=1e-10)
@@ -593,7 +593,7 @@ class TestEdgeCases:
         v_result = v + mx.Vector([2])
         assert v_result.data == [7]
 
-        mv_result = m * v
+        mv_result = m @ v
         assert mv_result.data == [15]
 
         print(f"\n✓ Single element operations work correctly")
@@ -622,7 +622,7 @@ class TestEdgeCases:
         assert (v + z_vec).data == v.data
         assert (m + z_mat).data == m.data
 
-        result = z_mat * mx.Vector([v[0], v[1]])
+        result = z_mat @ mx.Vector([v[0], v[1]])
         assert result.data == [0, 0]
 
         print(f"\n✓ Zero vector/matrix operations work correctly")

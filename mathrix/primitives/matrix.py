@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Iterator
+from typing import Iterator, overload
 
 from mathrix.primitives.vector import Vector
 
@@ -76,6 +76,46 @@ class Matrix:
                         f"Expected {expected_cols} columns, but row {i} has {len(row)} columns."
                     )
 
+    def _apply_transformation(self, other: Vector | Matrix) -> Vector | Matrix:
+        """
+        Internal method to apply matrix multiplication transformation.
+
+        Handles both matrix-vector and matrix-matrix multiplication.
+
+        Parameters
+        ----------
+        other : Vector | Matrix
+            The vector or matrix to multiply with.
+
+        Returns
+        -------
+        Vector | Matrix
+            Result of the multiplication. Returns Vector if other is Vector,
+            Matrix if other is Matrix.
+        """
+        if isinstance(other, Vector):
+            other_data = [[x] for x in other]
+            return_vector = True
+        else:
+            other_data = other.copy()
+            return_vector = False
+
+        result = []
+        for i in range(self.rows):
+            new_row = []
+            for j in range(len(other_data[0])):
+                val = 0
+                for k in range(self.cols):
+                    val += self[i][k] * other_data[k][j]
+                new_row.append(val)
+            result.append(new_row)
+
+        if return_vector:
+            flattened = [item for row in result for item in row]
+            return Vector(flattened)
+        else:
+            return Matrix(result)
+
     def __getitem__(self, index: int) -> list[int | float]:
         """
         Access a row of the matrix by index.
@@ -83,7 +123,7 @@ class Matrix:
         Parameters
         ----------
         index : int
-            The row index (0-based).
+            The row index (0-based). Negative indices are supported.
 
         Returns
         -------
@@ -95,7 +135,7 @@ class Matrix:
         TypeError
             If index is not an integer.
         IndexError
-            If index is out of range.
+            If index is out of range (raised by Python).
 
         Examples
         --------
@@ -104,16 +144,12 @@ class Matrix:
         [1, 2]
         >>> m[1][1]
         4
+        >>> m[-1]
+        [3, 4]
         """
         if not isinstance(index, int):
             raise TypeError(
                 f"Matrix row indices must be integers. Got {type(index).__name__}."
-            )
-
-        if index < 0 or index >= self.rows:
-            raise IndexError(
-                f"Row index {index} is out of range. Matrix has {self.rows} row(s), "
-                f"so valid indices are 0 to {self.rows - 1}."
             )
 
         return self.data[index]
@@ -266,27 +302,37 @@ class Matrix:
 
         return Matrix(result)
 
-    def __mul__(self, other: Vector) -> Vector:
+    @overload
+    def __matmul__(self, other: Matrix) -> Matrix: ...
+
+    @overload
+    def __matmul__(self, other: Vector) -> Vector: ...
+
+    def __matmul__(self, other: Vector | Matrix) -> Vector | Matrix:
         """
-        Multiply matrix by a vector.
+        Multiply matrix by a vector or another matrix using @ operator.
 
         For matrix-vector multiplication, the number of columns in the matrix
         must equal the dimension of the vector.
 
+        For matrix-matrix multiplication, the number of columns in the first
+        matrix must equal the number of rows in the second matrix.
+
         Parameters
         ----------
-        other : Vector
-            The vector to multiply with.
+        other : Vector | Matrix
+            The vector or matrix to multiply with.
 
         Returns
         -------
-        Vector
-            The result of the multiplication.
+        Vector | Matrix
+            The result of the multiplication. Returns a Vector when multiplying
+            by a Vector, and a Matrix when multiplying by a Matrix.
 
         Raises
         ------
         TypeError
-            If other is not a Vector.
+            If other is not a Vector or Matrix.
         ValueError
             If dimensions are incompatible for multiplication.
 
@@ -294,57 +340,10 @@ class Matrix:
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> v = Vector([5, 6])
-        >>> result = m * v
+        >>> result = m @ v
         >>> print(result)
         [17, 39]
-        """
-        if not isinstance(other, Vector):
-            raise TypeError(
-                f"Cannot multiply Matrix by {type(other).__name__}. "
-                f"Expected Vector."
-            )
 
-        if self.cols != other.dims:
-            raise ValueError(
-                f"Cannot multiply {self.rows}×{self.cols} matrix by {other.dims}-dimensional vector. "
-                f"Matrix columns ({self.cols}) must equal vector dimension ({other.dims})."
-            )
-
-        result = []
-        for i in range(self.rows):
-            val = 0
-            for j in range(self.cols):
-                val += self[i][j] * other[j]
-            result.append(val)
-
-        return Vector(result)
-
-    def __matmul__(self, other: Matrix) -> Matrix:
-        """
-        Multiply matrix by another matrix.
-
-        For matrix-matrix multiplication, the number of columns in the first
-        matrix must equal the number of rows in the second matrix.
-
-        Parameters
-        ----------
-        other : Matrix
-            The matrix to multiply with.
-
-        Returns
-        -------
-        Matrix
-            The result of the multiplication.
-
-        Raises
-        ------
-        TypeError
-            If other is not a Matrix.
-        ValueError
-            If dimensions are incompatible for multiplication.
-
-        Examples
-        --------
         >>> m1 = Matrix([[1, 2], [3, 4]])
         >>> m2 = Matrix([[5, 6], [7, 8]])
         >>> m3 = m1 @ m2
@@ -352,29 +351,27 @@ class Matrix:
         [[19, 22],
          [43, 50]]
         """
-        if not isinstance(other, Matrix):
+        if not isinstance(other, (Matrix, Vector)):
             raise TypeError(
                 f"Cannot multiply Matrix by {type(other).__name__}. "
-                f"Expected Matrix."
+                f"Can only multiply by Vector or Matrix."
             )
 
-        if self.cols != other.rows:
-            raise ValueError(
-                f"Cannot multiply {self.rows}×{self.cols} matrix by {other.rows}×{other.cols} matrix. "
-                f"First matrix columns ({self.cols}) must equal second matrix rows ({other.rows})."
-            )
+        other_rows = other.rows if isinstance(other, Matrix) else other.dims
 
-        result = []
-        for i in range(self.rows):
-            new_row = []
-            for j in range(other.cols):
-                val = 0
-                for k in range(self.cols):
-                    val += self[i][k] * other[k][j]
-                new_row.append(val)
-            result.append(new_row)
+        if self.cols != other_rows:
+            if isinstance(other, Vector):
+                raise ValueError(
+                    f"Cannot multiply {self.rows}×{self.cols} matrix by {other.dims}-dimensional vector. "
+                    f"Matrix columns ({self.cols}) must equal vector dimension ({other.dims})."
+                )
+            else:
+                raise ValueError(
+                    f"Cannot multiply {self.rows}×{self.cols} matrix by {other.rows}×{other.cols} matrix. "
+                    f"First matrix columns ({self.cols}) must equal second matrix rows ({other.rows})."
+                )
 
-        return Matrix(result)
+        return self._apply_transformation(other)
 
     def __rmul__(self, other: int | float) -> Matrix:
         """
@@ -774,7 +771,7 @@ class Matrix:
         Parameters
         ----------
         index : int
-            The row index (0-based).
+            The row index (0-based). Negative indices are supported.
 
         Returns
         -------
@@ -786,23 +783,19 @@ class Matrix:
         TypeError
             If index is not an integer.
         IndexError
-            If index is out of range.
+            If index is out of range (raised by Python).
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4], [5, 6]])
         >>> m.get_row(1)
         [3, 4]
+        >>> m.get_row(-1)
+        [5, 6]
         """
         if not isinstance(index, int):
             raise TypeError(
                 f"Row index must be an integer. Got {type(index).__name__}."
-            )
-
-        if index < 0 or index >= self.rows:
-            raise IndexError(
-                f"Row index {index} is out of range. Matrix has {self.rows} row(s), "
-                f"so valid indices are 0 to {self.rows - 1}."
             )
 
         return self[index].copy()
@@ -814,7 +807,7 @@ class Matrix:
         Parameters
         ----------
         index : int
-            The column index (0-based).
+            The column index (0-based). Negative indices are supported.
 
         Returns
         -------
@@ -826,23 +819,19 @@ class Matrix:
         TypeError
             If index is not an integer.
         IndexError
-            If index is out of range.
+            If index is out of range (raised by Python).
 
         Examples
         --------
         >>> m = Matrix([[1, 2, 3], [4, 5, 6]])
         >>> m.get_col(1)
         [2, 5]
+        >>> m.get_col(-1)
+        [3, 6]
         """
         if not isinstance(index, int):
             raise TypeError(
                 f"Column index must be an integer. Got {type(index).__name__}."
-            )
-
-        if index < 0 or index >= self.cols:
-            raise IndexError(
-                f"Column index {index} is out of range. Matrix has {self.cols} column(s), "
-                f"so valid indices are 0 to {self.cols - 1}."
             )
 
         return [self[i][index] for i in range(self.rows)]
@@ -943,7 +932,7 @@ class Matrix:
                 f"Can only transform Vector objects. Got {type(vec).__name__}."
             )
 
-        return self * vec
+        return self @ vec
 
     def transpose(self) -> Matrix:
         """
