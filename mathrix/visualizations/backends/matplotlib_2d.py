@@ -3,12 +3,10 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from matplotlib.patches import FancyArrowPatch
 
-from mathrix.primitives.vector import Vector
-
 DEFAULT_COLORS = ["#E63946", "#F77F00", "#06FFA5", "#118AB2", "#073B4C"]
 
 
-def _setup_coordinate_plane(ax, x_range, y_range, grid=True):
+def setup_coordinate_plane(ax, x_range, y_range, grid=True):
     """Configure axes to look like a mathematical coordinate plane."""
     ax.spines["left"].set_position("zero")
     ax.spines["bottom"].set_position("zero")
@@ -28,7 +26,7 @@ def _setup_coordinate_plane(ax, x_range, y_range, grid=True):
     ax.set_ylabel("y", fontsize=12, loc="top", rotation=0)
 
 
-def _calculate_axis_range(vectors):
+def calculate_axis_range(vectors):
     """Calculate appropriate axis range to fit all vectors with padding."""
     all_x = [v[0] for v in vectors]
     all_y = [v[1] for v in vectors]
@@ -36,7 +34,7 @@ def _calculate_axis_range(vectors):
     return (-max_coord, max_coord)
 
 
-def _create_vector_arrow(start, end, color, linewidth=2.5):
+def create_vector_arrow(start, end, color, linewidth=2.5):
     """Create a properly styled arrow for vector visualization."""
     return FancyArrowPatch(
         start,
@@ -49,14 +47,11 @@ def _create_vector_arrow(start, end, color, linewidth=2.5):
     )
 
 
-def _add_vector_label(ax, vector, label, color, offset=(0.15, 0.15)):
-    """Add a label near the tip of a vector."""
-    offset_x = offset[0] if vector[0] >= 0 else -offset[0]
-    offset_y = offset[1] if vector[1] >= 0 else -offset[1]
-
-    ax.text(
-        vector[0] + offset_x,
-        vector[1] + offset_y,
+def add_vector_label(ax, position, label, color, offset=(0.15, 0.15)):
+    """Add a label at a specific position."""
+    return ax.text(
+        position[0] + offset[0],
+        position[1] + offset[1],
         label,
         fontsize=12,
         fontweight="bold",
@@ -66,31 +61,28 @@ def _add_vector_label(ax, vector, label, color, offset=(0.15, 0.15)):
     )
 
 
-def plot_vectors(*vectors: Vector, colors=None, labels=None, grid=True, figsize=(8, 8)):
+def plot_vectors_static(vectors, colors=None, labels=None, grid=True, figsize=(8, 8)):
     """
-    Plot multiple 2D vectors originating from the origin.
+    Plot multiple 2D vectors using matplotlib.
 
     Parameters
     ----------
-    *vectors : Vector
-        Variable number of 2D vectors to plot.
+    vectors : list[Vector]
+        List of 2D vectors to plot.
     colors : list[str], optional
-        Colors for each vector. If None, uses a default palette.
+        Colors for each vector.
     labels : list[str], optional
-        Labels for each vector. If None, no labels are shown.
+        Labels for each vector.
     grid : bool, optional
-        Whether to show grid lines. Default is True.
+        Whether to show grid.
     figsize : tuple[int, int], optional
-        Figure size in inches. Default is (8, 8).
+        Figure size.
 
-    Raises
-    ------
-    ValueError
-        If any vector is not 2-dimensional.
+    Returns
+    -------
+    tuple
+        (fig, ax) matplotlib figure and axes objects.
     """
-    if not all(v.dims == 2 for v in vectors):
-        raise ValueError("All vectors must be 2-dimensional for 2D plotting")
-
     if colors is None:
         colors = DEFAULT_COLORS[: len(vectors)]
 
@@ -99,57 +91,46 @@ def plot_vectors(*vectors: Vector, colors=None, labels=None, grid=True, figsize=
 
     fig, ax = plt.subplots(figsize=figsize)
 
-    x_range, y_range = _calculate_axis_range(vectors), _calculate_axis_range(vectors)
-    _setup_coordinate_plane(ax, x_range, y_range, grid)
+    x_range, y_range = calculate_axis_range(vectors), calculate_axis_range(vectors)
+    setup_coordinate_plane(ax, x_range, y_range, grid)
 
     for vec, color, label in zip(vectors, colors, labels):
-        arrow = _create_vector_arrow((0, 0), (vec[0], vec[1]), color)
+        arrow = create_vector_arrow((0, 0), (vec[0], vec[1]), color)
         ax.add_patch(arrow)
 
         if label:
-            _add_vector_label(ax, vec, label, color)
+            offset_x = 0.15 if vec[0] >= 0 else -0.15
+            offset_y = 0.15 if vec[1] >= 0 else -0.15
+            add_vector_label(ax, (vec[0], vec[1]), label, color, (offset_x, offset_y))
 
     plt.tight_layout()
-    plt.show()
+    return fig, ax
 
 
-def animate_vector_addition(
-    v1: Vector, v2: Vector, frames=60, interval=30, figsize=(10, 10)
-):
+def animate_addition(v1, v2, frames=60, interval=30, figsize=(10, 10), save_path=None):
     """
-    Animate the addition of two 2D vectors using parallelogram construction.
-
-    The animation shows:
-    1. Vector v1 (red) from the origin
-    2. Vector v2 (orange) growing from the origin and from the tip of v1
-    3. The resultant vector v1 + v2 (green) appearing
+    Animate vector addition using matplotlib.
 
     Parameters
     ----------
     v1 : Vector
-        First 2D vector.
+        First vector.
     v2 : Vector
-        Second 2D vector.
+        Second vector.
     frames : int, optional
-        Total number of animation frames. Default is 60.
+        Number of frames.
     interval : int, optional
-        Milliseconds between frames. Default is 30.
+        Milliseconds between frames.
     figsize : tuple[int, int], optional
-        Figure size in inches. Default is (10, 10).
+        Figure size.
+    save_path : Path or str, optional
+        Path to save animation. If None, displays instead.
 
     Returns
     -------
     animation.FuncAnimation
         The matplotlib animation object.
-
-    Raises
-    ------
-    ValueError
-        If either vector is not 2-dimensional.
     """
-    if v1.dims != 2 or v2.dims != 2:
-        raise ValueError("Both vectors must be 2-dimensional for 2D plotting")
-
     fig, ax = plt.subplots(figsize=figsize)
 
     result = v1 + v2
@@ -165,15 +146,15 @@ def animate_vector_addition(
         * 1.3
     )
 
-    _setup_coordinate_plane(
+    setup_coordinate_plane(
         ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
     )
 
-    arrow_v1 = _create_vector_arrow((0, 0), (v1[0], v1[1]), "#E63946")
-    arrow_v2_from_origin = _create_vector_arrow((0, 0), (0, 0), "#F77F00")
+    arrow_v1 = create_vector_arrow((0, 0), (v1[0], v1[1]), "#E63946")
+    arrow_v2_from_origin = create_vector_arrow((0, 0), (0, 0), "#F77F00")
     arrow_v2_from_origin.set_alpha(0.4)
-    arrow_v2_from_v1 = _create_vector_arrow((v1[0], v1[1]), (v1[0], v1[1]), "#F77F00")
-    arrow_result = _create_vector_arrow((0, 0), (0, 0), "#06FFA5", linewidth=3.5)
+    arrow_v2_from_v1 = create_vector_arrow((v1[0], v1[1]), (v1[0], v1[1]), "#F77F00")
+    arrow_result = create_vector_arrow((0, 0), (0, 0), "#06FFA5", linewidth=3.5)
     arrow_result.set_alpha(0)
 
     ax.add_patch(arrow_v1)
@@ -198,7 +179,7 @@ def animate_vector_addition(
 
     half_frames = frames // 2
 
-    def animate(frame):
+    def animate_frame(frame):
         if frame < half_frames:
             t = frame / half_frames
             current_x = v2[0] * t
@@ -238,49 +219,43 @@ def animate_vector_addition(
         )
 
     anim = animation.FuncAnimation(
-        fig, animate, frames=frames, interval=interval, blit=True, repeat=True
+        fig, animate_frame, frames=frames, interval=interval, blit=True, repeat=True
     )
 
     plt.tight_layout()
-    plt.show()
+
+    if save_path:
+        anim.save(str(save_path), writer="pillow", fps=1000 // interval)
 
     return anim
 
 
-def animate_vector_scaling(
-    vector: Vector, scale_factor: float, frames=60, interval=30, figsize=(10, 10)
+def animate_scaling(
+    vector, scale_factor, frames=60, interval=30, figsize=(10, 10), save_path=None
 ):
     """
-    Animate scalar multiplication of a vector.
-
-    Shows a vector smoothly scaling from its original size to the scaled size.
+    Animate vector scaling using matplotlib.
 
     Parameters
     ----------
     vector : Vector
-        The 2D vector to scale.
+        Vector to scale.
     scale_factor : float
-        The scaling factor to apply.
+        Scaling factor.
     frames : int, optional
-        Total number of animation frames. Default is 60.
+        Number of frames.
     interval : int, optional
-        Milliseconds between frames. Default is 30.
+        Milliseconds between frames.
     figsize : tuple[int, int], optional
-        Figure size in inches. Default is (10, 10).
+        Figure size.
+    save_path : Path or str, optional
+        Path to save animation. If None, displays instead.
 
     Returns
     -------
     animation.FuncAnimation
         The matplotlib animation object.
-
-    Raises
-    ------
-    ValueError
-        If vector is not 2-dimensional.
     """
-    if vector.dims != 2:
-        raise ValueError("Vector must be 2-dimensional for 2D plotting")
-
     fig, ax = plt.subplots(figsize=figsize)
 
     scaled = scale_factor * vector
@@ -288,11 +263,11 @@ def animate_vector_scaling(
         max(abs(vector[0]), abs(vector[1]), abs(scaled[0]), abs(scaled[1])) * 1.3
     )
 
-    _setup_coordinate_plane(
+    setup_coordinate_plane(
         ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
     )
 
-    arrow = _create_vector_arrow((0, 0), (vector[0], vector[1]), "#E63946")
+    arrow = create_vector_arrow((0, 0), (vector[0], vector[1]), "#E63946")
     ax.add_patch(arrow)
 
     text = ax.text(
@@ -304,7 +279,7 @@ def animate_vector_scaling(
         color="#E63946",
     )
 
-    def animate(frame):
+    def animate_frame(frame):
         t = frame / frames
         current_scale = 1 + (scale_factor - 1) * t
         current_x = vector[0] * current_scale
@@ -324,10 +299,12 @@ def animate_vector_scaling(
         return arrow, text
 
     anim = animation.FuncAnimation(
-        fig, animate, frames=frames, interval=interval, blit=True, repeat=True
+        fig, animate_frame, frames=frames, interval=interval, blit=True, repeat=True
     )
 
     plt.tight_layout()
-    plt.show()
+
+    if save_path:
+        anim.save(str(save_path), writer="pillow", fps=1000 // interval)
 
     return anim

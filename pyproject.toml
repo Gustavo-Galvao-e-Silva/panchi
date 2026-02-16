@@ -34,11 +34,13 @@ classifiers = [
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
-  "Programming Language :: Python :: 3.14",
   "Topic :: Education",
   "Topic :: Scientific/Engineering :: Mathematics",
   "Typing :: Typed",
 ]
+
+# Core dependencies - ALWAYS installed
+dependencies = ["matplotlib>=3.5.0"]
 
 [project.urls]
 Homepage = "https://github.com/Gustavo-Galvao-e-Silva/mathrix"
@@ -47,7 +49,12 @@ Repository = "https://github.com/Gustavo-Galvao-e-Silva/mathrix"
 "Bug Tracker" = "https://github.com/Gustavo-Galvao-e-Silva/mathrix/issues"
 Changelog = "https://github.com/Gustavo-Galvao-e-Silva/mathrix/releases"
 
+# Optional dependencies - installed with extras
 [project.optional-dependencies]
+# For production-quality video output
+manim = ["manim>=0.18.0"]
+
+# For development
 dev = [
   "pytest>=7.0",
   "pytest-cov>=4.0",
@@ -55,10 +62,20 @@ dev = [
   "ruff>=0.1.0",
   "mypy>=1.0",
 ]
+
+# For testing only
 test = ["pytest>=7.0", "pytest-cov>=4.0"]
 
+# Everything (for contributors)
+all = ["mathrix[manim,dev]"]
+
 [tool.setuptools]
-packages = ["mathrix", "mathrix.primitives"]
+packages = [
+  "mathrix",
+  "mathrix.primitives",
+  "mathrix.visualizations",
+  "mathrix.visualizations.backends",
+]
 
 [tool.setuptools.package-data]
 mathrix = ["py.typed"]

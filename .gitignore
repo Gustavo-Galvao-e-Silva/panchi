@@ -13,5 +13,9 @@ build/
 # Local env files
 .env
 
-# Random stuff
+# MacOS stuff
 .DS_Store
+
+# Local tests
+tests/test_manim.py
+tests/test_matplot.py
