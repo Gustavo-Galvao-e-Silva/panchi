@@ -97,7 +97,7 @@ class Matrix:
             other_data = [[x] for x in other]
             return_vector = True
         else:
-            other_data = other.copy()
+            other_data = other.data
             return_vector = False
 
         result = []
@@ -106,7 +106,7 @@ class Matrix:
             for j in range(len(other_data[0])):
                 val = 0
                 for k in range(self.cols):
-                    val += self[i][k] * other_data[k][j]
+                    val += self.data[i][k] * other_data[k][j]
                 new_row.append(val)
             result.append(new_row)
 
@@ -115,6 +115,37 @@ class Matrix:
             return Vector(flattened)
         else:
             return Matrix(result)
+
+    def _get_submatrix(self, excluded_row: int, excluded_col: int) -> Matrix:
+        """
+        Return the submatrix formed by deleting one row and one column.
+
+        Used internally when computing cofactors for the determinant.
+
+        Parameters
+        ----------
+        excluded_row : int
+            The index of the row to remove.
+        excluded_col : int
+            The index of the column to remove.
+
+        Returns
+        -------
+        Matrix
+            The (n-1)×(n-1) submatrix with the specified row and column removed.
+        """
+        result = []
+        for i in range(self.rows):
+            if i == excluded_row:
+                continue
+            row = []
+            for j in range(self.cols):
+                if j == excluded_col:
+                    continue
+                row.append(self.data[i][j])
+            result.append(row)
+
+        return Matrix(result)
 
     def __getitem__(self, index: int) -> list[int | float]:
         """
@@ -241,7 +272,7 @@ class Matrix:
         for i in range(row_num):
             new_row = []
             for j in range(col_num):
-                new_row.append(self[i][j] + other[i][j])
+                new_row.append(self.data[i][j] + other.data[i][j])
             result.append(new_row)
 
         return Matrix(result)
@@ -297,7 +328,7 @@ class Matrix:
         for i in range(row_num):
             new_row = []
             for j in range(col_num):
-                new_row.append(self[i][j] - other[i][j])
+                new_row.append(self.data[i][j] - other.data[i][j])
             result.append(new_row)
 
         return Matrix(result)
@@ -413,7 +444,7 @@ class Matrix:
         for i in range(row_num):
             new_row = []
             for j in range(col_num):
-                new_row.append(self[i][j] * other)
+                new_row.append(self.data[i][j] * other)
             result.append(new_row)
 
         return Matrix(result)
@@ -536,7 +567,7 @@ class Matrix:
         row_num, col_num = self.shape
         for i in range(row_num):
             for j in range(col_num):
-                if self[i][j] != other[i][j]:
+                if self.data[i][j] != other.data[i][j]:
                     return False
 
         return True
@@ -694,11 +725,17 @@ class Matrix:
     @property
     def determinant(self) -> float:
         """
-        Calculate the determinant of the matrix.
+        Calculate the determinant of the matrix using cofactor expansion.
 
         The determinant is a scalar value that encodes certain properties
-        of the matrix, including whether it's invertible. Only defined
+        of the matrix, including whether it's invertible (det ≠ 0) and
+        how it scales areas or volumes under transformation. Only defined
         for square matrices.
+
+        Computed by expanding along the first row: for each entry in the
+        first row, multiply it by its cofactor (the signed determinant of
+        the submatrix formed by removing that entry's row and column), then
+        sum the results.
 
         Returns
         -------
@@ -710,15 +747,13 @@ class Matrix:
         ValueError
             If the matrix is not square.
 
-        Notes
-        -----
-        This method is not yet implemented.
-
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> m.determinant
-        -2.0
+        -2
+        >>> Matrix([[6]]).determinant
+        6
         """
         if not self.is_square:
             raise ValueError(
@@ -727,7 +762,23 @@ class Matrix:
                 f"Determinants are only defined for square matrices (n×n)."
             )
 
-        pass
+        if self.rows == 1:
+            return self.data[0][0]
+
+        if self.rows == 2:
+            return (self.data[0][0] * self.data[1][1]) - (
+                self.data[0][1] * self.data[1][0]
+            )
+
+        det = 0
+        for j in range(self.cols):
+            entry = self.data[0][j]
+            if entry != 0:
+                sign = (-1) ** j
+                submatrix = self._get_submatrix(0, j)
+                det += sign * entry * submatrix.determinant
+
+        return det
 
     @property
     def trace(self) -> int | float:
@@ -762,7 +813,7 @@ class Matrix:
             )
 
         n = self.rows
-        return sum(self[i][i] for i in range(n))
+        return sum(self.data[i][i] for i in range(n))
 
     def get_row(self, index: int) -> list[int | float]:
         """
@@ -798,7 +849,7 @@ class Matrix:
                 f"Row index must be an integer. Got {type(index).__name__}."
             )
 
-        return self[index].copy()
+        return self.data[index].copy()
 
     def get_col(self, index: int) -> list[int | float]:
         """
@@ -834,7 +885,7 @@ class Matrix:
                 f"Column index must be an integer. Got {type(index).__name__}."
             )
 
-        return [self[i][index] for i in range(self.rows)]
+        return [self.data[i][index] for i in range(self.rows)]
 
     def get_rows(self) -> list[list[int | float]]:
         """
@@ -851,7 +902,7 @@ class Matrix:
         >>> m.get_rows()
         [[1, 2], [3, 4]]
         """
-        return [row.copy() for row in self]
+        return [row.copy() for row in self.data]
 
     def get_cols(
         self, to_vector: bool = False
@@ -890,6 +941,7 @@ class Matrix:
             )
 
         result = [[self.data[i][j] for i in range(self.rows)] for j in range(self.cols)]
+
         if to_vector:
             return [Vector(col) for col in result]
 
