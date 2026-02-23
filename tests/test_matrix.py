@@ -415,6 +415,141 @@ class TestMatrixTrace:
             _ = m.trace
 
 
+class TestMatrixDeterminant:
+    """Test cases for Matrix determinant property."""
+
+    def test_determinant_1x1(self):
+        m = Matrix([[7]])
+        print(f"\n✓ det([[7]]) = {m.determinant} (expected 7)")
+        assert m.determinant == 7
+
+    def test_determinant_1x1_negative(self):
+        m = Matrix([[-3]])
+        print(f"\n✓ det([[-3]]) = {m.determinant} (expected -3)")
+        assert m.determinant == -3
+
+    def test_determinant_2x2(self):
+        m = Matrix([[1, 2], [3, 4]])
+        print(f"\n✓ det([[1,2],[3,4]]) = {m.determinant} (expected -2)")
+        assert m.determinant == -2
+
+    def test_determinant_2x2_positive(self):
+        m = Matrix([[3, 1], [2, 4]])
+        print(f"\n✓ det([[3,1],[2,4]]) = {m.determinant} (expected 10)")
+        assert m.determinant == 10
+
+    def test_determinant_2x2_zero(self):
+        m = Matrix([[1, 2], [2, 4]])
+        print(f"\n✓ det([[1,2],[2,4]]) = {m.determinant} (expected 0, singular matrix)")
+        assert m.determinant == 0
+
+    def test_determinant_2x2_identity(self):
+        m = Matrix([[1, 0], [0, 1]])
+        print(f"\n✓ det(I_2) = {m.determinant} (expected 1)")
+        assert m.determinant == 1
+
+    def test_determinant_3x3(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        print(f"\n✓ det(3x3 singular) = {m.determinant} (expected 0)")
+        assert m.determinant == 0
+
+    def test_determinant_3x3_nonzero(self):
+        m = Matrix([[1, 2, 0], [3, 4, 5], [6, 0, 7]])
+        print(f"\n✓ det([[1,2,0],[3,4,5],[6,0,7]]) = {m.determinant} (expected 46)")
+        assert m.determinant == 46
+
+    def test_determinant_3x3_identity(self):
+        m = Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        print(f"\n✓ det(I_3) = {m.determinant} (expected 1)")
+        assert m.determinant == 1
+
+    def test_determinant_4x4(self):
+        m = Matrix(
+            [
+                [1, 2, 3, 4],
+                [5, 6, 7, 8],
+                [9, 10, 11, 12],
+                [13, 14, 15, 16],
+            ]
+        )
+        print(f"\n✓ det(4x4 singular) = {m.determinant} (expected 0)")
+        assert m.determinant == 0
+
+    def test_determinant_4x4_nonzero(self):
+        m = Matrix(
+            [
+                [2, 1, 0, 0],
+                [1, 3, 1, 0],
+                [0, 1, 4, 1],
+                [0, 0, 1, 5],
+            ]
+        )
+        print(f"\n✓ det(4x4 tridiagonal) = {m.determinant} (expected 85)")
+        assert m.determinant == 85
+
+    def test_determinant_upper_triangular(self):
+        m = Matrix([[2, 3, 5], [0, 4, 7], [0, 0, 6]])
+        print(
+            f"\n✓ det(upper triangular) = {m.determinant} (expected 48, product of diagonal)"
+        )
+        assert m.determinant == 48
+
+    def test_determinant_lower_triangular(self):
+        m = Matrix([[3, 0, 0], [5, 2, 0], [1, 4, 6]])
+        print(
+            f"\n✓ det(lower triangular) = {m.determinant} (expected 36, product of diagonal)"
+        )
+        assert m.determinant == 36
+
+    def test_determinant_with_zeros_on_first_row(self):
+        m = Matrix([[0, 1, 2], [3, 4, 5], [6, 7, 8]])
+        print(f"\n✓ det(first row starts with zeros) = {m.determinant} (expected 0)")
+        assert m.determinant == 0
+
+    def test_determinant_with_all_zeros_first_row(self):
+        m = Matrix([[0, 0, 0], [1, 2, 3], [4, 5, 6]])
+        print(f"\n✓ det(all-zero first row) = {m.determinant} (expected 0)")
+        assert m.determinant == 0
+
+    def test_determinant_non_square_raises(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        print(f"\n✓ det(non-square) → raises ValueError")
+        with pytest.raises(ValueError):
+            _ = m.determinant
+
+    def test_determinant_scalar_multiple(self):
+        m = Matrix([[2, 4], [6, 8]])
+        print(f"\n✓ det([[2,4],[6,8]]) = {m.determinant} (expected -8)")
+        assert m.determinant == -8
+
+    def test_determinant_negative_entries(self):
+        m = Matrix([[-1, -2], [-3, -4]])
+        print(f"\n✓ det([[-1,-2],[-3,-4]]) = {m.determinant} (expected -2)")
+        assert m.determinant == -2
+
+    def test_determinant_float_entries(self):
+        m = Matrix([[1.5, 2.0], [3.0, 4.5]])
+        print(f"\n✓ det([[1.5,2.0],[3.0,4.5]]) = {m.determinant} (expected 0.75)")
+        assert abs(m.determinant - 0.75) < 1e-10
+
+    def test_determinant_matches_ad_minus_bc(self):
+        m = Matrix([[5, 7], [2, 3]])
+        expected = (5 * 3) - (7 * 2)
+        print(f"\n✓ det([[5,7],[2,3]]) = {m.determinant} (expected {expected})")
+        assert m.determinant == expected
+
+    def test_determinant_transpose_equal(self):
+        m = Matrix([[1, 2, 3], [0, 4, 5], [1, 0, 6]])
+        print(f"\n✓ det(M) == det(M.T)")
+        assert m.determinant == m.T.determinant
+
+    def test_determinant_product_rule(self):
+        m1 = Matrix([[1, 2], [3, 4]])
+        m2 = Matrix([[5, 6], [7, 8]])
+        print(f"\n✓ det(M1 @ M2) == det(M1) * det(M2)")
+        assert abs((m1 @ m2).determinant - (m1.determinant * m2.determinant)) < 1e-10
+
+
 class TestMatrixGetMethods:
     """Test cases for Matrix get_row, get_col, get_rows, get_cols methods."""
 
@@ -527,6 +662,40 @@ class TestMatrixIdentityProperties:
         result = m @ m.right_identity
         print(f"\n✓ M * I_right = M")
         assert result.data == m.data
+
+
+class TestMatrixSubmatrix:
+    """Test cases for the internal _get_submatrix method."""
+
+    def test_submatrix_removes_first_row_first_col(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        sub = m._get_submatrix(0, 0)
+        print(f"\n✓ submatrix(0,0) of 3x3 = {sub.data} (expected [[5,6],[8,9]])")
+        assert sub.data == [[5, 6], [8, 9]]
+
+    def test_submatrix_removes_middle_row_middle_col(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        sub = m._get_submatrix(1, 1)
+        print(f"\n✓ submatrix(1,1) of 3x3 = {sub.data} (expected [[1,3],[7,9]])")
+        assert sub.data == [[1, 3], [7, 9]]
+
+    def test_submatrix_removes_last_row_last_col(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        sub = m._get_submatrix(2, 2)
+        print(f"\n✓ submatrix(2,2) of 3x3 = {sub.data} (expected [[1,2],[4,5]])")
+        assert sub.data == [[1, 2], [4, 5]]
+
+    def test_submatrix_shape(self):
+        m = Matrix([[1, 2, 3, 4], [5, 6, 7, 8], [9, 10, 11, 12], [13, 14, 15, 16]])
+        sub = m._get_submatrix(0, 0)
+        print(f"\n✓ submatrix of 4x4 → shape={sub.shape} (expected (3,3))")
+        assert sub.shape == (3, 3)
+
+    def test_submatrix_of_2x2(self):
+        m = Matrix([[3, 7], [2, 5]])
+        sub = m._get_submatrix(0, 1)
+        print(f"\n✓ submatrix(0,1) of 2x2 = {sub.data} (expected [[2]])")
+        assert sub.data == [[2]]
 
 
 class TestMatrixConversions:
