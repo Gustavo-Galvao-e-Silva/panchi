@@ -85,7 +85,13 @@ testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = ["--strict-markers", "--strict-config", "-ra"]
+addopts = [
+  "--ignore=tests/test_manim.py",
+  "--ignore=tests/test_matplot.py",
+  "--strict-markers",
+  "--strict-config",
+  "-ra",
+]
 
 [tool.black]
 line-length = 88

@@ -1,5 +1,5 @@
 import pytest
-from math import pi, sqrt, isclose
+from math import pi, isclose
 
 import mathrix as mx
 
