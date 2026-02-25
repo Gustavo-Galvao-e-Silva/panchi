@@ -9,7 +9,7 @@ __version__ = "0.1.0"
 
 from mathrix.primitives.vector import Vector
 from mathrix.primitives.matrix import Matrix
-from mathrix.operations import (
+from mathrix.factories import (
     identity,
     zero_matrix,
     one_matrix,
@@ -21,6 +21,8 @@ from mathrix.operations import (
     random_matrix,
     rotation_matrix_2d,
     rotation_matrix_3d,
+)
+from mathrix.operations import (
     dot,
     cross,
 )
