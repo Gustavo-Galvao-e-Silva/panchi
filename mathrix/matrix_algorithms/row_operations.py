@@ -5,7 +5,7 @@ from mathrix.primitives.matrix import Matrix
 from mathrix.factories import identity
 
 
-class Operation(ABC):
+class RowOperation(ABC):
     """
     Abstract base class for elementary row operations.
 
@@ -89,7 +89,7 @@ class Operation(ABC):
         pass
 
     @abstractmethod
-    def inverse(self) -> Operation:
+    def inverse(self) -> RowOperation:
         """
         Return the inverse of this operation.
 
@@ -104,21 +104,34 @@ class Operation(ABC):
 
         Returns
         -------
-        Operation
-            A new Operation instance that undoes this one.
+        RowOperation
+            A new RowOperation instance that undoes this one.
         """
         pass
 
     @abstractmethod
     def __str__(self) -> str:
         """
-        Return a human-readable description of this operation.
+        Return the standard row operation notation for this operation.
 
         Returns
         -------
         str
-            A string using standard row operation notation, such as
-            'R0 <-> R2', 'R1 -> 3 * R1', or 'R2 -> R2 + (-3) * R0'.
+            A string such as 'R0 <-> R2', 'R1 -> 3 * R1', or
+            'R2 -> R2 + (-3) * R0'.
+        """
+        pass
+
+    @abstractmethod
+    def __repr__(self) -> str:
+        """
+        Return a constructor-style string for data inspection.
+
+        Returns
+        -------
+        str
+            A string showing the class name and all arguments needed to
+            recreate this operation, such as 'RowSwap(row_a=0, row_b=2)'.
         """
         pass
 
@@ -170,7 +183,7 @@ class Operation(ABC):
             )
 
 
-class RowSwap(Operation):
+class RowSwap(RowOperation):
     """
     Elementary row operation: swap two rows.
 
@@ -200,6 +213,8 @@ class RowSwap(Operation):
      [1, 0, 0]]
     >>> print(op)
     R0 <-> R2
+    >>> repr(op)
+    'RowSwap(row_a=0, row_b=2)'
     """
 
     def __init__(self, row_a: int, row_b: int) -> None:
@@ -351,15 +366,18 @@ class RowSwap(Operation):
         --------
         >>> op = RowSwap(0, 2)
         >>> op.inverse()
-        RowSwap(0, 2)
+        RowSwap(row_a=0, row_b=2)
         """
         return RowSwap(self.a, self.b)
 
     def __str__(self) -> str:
         return f"R{self.a} <-> R{self.b}"
 
+    def __repr__(self) -> str:
+        return f"RowSwap(row_a={self.a}, row_b={self.b})"
 
-class RowScale(Operation):
+
+class RowScale(RowOperation):
     """
     Elementary row operation: multiply a row by a non-zero scalar.
 
@@ -389,6 +407,8 @@ class RowScale(Operation):
      [0, 3]]
     >>> print(op)
     R1 -> 3 * R1
+    >>> repr(op)
+    'RowScale(row=1, scalar=3)'
     """
 
     def __init__(self, row: int, scalar: int | float) -> None:
@@ -549,15 +569,18 @@ class RowScale(Operation):
         --------
         >>> op = RowScale(1, 3)
         >>> op.inverse()
-        RowScale(1, 1/3)
+        RowScale(row=1, scalar=0.3333333333333333)
         """
         return RowScale(self.row, 1 / self.scalar)
 
     def __str__(self) -> str:
         return f"R{self.row} -> {self.scalar} * R{self.row}"
 
+    def __repr__(self) -> str:
+        return f"RowScale(row={self.row}, scalar={self.scalar})"
 
-class RowAdd(Operation):
+
+class RowAdd(RowOperation):
     """
     Elementary row operation: add a scalar multiple of one row to another.
 
@@ -592,6 +615,8 @@ class RowAdd(Operation):
      [-3, 1]]
     >>> print(op)
     R1 -> R1 + (-3) * R0
+    >>> repr(op)
+    'RowAdd(target=1, source=0, scalar=-3)'
     """
 
     def __init__(self, target: int, source: int, scalar: int | float) -> None:
@@ -770,3 +795,8 @@ class RowAdd(Operation):
 
     def __str__(self) -> str:
         return f"R{self.target} -> R{self.target} + ({self.scalar}) * R{self.source}"
+
+    def __repr__(self) -> str:
+        return (
+            f"RowAdd(target={self.target}, source={self.source}, scalar={self.scalar})"
+        )
