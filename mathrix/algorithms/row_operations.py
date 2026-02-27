@@ -2,7 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 
 from mathrix.primitives.matrix import Matrix
-from mathrix.factories import identity
+from mathrix.primitives.factories import identity
 
 
 class RowOperation(ABC):

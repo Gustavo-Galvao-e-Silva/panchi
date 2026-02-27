@@ -1,8 +1,9 @@
 import pytest
 
 from mathrix.primitives.matrix import Matrix
-from mathrix.matrix_algorithms.row_operations import RowAdd, RowScale, RowSwap
-from mathrix.matrix_algorithms.reductions import Reduction, ref, rref
+from mathrix.primitives.factories import identity
+from mathrix.algorithms.row_operations import RowAdd, RowScale, RowSwap
+from mathrix.algorithms.reductions import ref, rref
 
 
 def assert_matrices_equal(a: Matrix, b: Matrix) -> None:
@@ -374,8 +375,6 @@ class TestRef:
     """Test row echelon form reduction."""
 
     def test_ref_of_identity_is_identity(self):
-        from mathrix.factories import identity
-
         m = identity(3)
         assert_matrices_equal(ref(m).result, m)
 
@@ -501,16 +500,12 @@ class TestRref:
     """Test reduced row echelon form reduction."""
 
     def test_rref_of_identity_is_identity(self):
-        from mathrix.factories import identity
-
         m = identity(3)
         assert_matrices_equal(rref(m).result, m)
 
     def test_rref_2x2_result(self):
         # REF: [[1,2],[0,-2]] -> scale R1 by -1/2: [[1,2],[0,1]]
         # R0 -> R0 + (-2)*R1: [[1,0],[0,1]]
-        from mathrix.factories import identity
-
         m = Matrix([[1, 2], [3, 4]])
         assert_matrices_equal(rref(m).result, identity(2))
 
@@ -525,8 +520,6 @@ class TestRref:
         assert reduction.nullity == 0
 
     def test_rref_3x3_result(self):
-        from mathrix.factories import identity
-
         m = Matrix([[1, 2, 3], [2, 5, 7], [0, 1, 2]])
         assert_matrices_equal(rref(m).result, identity(3))
 

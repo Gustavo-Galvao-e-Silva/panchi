@@ -7,8 +7,8 @@ used in Gaussian elimination, and reductions apply those operations
 systematically to bring a matrix into REF or RREF.
 """
 
-from mathrix.matrix_algorithms.row_operations import RowSwap, RowScale, RowAdd
-from mathrix.matrix_algorithms.reductions import Reduction, ref, rref
+from mathrix.algorithms.row_operations import RowSwap, RowScale, RowAdd
+from mathrix.algorithms.reductions import Reduction, ref, rref
 
 __all__ = [
     "RowSwap",

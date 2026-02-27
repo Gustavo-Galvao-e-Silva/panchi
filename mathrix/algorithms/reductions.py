@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from mathrix.primitives.matrix import Matrix
-from mathrix.matrix_algorithms.row_operations import (
+from mathrix.algorithms.row_operations import (
     RowOperation,
     RowAdd,
     RowScale,
