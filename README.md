@@ -5,6 +5,7 @@
 The goal is not performance. The goal is **clarity**.
 
 [![TestCI](https://github.com/Gustavo-Galvao-e-Silva/panchi/workflows/TestCI/badge.svg)](https://github.com/Gustavo-Galvao-e-Silva/panchi/actions/workflows/panchi-test.yml)
+[![PyPI version](https://img.shields.io/pypi/v/panchi.svg)](https://pypi.org/project/panchi/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -83,15 +84,25 @@ Think of panchi as a **laboratory notebook**, not a production engine.
 
 ## Installation
 
-panchi is under active development. To use the latest version:
+```bash
+pip install panchi
+```
+
+**Requirements:** Python 3.10 or higher
+
+For the optional Manim-powered visualizations:
+
+```bash
+pip install panchi[manim]
+```
+
+To install from source for development:
 
 ```bash
 git clone https://github.com/Gustavo-Galvao-e-Silva/panchi.git
 cd panchi
-pip install -e .
+pip install -e ".[dev]"
 ```
-
-**Requirements:** Python 3.10 or higher
 
 ---
 
@@ -140,68 +151,16 @@ right_side = B.T * A.T
 assert left_side == right_side
 ```
 
-### 2. **Teaching and Demonstrations**
-Show students exactly how matrix multiplication works:
-```python
-# Every step is visible and inspectable
-m = Matrix([[1, 2], [3, 4]])
-v = Vector([5, 6])
-
-result = m * v
-```
-
-### 3. **Algorithm Prototyping**
-Develop and test linear algebra algorithms before optimization:
-```python
-def gram_schmidt(vectors):
-    orthogonal = []
-    for v in vectors:
-        for u in orthogonal:
-            projection = (dot(v, u) / dot(u, u)) * u
-            v = v - projection
-        orthogonal.append(v.normalize())
-    return orthogonal
-```
-
-### 4. **Visual Exploration**
-*(Coming soon)* Experiment with transformations and see results immediately:
-```python
-# Visualize how rotation matrices affect vectors
-rotation = rotation_matrix_2d(pi / 4)
-vectors = [Vector([1, 0]), Vector([0, 1]), Vector([1, 1])]
-transformed = [rotation * v for v in vectors]
-
-plot_transformation(vectors, transformed)
-```
-
 ---
 
 ## Contributing
 
-Contributions are welcome and encouraged! panchi values clarity and educational merit above all else.
+panchi welcomes contributions that align with its educational mission:
 
-### What We're Looking For
-
-**High Priority**
-- Matrix determinant and inverse implementations
-- Decomposition algorithms (LU, QR, SVD)
-- Visualization utilities for 2D and 3D transformations
-- Educational examples and tutorials
-- Documentation improvements
-
-**Also Welcome**
-- Bug fixes with test cases
-- Performance improvements that don't sacrifice readability
-- Additional utility functions
-- More comprehensive error messages
-
-### Contribution Guidelines
-
-1. **Readability First** – Code should be understandable by someone learning linear algebra
-2. **No External Dependencies** – Core functionality uses only Python standard library
-3. **Comprehensive Tests** – Include pytest tests demonstrating correctness
-4. **Descriptive Docstrings** – Follow NumPy documentation style
-5. **Mathematical Accuracy** – Verify implementations against textbook algorithms
+1. **Clarity First** – Code should be readable by someone learning linear algebra
+2. **Tests Required** – All new features need comprehensive pytest tests
+3. **Descriptive Docstrings** – Follow NumPy documentation style
+4. **Mathematical Accuracy** – Verify implementations against textbook algorithms
 
 ### How to Contribute
 
@@ -228,9 +187,9 @@ Full documentation will be available at [panchi.readthedocs.io](https://panchi.r
 
 ## Project Status
 
-**Current Version:** 0.1.0-alpha (Early Development)
+**Current Version:** 0.1.0a1 (Alpha)
 
-panchi is actively developed but not yet feature-complete. APIs may change as the library evolves. The project is built deliberately and carefully to maintain clarity and educational value.
+panchi is in early alpha. It is installable and the core primitives are functional, but APIs may change as the library evolves. Not recommended for production use. Feedback and contributions are very welcome.
 
 ---
 
@@ -238,7 +197,6 @@ panchi is actively developed but not yet feature-complete. APIs may change as th
 
 - **Issues:** Report bugs or request features via [GitHub Issues](https://github.com/Gustavo-Galvao-e-Silva/panchi/issues)
 - **Discussions:** Ask questions in [GitHub Discussions](https://github.com/Gustavo-Galvao-e-Silva/panchi/discussions)
-- **Email:** contact@panchi-dev.org *(coming soon)*
 
 ---
 
