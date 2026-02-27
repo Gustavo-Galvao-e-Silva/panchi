@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mathrix.primitives.vector import Vector
+from panchi.primitives.vector import Vector
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> float:

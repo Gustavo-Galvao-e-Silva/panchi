@@ -1,7 +1,7 @@
-from mathrix.primitives.matrix import Matrix
-from mathrix.primitives.factories import identity
-from mathrix.algorithms.decompositions import lu
-from mathrix.algorithms.results import LUDecomposition
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.factories import identity
+from panchi.algorithms.decompositions import lu
+from panchi.algorithms.results import LUDecomposition
 
 # ==================== LU RESULT OBJECT TESTS ====================
 
@@ -92,7 +92,7 @@ class TestLUFactorisationInvariant:
         assert decomp.permutation @ m == decomp.lower @ decomp.upper
 
     def test_diagonal_matrix(self):
-        from mathrix.primitives.factories import diagonal
+        from panchi.primitives.factories import diagonal
 
         m = diagonal([2, 3, 4])
         decomp = lu(m)

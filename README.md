@@ -1,28 +1,28 @@
-# mathrix
+# panchi
 
-**mathrix** is a Python-native linear algebra library designed for learning, experimentation, and visual intuition.
+**panchi** is a Python-native linear algebra library designed for learning, experimentation, and visual intuition.
 
 The goal is not performance. The goal is **clarity**.
 
-[![TestCI](https://github.com/Gustavo-Galvao-e-Silva/mathrix/workflows/TestCI/badge.svg)](https://github.com/Gustavo-Galvao-e-Silva/mathrix/actions/workflows/mathrix-test.yml)
+[![TestCI](https://github.com/Gustavo-Galvao-e-Silva/panchi/workflows/TestCI/badge.svg)](https://github.com/Gustavo-Galvao-e-Silva/panchi/actions/workflows/panchi-test.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 ---
 
-## Why mathrix?
+## Why panchi?
 
-Most linear algebra libraries optimize for speed and abstraction. mathrix optimizes for **understanding**.
+Most linear algebra libraries optimize for speed and abstraction. panchi optimizes for **understanding**.
 
-mathrix is built for:
+panchi is built for:
 - **Students** learning linear algebra who want to see the math happen, not just trust a black box
 - **Educators** who need transparent implementations to demonstrate concepts in lectures or workshops
 - **Self-learners** building intuition through experimentation and visual feedback
 - **Researchers** prototyping algorithms where readability matters more than runtime
 - **Developers** who want to understand what's happening under the hood before optimizing
 
-Think of mathrix as a **laboratory notebook**, not a production engine.
+Think of panchi as a **laboratory notebook**, not a production engine.
 
 ---
 
@@ -83,11 +83,11 @@ Think of mathrix as a **laboratory notebook**, not a production engine.
 
 ## Installation
 
-mathrix is under active development. To use the latest version:
+panchi is under active development. To use the latest version:
 
 ```bash
-git clone https://github.com/Gustavo-Galvao-e-Silva/mathrix.git
-cd mathrix
+git clone https://github.com/Gustavo-Galvao-e-Silva/panchi.git
+cd panchi
 pip install -e .
 ```
 
@@ -98,8 +98,8 @@ pip install -e .
 ## Quick Start
 
 ```python
-from mathrix.primitives import Vector, Matrix
-from mathrix.operations import dot, identity, rotation_matrix_2d
+from panchi.primitives import Vector, Matrix
+from panchi.operations import dot, identity, rotation_matrix_2d
 from math import pi
 
 # Vector operations
@@ -178,7 +178,7 @@ plot_transformation(vectors, transformed)
 
 ## Contributing
 
-Contributions are welcome and encouraged! mathrix values clarity and educational merit above all else.
+Contributions are welcome and encouraged! panchi values clarity and educational merit above all else.
 
 ### What We're Looking For
 
@@ -217,7 +217,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Documentation
 
-Full documentation will be available at [mathrix.readthedocs.io](https://mathrix.readthedocs.io) *(coming soon)*
+Full documentation will be available at [panchi.readthedocs.io](https://panchi.readthedocs.io) *(coming soon)*
 
 - **API Reference** – Complete function and class documentation
 - **Tutorials** – Step-by-step guides for common operations
@@ -230,15 +230,15 @@ Full documentation will be available at [mathrix.readthedocs.io](https://mathrix
 
 **Current Version:** 0.1.0-alpha (Early Development)
 
-mathrix is actively developed but not yet feature-complete. APIs may change as the library evolves. The project is built deliberately and carefully to maintain clarity and educational value.
+panchi is actively developed but not yet feature-complete. APIs may change as the library evolves. The project is built deliberately and carefully to maintain clarity and educational value.
 
 ---
 
 ## Support
 
-- **Issues:** Report bugs or request features via [GitHub Issues](https://github.com/Gustavo-Galvao-e-Silva/mathrix/issues)
-- **Discussions:** Ask questions in [GitHub Discussions](https://github.com/Gustavo-Galvao-e-Silva/mathrix/discussions)
-- **Email:** contact@mathrix-dev.org *(coming soon)*
+- **Issues:** Report bugs or request features via [GitHub Issues](https://github.com/Gustavo-Galvao-e-Silva/panchi/issues)
+- **Discussions:** Ask questions in [GitHub Discussions](https://github.com/Gustavo-Galvao-e-Silva/panchi/discussions)
+- **Email:** contact@panchi-dev.org *(coming soon)*
 
 ---
 
@@ -250,7 +250,7 @@ MIT License – see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-mathrix is inspired by educational resources that prioritize understanding:
+panchi is inspired by educational resources that prioritize understanding:
 - Gilbert Strang's *Introduction to Linear Algebra*
 - 3Blue1Brown's *Essence of Linear Algebra* video series
 - The desire to make linear algebra accessible and visual
@@ -259,10 +259,10 @@ mathrix is inspired by educational resources that prioritize understanding:
 
 ## Final Note
 
-mathrix exists to answer a simple question:
+panchi exists to answer a simple question:
 
 > **"What is linear algebra actually *doing*?"**
 
-If you've ever felt frustrated by libraries that hide the mathematics behind abstractions, or if you want to *see* transformations happen rather than just trust the output, mathrix is for you.
+If you've ever felt frustrated by libraries that hide the mathematics behind abstractions, or if you want to *see* transformations happen rather than just trust the output, panchi is for you.
 
 Linear algebra is beautiful. Let's make it visible.

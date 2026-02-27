@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from mathrix.primitives.matrix import Matrix
-from mathrix.primitives.factories import identity
-from mathrix.algorithms.reductions import ref
-from mathrix.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from mathrix.algorithms.results import LUDecomposition
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.factories import identity
+from panchi.algorithms.reductions import ref
+from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
+from panchi.algorithms.results import LUDecomposition
 
 
 def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:

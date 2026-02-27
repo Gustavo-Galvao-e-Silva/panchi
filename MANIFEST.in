@@ -1,9 +1,9 @@
 include README.md
 include LICENSE
 include pyproject.toml
-include mathrix/py.typed
+include panchi/py.typed
 
-recursive-include mathrix *.py
+recursive-include panchi *.py
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude tests *

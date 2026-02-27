@@ -1,6 +1,6 @@
 import pytest
 
-from mathrix.primitives.vector import Vector
+from panchi.primitives.vector import Vector
 
 # ==================== VECTOR TESTS ====================
 

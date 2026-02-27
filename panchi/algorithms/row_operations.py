@@ -1,8 +1,8 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 
-from mathrix.primitives.matrix import Matrix
-from mathrix.primitives.factories import identity
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.factories import identity
 
 
 class RowOperation(ABC):
