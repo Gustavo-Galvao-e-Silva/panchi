@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from mathrix.primitives.matrix import Matrix
-from mathrix.algorithms.results import Reduction
-from mathrix.algorithms.row_operations import (
+from panchi.primitives.matrix import Matrix
+from panchi.algorithms.results import Reduction
+from panchi.algorithms.row_operations import (
     RowOperation,
     RowAdd,
     RowScale,

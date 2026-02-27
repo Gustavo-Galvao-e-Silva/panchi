@@ -1,15 +1,15 @@
 """
-Mathrix - A Python-native linear algebra library for learning and experimentation.
+Panchi - A Python-native linear algebra library for learning and experimentation.
 
-Mathrix prioritizes clarity and understanding over performance, making it ideal
+Panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
 __version__ = "0.1.0"
 
-from mathrix.primitives.vector import Vector
-from mathrix.primitives.matrix import Matrix
-from mathrix.primitives.factories import (
+from panchi.primitives.vector import Vector
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.factories import (
     identity,
     zero_matrix,
     one_matrix,
@@ -22,7 +22,7 @@ from mathrix.primitives.factories import (
     rotation_matrix_2d,
     rotation_matrix_3d,
 )
-from mathrix.primitives.vector_operations import (
+from panchi.primitives.vector_operations import (
     dot,
     cross,
 )

@@ -1,5 +1,5 @@
 """
-Visualization module for Mathrix.
+Visualization module for Panchi.
 
 Provides tools for creating beautiful 2D and 3D visualizations of vectors,
 matrices, and linear transformations.
@@ -8,8 +8,8 @@ Examples
 --------
 Basic usage with matplotlib (default):
 
->>> from mathrix.visualizations import Animator2D
->>> from mathrix.primitives.vector import Vector
+>>> from panchi.visualizations import Animator2D
+>>> from panchi.primitives.vector import Vector
 >>>
 >>> animator = Animator2D()
 >>> v1 = Vector([3, 2])
@@ -33,6 +33,6 @@ Saving animations:
 >>> animator.animate_addition(v1, v2, name='vector_sum')
 """
 
-from mathrix.visualizations.animator_2d import Animator2D
+from panchi.visualizations.animator_2d import Animator2D
 
 __all__ = ["Animator2D"]

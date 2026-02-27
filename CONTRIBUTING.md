@@ -1,6 +1,6 @@
-# Contributing to mathrix
+# Contributing to panchi
 
-Thank you for your interest in contributing to mathrix! This guide will help you understand our development philosophy and contribution process.
+Thank you for your interest in contributing to panchi! This guide will help you understand our development philosophy and contribution process.
 
 ---
 
@@ -21,7 +21,7 @@ Thank you for your interest in contributing to mathrix! This guide will help you
 
 ## Philosophy and Values
 
-mathrix is built on the following core principles. Every contribution should align with them:
+panchi is built on the following core principles. Every contribution should align with them:
 
 ### 1. Clarity Over Optimization
 Code should be understandable by someone learning linear algebra. A clear implementation beats a clever one.
@@ -86,8 +86,8 @@ Although these are guides, if they are blocking the advancement of this library'
 ### 1. Fork and Clone
 ```bash
 # Fork the repository on GitHub, then:
-git clone https://github.com/YOUR-USERNAME/mathrix.git
-cd mathrix
+git clone https://github.com/YOUR-USERNAME/panchi.git
+cd panchi
 ```
 
 ### 2. Create Virtual Environment
@@ -103,7 +103,7 @@ pip install -e ".[dev]"
 
 ### 4. Verify Installation
 ```bash
-python -c "from mathrix.primitives import Vector; print(Vector([1, 2, 3]))"
+python -c "from panchi.primitives import Vector; print(Vector([1, 2, 3]))"
 pytest tests/
 ```
 
@@ -118,7 +118,7 @@ git checkout -b feature/your-feature-name
 
 ### File Organization
 ```
-mathrix/
+panchi/
 ├── primitives/        # Core classes (Vector, Matrix)
 ├── operations.py      # Standalone functions
 └── visualizations/     # Plotting utilities
@@ -251,7 +251,7 @@ pytest tests/test_vector.py
 pytest tests/ -v
 
 # Run with coverage report
-pytest tests/ --cov=mathrix
+pytest tests/ --cov=panchi
 ```
 
 ---
@@ -528,8 +528,8 @@ All contributors are recognized in:
 
 ## License
 
-By contributing to mathrix, you agree that your contributions will be licensed under the MIT License.
+By contributing to panchi, you agree that your contributions will be licensed under the MIT License.
 
 ---
 
-**Thank you for contributing to mathrix! Your work helps make linear algebra more accessible and understandable for everyone!**
+**Thank you for contributing to panchi! Your work helps make linear algebra more accessible and understandable for everyone!**

@@ -2,8 +2,8 @@ from __future__ import annotations
 import random
 from math import pi, cos, sin
 
-from mathrix.primitives.vector import Vector
-from mathrix.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
+from panchi.primitives.matrix import Matrix
 
 
 def identity(n: int) -> Matrix:

@@ -1,9 +1,9 @@
 import pytest
 
-from mathrix.primitives.matrix import Matrix
-from mathrix.primitives.factories import identity
-from mathrix.algorithms.row_operations import RowAdd, RowScale, RowSwap
-from mathrix.algorithms.reductions import ref, rref
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.factories import identity
+from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
+from panchi.algorithms.reductions import ref, rref
 
 
 def assert_matrices_equal(a: Matrix, b: Matrix) -> None:
