@@ -1,11 +1,11 @@
 """
-Panchi - A Python-native linear algebra library for learning and experimentation.
+panchi - A Python-native linear algebra library for learning and experimentation.
 
-Panchi prioritizes clarity and understanding over performance, making it ideal
+panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.0a1"
 
 from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix

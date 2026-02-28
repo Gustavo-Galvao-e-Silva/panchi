@@ -69,6 +69,7 @@ all = ["panchi[manim,dev]"]
 packages = [
   "panchi",
   "panchi.primitives",
+  "panchi.algorithms",
   "panchi.visualizations",
   "panchi.visualizations.backends",
 ]
