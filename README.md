@@ -10,14 +10,14 @@ The goal is not performance. The goal is **clarity**.
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-* We use Maninm (which requires C-libraries) for improved visualizations, but it is not core to the library.
+* We use Manim (which requires C-libraries) for improved visualizations, but it is not core to the library.
 ---
 
 ## Why panchi?
 
 Most linear algebra libraries optimize for speed and abstraction. panchi optimizes for **understanding**.
 
-panchi is built for students who want to see the math happen, educators who need transparent implementations, and anyone who has ever wondered what linear algeabra is *actually about*.
+panchi is built for students who want to see the math happen, educators who need transparent implementations, and anyone who has ever wondered what linear algebra is *actually about*.
 
 Think of it as a **lab**, not a production engine.
 
