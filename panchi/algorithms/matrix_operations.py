@@ -3,6 +3,7 @@ from panchi.primitives.factories import identity
 from panchi.algorithms.row_operations import RowOperation
 from panchi.algorithms.results import InverseResult
 from panchi.algorithms.reductions import rref
+from panchi.algorithms.decompositions import lu
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
@@ -12,11 +13,20 @@ def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
 
     return result
 
-def _calculate_main_diagonal_product
+def _main_diagonal_product(matrix: Matrix) -> float:
+    result = 1
+    n = matrix.rows
+    for i in range(n):
+        result *= matrix[i][i]
+
+    return result
 
 def inverse(matrix: Matrix) -> InverseResult:
     if not isinstance(matrix, Matrix):
         raise TypeError(f"Inverse calculation expects a matrix. Got: {type(matrix).__name__}")
+
+    if not matrix.is_square:
+        raise ValueError("")
 
     n = matrix.rows
     matrix_rref = rref(matrix)
@@ -33,4 +43,9 @@ def determinant_lu(matrix: Matrix) -> float:
     if not isinstance(matrix, Matrix):
         raise TypeError(f"Determinant calculation expects a matrix. Got: {type(matrix).__name__}")
 
+    if not matrix.is_square:
+        raise ValueError("")
 
+    matrix_lu = lu(matrix)
+    u = matrix_lu.upper
+    return _main_diagonal_product(u)
