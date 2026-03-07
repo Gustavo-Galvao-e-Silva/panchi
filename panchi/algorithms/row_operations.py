@@ -1,7 +1,9 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
+from typing import overload
 
 from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
 from panchi.primitives.factories import identity
 
 
@@ -15,9 +17,9 @@ class RowOperation(ABC):
 
         apply(M) == elementary_matrix(M.rows) @ M
 
-    This relationship is the foundation of LU decomposition, Gaussian
-    elimination, and other factorization algorithms: a sequence of row
-    operations corresponds to a product of elementary matrices.
+    The same operation can also be applied directly to a Vector, treating it
+    as a single-column structure. This is used when solving linear systems by
+    applying the reduction steps from A to the right-hand side vector b.
 
     Subclasses
     ----------
@@ -29,31 +31,43 @@ class RowOperation(ABC):
         Add a scalar multiple of one row to another: R_t -> R_t + c * R_s.
     """
 
-    @abstractmethod
-    def apply(self, matrix: Matrix) -> Matrix:
-        """
-        Apply this operation to a matrix, returning the result.
+    @overload
+    def apply(self, target: Matrix) -> Matrix: ...
 
-        Does not modify the input matrix. The result satisfies:
+    @overload
+    def apply(self, target: Vector) -> Vector: ...
+
+    @abstractmethod
+    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
+        """
+        Apply this operation to a matrix or vector, returning the result.
+
+        Does not modify the input. When applied to a Matrix, the result
+        satisfies:
 
             apply(M) == elementary_matrix(M.rows) @ M
 
+        When applied to a Vector, the operation acts on the vector's
+        components using the same row indices, treating the vector as a
+        single-column matrix.
+
         Parameters
         ----------
-        matrix : Matrix
-            The matrix to operate on.
+        target : Matrix | Vector
+            The matrix or vector to operate on.
 
         Returns
         -------
-        Matrix
-            A new matrix with the operation applied.
+        Matrix | Vector
+            A new Matrix or Vector with the operation applied. The return
+            type matches the input type.
 
         Raises
         ------
         TypeError
-            If matrix is not a Matrix instance.
+            If target is not a Matrix or Vector instance.
         ValueError
-            If the operation's row indices are out of range for this matrix.
+            If the operation's row indices are out of range for this target.
         """
         pass
 
@@ -135,24 +149,24 @@ class RowOperation(ABC):
         """
         pass
 
-    def _validate_matrix(self, matrix: Matrix) -> None:
+    def _validate_target(self, target: Matrix | Vector) -> None:
         """
-        Validate that the argument is a Matrix instance.
+        Validate that the argument is a Matrix or Vector instance.
 
         Parameters
         ----------
-        matrix : Matrix
+        target : Matrix | Vector
             The object to validate.
 
         Raises
         ------
         TypeError
-            If matrix is not a Matrix instance.
+            If target is not a Matrix or Vector instance.
         """
-        if not isinstance(matrix, Matrix):
+        if not isinstance(target, (Matrix, Vector)):
             raise TypeError(
-                f"Expected a Matrix, but got {type(matrix).__name__}. "
-                f"Row operations can only be applied to Matrix objects."
+                f"Expected a Matrix or Vector, but got {type(target).__name__}. "
+                f"Row operations can only be applied to Matrix or Vector objects."
             )
 
     def _validate_n(self, n: int) -> None:
@@ -207,6 +221,9 @@ class RowSwap(RowOperation):
     [[5, 6],
      [3, 4],
      [1, 2]]
+    >>> v = Vector([1, 2, 3])
+    >>> print(op.apply(v))
+    [3, 2, 1]
     >>> print(op.elementary_matrix(3))
     [[0, 0, 1],
      [0, 1, 0],
@@ -248,7 +265,7 @@ class RowSwap(RowOperation):
         Parameters
         ----------
         n : int
-            Number of rows in the target matrix.
+            Number of rows in the target matrix or vector.
 
         Raises
         ------
@@ -306,49 +323,55 @@ class RowSwap(RowOperation):
         self._validate_indices(n)
 
         grid: Matrix = identity(n)
-
         row_a: list[int | float] = grid[self.a].copy()
         row_b: list[int | float] = grid[self.b].copy()
-
         grid[self.a] = row_b
         grid[self.b] = row_a
 
         return grid
 
-    def apply(self, matrix: Matrix) -> Matrix:
+    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
         """
-        Swap rows a and b of a matrix, returning the result.
+        Swap rows a and b of a matrix or vector, returning the result.
 
         Parameters
         ----------
-        matrix : Matrix
-            The matrix to operate on.
+        target : Matrix | Vector
+            The matrix or vector to operate on.
 
         Returns
         -------
-        Matrix
-            A new matrix with rows a and b exchanged.
+        Matrix | Vector
+            A new matrix or vector with the two entries exchanged.
 
         Raises
         ------
         TypeError
-            If matrix is not a Matrix instance.
+            If target is not a Matrix or Vector instance.
         ValueError
-            If either row index is out of range for this matrix.
+            If either row index is out of range for this target.
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4], [5, 6]])
-        >>> op = RowSwap(0, 2)
-        >>> print(op.apply(m))
+        >>> print(RowSwap(0, 2).apply(m))
         [[5, 6],
          [3, 4],
          [1, 2]]
+        >>> v = Vector([1, 2, 3])
+        >>> print(RowSwap(0, 2).apply(v))
+        [3, 2, 1]
         """
-        self._validate_matrix(matrix)
-        self._validate_indices(matrix.rows)
+        self._validate_target(target)
+        n = target.dims if isinstance(target, Vector) else target.rows
+        self._validate_indices(n)
 
-        return self.elementary_matrix(matrix.rows) @ matrix
+        if isinstance(target, Vector):
+            result = target.copy()
+            result[self.a], result[self.b] = target[self.b], target[self.a]
+            return result
+
+        return self.elementary_matrix(target.rows) @ target
 
     def inverse(self) -> RowSwap:
         """
@@ -402,6 +425,9 @@ class RowScale(RowOperation):
     >>> print(op.apply(m))
     [[1, 2],
      [9, 12]]
+    >>> v = Vector([1, 2])
+    >>> print(op.apply(v))
+    [1, 6]
     >>> print(op.elementary_matrix(2))
     [[1, 0],
      [0, 3]]
@@ -433,12 +459,12 @@ class RowScale(RowOperation):
 
     def _validate_row(self, n: int) -> None:
         """
-        Validate that the row index is in range for a matrix of size n.
+        Validate that the row index is in range for a matrix or vector of size n.
 
         Parameters
         ----------
         n : int
-            Number of rows in the target matrix.
+            Number of rows in the target matrix or vector.
 
         Raises
         ------
@@ -513,45 +539,52 @@ class RowScale(RowOperation):
         self._validate_scalar()
 
         grid: Matrix = identity(n)
-
         grid[self.row][self.row] = self.scalar
 
         return grid
 
-    def apply(self, matrix: Matrix) -> Matrix:
+    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
         """
-        Multiply a row of a matrix by the scalar, returning the result.
+        Multiply a row of a matrix or vector by the scalar, returning the result.
 
         Parameters
         ----------
-        matrix : Matrix
-            The matrix to operate on.
+        target : Matrix | Vector
+            The matrix or vector to operate on.
 
         Returns
         -------
-        Matrix
-            A new matrix with the specified row multiplied by scalar.
+        Matrix | Vector
+            A new matrix or vector with the specified row multiplied by scalar.
 
         Raises
         ------
         TypeError
-            If matrix is not a Matrix instance, or scalar is not a number.
+            If target is not a Matrix or Vector instance, or scalar is not a number.
         ValueError
             If scalar is zero or the row index is out of range.
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
-        >>> op = RowScale(0, -1)
-        >>> print(op.apply(m))
+        >>> print(RowScale(0, -1).apply(m))
         [[-1, -2],
          [3, 4]]
+        >>> v = Vector([1, 2])
+        >>> print(RowScale(0, -1).apply(v))
+        [-1, 2]
         """
-        self._validate_matrix(matrix)
-        self._validate_row(matrix.rows)
+        self._validate_target(target)
+        n = target.dims if isinstance(target, Vector) else target.rows
+        self._validate_row(n)
         self._validate_scalar()
 
-        return self.elementary_matrix(matrix.rows) @ matrix
+        if isinstance(target, Vector):
+            result = target.copy()
+            result[self.row] = target[self.row] * self.scalar
+            return result
+
+        return self.elementary_matrix(target.rows) @ target
 
     def inverse(self) -> RowScale:
         """
@@ -610,6 +643,9 @@ class RowAdd(RowOperation):
     >>> print(op.apply(m))
     [[1,  2],
      [0, -2]]
+    >>> v = Vector([1, 2])
+    >>> print(op.apply(v))
+    [1, -1]
     >>> print(op.elementary_matrix(2))
     [[1,  0],
      [-3, 1]]
@@ -652,7 +688,7 @@ class RowAdd(RowOperation):
         Parameters
         ----------
         n : int
-            Number of rows in the target matrix.
+            Number of rows in the target matrix or vector.
 
         Raises
         ------
@@ -732,46 +768,53 @@ class RowAdd(RowOperation):
         self._validate_scalar()
 
         grid: Matrix = identity(n)
-
         grid[self.target][self.source] = self.scalar
 
         return grid
 
-    def apply(self, matrix: Matrix) -> Matrix:
+    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
         """
         Add scalar times the source row to the target row, returning the result.
 
         Parameters
         ----------
-        matrix : Matrix
-            The matrix to operate on.
+        target : Matrix | Vector
+            The matrix or vector to operate on.
 
         Returns
         -------
-        Matrix
-            A new matrix where row target has been replaced by
-            row target + scalar * row source.
+        Matrix | Vector
+            A new matrix or vector where the target row has been replaced by
+            target row + scalar * source row.
 
         Raises
         ------
         TypeError
-            If matrix is not a Matrix instance, or scalar is not a number.
+            If target is not a Matrix or Vector instance, or scalar is not a number.
         ValueError
             If indices are out of range or target equals source.
 
         Examples
         --------
         >>> m = Matrix([[2, 1], [6, 4]])
-        >>> op = RowAdd(target=1, source=0, scalar=-3)
-        >>> print(op.apply(m))
+        >>> print(RowAdd(target=1, source=0, scalar=-3).apply(m))
         [[2, 1],
          [0, 1]]
+        >>> v = Vector([2, 6])
+        >>> print(RowAdd(target=1, source=0, scalar=-3).apply(v))
+        [2, 0]
         """
-        self._validate_matrix(matrix)
-        self._validate_indices(matrix.rows)
+        self._validate_target(target)
+        n = target.dims if isinstance(target, Vector) else target.rows
+        self._validate_indices(n)
         self._validate_scalar()
 
-        return self.elementary_matrix(matrix.rows) @ matrix
+        if isinstance(target, Vector):
+            result = target.copy()
+            result[self.target] = target[self.target] + self.scalar * target[self.source]
+            return result
+
+        return self.elementary_matrix(target.rows) @ target
 
     def inverse(self) -> RowAdd:
         """
