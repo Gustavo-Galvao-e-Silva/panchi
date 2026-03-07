@@ -22,7 +22,7 @@ from panchi.primitives.factories import (
     rotation_matrix_2d,
     rotation_matrix_3d,
 )
-from panchi.primitives.vector_operations import (
+from panchi.algorithms.vector_operations import (
     dot,
     cross,
 )

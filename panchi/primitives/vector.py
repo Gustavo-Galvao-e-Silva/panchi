@@ -323,6 +323,42 @@ class Vector:
         """
         return -1 * self
 
+    def __eq__(self, other: object) -> bool:
+        """
+        Check if two vectors are equal.
+
+        Vectors are equal if they have the same dimension and all
+        corresponding components are equal.
+
+        Parameters
+        ----------
+        other : object
+            The object to compare with.
+
+        Returns
+        -------
+        bool
+            True if vectors are equal, False otherwise.
+
+        Examples
+        --------
+        >>> Vector([1, 2, 3]) == Vector([1, 2, 3])
+        True
+        >>> Vector([1, 2, 3]) == Vector([1, 2, 4])
+        False
+        """
+        if not isinstance(other, Vector):
+            return NotImplemented
+
+        if self.dims != other.dims:
+            return False
+
+        for i in range(self.dims):
+            if self.data[i] != other.data[i]:
+                return False
+
+        return True
+
     def __str__(self) -> str:
         """
         Return a string representation of the vector.
