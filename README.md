@@ -1,6 +1,6 @@
 # panchi
 
-**panchi** is a Python-native* linear algebra library designed for learning, experimentation, and visual intuition.
+**panchi** is a Python-native linear algebra library designed for learning, experimentation, and visual intuition.
 
 The goal is not performance. The goal is **clarity**.
 
@@ -9,8 +9,6 @@ The goal is not performance. The goal is **clarity**.
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
-*We use Manim (which requires C-libraries) for improved visualizations, but it is not core to the library.
 
 ---
 
@@ -27,7 +25,7 @@ Think of it as a **lab**, not a production engine.
 ## Philosophy
 
 1. **Explicit over implicit** – Algorithms are implemented directly, not delegated to opaque backends
-2. **Readable over clever** – Code prioritizes clarity and educational value over terse optimizations or extreme pythonism
+2. **Readable over clever** – Code prioritizes clarity and educational value over terse optimizations and pythonisms
 3. **Mathematical over computational** – Objects behave like mathematical entities with proper operator overloading
 4. **Visual by default** – Visualization is a first-class feature, not an afterthought
 5. **Informative errors** – Error messages guide learning by explaining what went wrong and why
@@ -80,7 +78,7 @@ Full documentation, user guides, and the API reference are available at
 
 ## Contributing
 
-panchi welcomes contributions that align with its educational mission. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+panchi welcomes contributions that align with its educational mission. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Thanks to all of our contributors, whose names can be found in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ---
 
