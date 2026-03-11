@@ -5,7 +5,7 @@ panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "0.1.0a1"
+__version__ = "0.2.0a1"
 
 from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
