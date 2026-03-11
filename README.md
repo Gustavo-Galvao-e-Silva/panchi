@@ -72,7 +72,7 @@ print(reduction.rank)   # 3
 ## Documentation
 
 Full documentation, user guides, and the API reference are available at
-**[panchi.readthedocs.io](https://panchi.readthedocs.io)** *(coming soon)*
+**[https://gustavo-galvao-e-silva.github.io/panchi/]([https://git](https://gustavo-galvao-e-silva.github.io/panchi/))** *(coming soon)*
 
 ---
 
