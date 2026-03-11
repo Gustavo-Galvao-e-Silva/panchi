@@ -1,0 +1,2779 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python-native linear algebra library for learning, experimentation, and visual intuition.">
+      
+      
+      
+        <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/contributing/">
+      
+      
+        <link rel="prev" href="../api/algorithms/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+    
+    
+      
+        <title>Contributing - panchi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contributing-to-panchi" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="panchi" class="md-header__button md-logo" aria-label="panchi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            panchi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Contributing
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Gustavo-Galvao-e-Silva/panchi" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panchi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="panchi" class="md-nav__button md-logo" aria-label="panchi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    panchi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Gustavo-Galvao-e-Silva/panchi" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    panchi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/vectors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vectors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/matrices/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Matrices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/transformations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linear Transformations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/row-operations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Row Operations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/row-reduction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Row Reduction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/decompositions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decompositions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/solving-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Solving Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/panchi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/algorithms/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#philosophy-and-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy and Values
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Philosophy and Values">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clarity-over-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clarity Over Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-educational-value-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Educational Value First
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mathematical-correctness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Mathematical Correctness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-informative-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Informative Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-minimal-external-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Minimal External Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-break-any-of-these-principles-for-education" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Break Any of These Principles for Education
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Started
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#first-contribution-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Contribution Ideas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fork-and-clone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Fork and Clone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create Virtual Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-in-development-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Install in Development Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Verify Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-feature-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Create Feature Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Naming Conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Hints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimalist-comments-except-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimalist Comments (Except Docstrings)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-debugprint-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No Debug/Print Statements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-over-implicit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit Over Implicit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-every-public-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Every Public Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-file-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test File Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-naming-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Naming Convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-good-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing Good Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Error Messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-tests-before-submitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Tests Before Submitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docstring-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docstring Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docstring-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docstring Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-descriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter Descriptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples-in-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples in Docstrings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribution-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contribution Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contribution Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-an-issue-optional-but-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create an Issue (Optional but Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-write-your-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Write Your Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-update-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Update Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-run-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Run Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-commit-your-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Commit Your Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-push-and-create-pull-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Push and Create Pull Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-respond-to-review-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Respond to Review Feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-were-looking-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We're Looking For
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What We&#39;re Looking For">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-priority-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Priority Contributions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High Priority Contributions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-qr-decomposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. QR Decomposition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-visualization-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Visualization Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#also-welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Also Welcome
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-currently-seeking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not Currently Seeking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Review Process
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Review Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-reviewers-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Reviewers Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#approval-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approval Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#community-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Community Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Community Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#be-respectful" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Respectful
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#be-collaborative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Collaborative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#be-patient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Patient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ask-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ask Questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recognition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recognition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#philosophy-and-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy and Values
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Philosophy and Values">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-clarity-over-optimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Clarity Over Optimization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-educational-value-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Educational Value First
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-mathematical-correctness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Mathematical Correctness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-informative-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Informative Errors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-minimal-external-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Minimal External Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-break-any-of-these-principles-for-education" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Break Any of These Principles for Education
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Started
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#first-contribution-ideas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        First Contribution Ideas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#development-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Development Setup
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Development Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-fork-and-clone" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Fork and Clone
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-virtual-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Create Virtual Environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-install-in-development-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Install in Development Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-verify-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Verify Installation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-feature-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Create Feature Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#naming-conventions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Naming Conventions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-hints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Hints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimalist-comments-except-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Minimalist Comments (Except Docstrings)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-debugprint-statements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No Debug/Print Statements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-over-implicit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit Over Implicit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Requirements
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Requirements">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-every-public-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Every Public Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-file-organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test File Organization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-naming-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Naming Convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#writing-good-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing Good Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#test-error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Test Error Messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#run-tests-before-submitting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run Tests Before Submitting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation Standards
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation Standards">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docstring-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docstring Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#docstring-sections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docstring Sections
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameter-descriptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parameter Descriptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#examples-in-docstrings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples in Docstrings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contribution-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contribution Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Contribution Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-create-an-issue-optional-but-recommended" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Create an Issue (Optional but Recommended)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-write-your-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Write Your Code
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-update-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Update Documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-run-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Run Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-commit-your-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Commit Your Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-push-and-create-pull-request" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Push and Create Pull Request
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-respond-to-review-feedback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Respond to Review Feedback
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-were-looking-for" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What We're Looking For
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What We&#39;re Looking For">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#high-priority-contributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        High Priority Contributions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="High Priority Contributions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-qr-decomposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. QR Decomposition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-visualization-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Visualization Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#also-welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Also Welcome
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#not-currently-seeking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not Currently Seeking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-review-process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code Review Process
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Code Review Process">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-reviewers-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Reviewers Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#approval-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approval Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#community-guidelines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Community Guidelines
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Community Guidelines">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#be-respectful" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Respectful
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#be-collaborative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Collaborative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#be-patient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Be Patient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ask-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ask Questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Help
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#recognition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recognition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        License
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="contributing-to-panchi">Contributing to panchi</h1>
+<p>Thank you for your interest in contributing to panchi! This guide will help you understand our development philosophy and contribution process.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#philosophy-and-values">Philosophy and Values</a></li>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#development-setup">Development Setup</a></li>
+<li><a href="#code-standards">Code Standards</a></li>
+<li><a href="#testing-requirements">Testing Requirements</a></li>
+<li><a href="#documentation-standards">Documentation Standards</a></li>
+<li><a href="#contribution-workflow">Contribution Workflow</a></li>
+<li><a href="#what-were-looking-for">What We're Looking For</a></li>
+<li><a href="#code-review-process">Code Review Process</a></li>
+<li><a href="#community-guidelines">Community Guidelines</a></li>
+</ol>
+<hr />
+<h2 id="philosophy-and-values">Philosophy and Values</h2>
+<p>panchi is built on the following core principles. Every contribution should align with them:</p>
+<h3 id="1-clarity-over-optimization">1. Clarity Over Optimization</h3>
+<p>Code should be understandable by someone learning linear algebra. A clear implementation beats a clever one.</p>
+<p><strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span><span class="n">vector_1</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">vector_2</span><span class="p">:</span> <span class="n">Vector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">vector_1</span><span class="o">.</span><span class="n">dims</span> <span class="o">!=</span> <span class="n">vector_2</span><span class="o">.</span><span class="n">dims</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Vector dimensions must match for dot product.&quot;</span><span class="p">)</span>
+
+    <span class="n">n</span> <span class="o">=</span> <span class="n">vector_1</span><span class="o">.</span><span class="n">dims</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">vector_1</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="n">vector_2</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+</code></pre></div></p>
+<p><strong>Avoid:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dot</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nb">zip</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)))</span>
+</code></pre></div></p>
+<p>The second version is more concise but less transparent about what's happening.</p>
+<h3 id="2-educational-value-first">2. Educational Value First</h3>
+<p>Implementations should focus on teaching linear algebra, instead of simplifying or obscuring calculations.</p>
+<h3 id="3-mathematical-correctness">3. Mathematical Correctness</h3>
+<p>Implementations must match standard mathematical definitions and textbook algorithms.</p>
+<h3 id="4-informative-errors">4. Informative Errors</h3>
+<p>Error messages should explain what went wrong and why, helping users learn.</p>
+<h3 id="5-minimal-external-dependencies">5. Minimal External Dependencies</h3>
+<p>The core library (i.e. vector and matrix implementations and operations/algorithms) esclusively uses Python's standard library to remain transparent and accessible. </p>
+<p>Additional features such as visualizations should strive to minimize dependencies, especially those that rely on packages that are not solely setup with pip (e.g. Manim, which relies on C libraries, though this case is provided as an optional package for prettier visualizations, and greatly improves learning).</p>
+<h3 id="6-break-any-of-these-principles-for-education">6. Break Any of These Principles for Education</h3>
+<p>Although these are guides, if they are blocking the advancement of this library's purpose: break them. It's that simple!</p>
+<hr />
+<h2 id="getting-started">Getting Started</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li>Python 3.10+</li>
+<li>Git</li>
+<li>pytest (for testing)</li>
+<li>Basic understanding of linear algebra</li>
+<li>Familiarity with type hints</li>
+</ul>
+<h3 id="first-contribution-ideas">First Contribution Ideas</h3>
+<ul>
+<li>Fix typos in documentation</li>
+<li>Add test cases for edge conditions</li>
+<li>Improve error messages</li>
+<li>Write examples in the docs</li>
+<li>Implement small utility functions</li>
+</ul>
+<hr />
+<h2 id="development-setup">Development Setup</h2>
+<h3 id="1-fork-and-clone">1. Fork and Clone</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Fork the repository on GitHub, then:</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Gustavo-Galvao-e-Silva/panchi.git
+<span class="nb">cd</span><span class="w"> </span>panchi
+</code></pre></div>
+<h3 id="2-create-virtual-environment">2. Create Virtual Environment</h3>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<span class="nb">source</span><span class="w"> </span>.venv/bin/activate<span class="w">  </span><span class="c1"># On Windows: .venv\Scripts\activate</span>
+</code></pre></div>
+<h3 id="3-install-in-development-mode">3. Install in Development Mode</h3>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</code></pre></div>
+<h3 id="4-verify-installation">4. Verify Installation</h3>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from panchi.primitives import Vector; print(Vector([1, 2, 3]))&quot;</span>
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+</code></pre></div>
+<h3 id="5-create-feature-branch">5. Create Feature Branch</h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/your-feature-name
+</code></pre></div>
+<hr />
+<h2 id="code-standards">Code Standards</h2>
+<h3 id="file-organization">File Organization</h3>
+<div class="highlight"><pre><span></span><code>panchi/
+├── primitives/        # Core classes (Vector, Matrix) and factory functions
+├── algorithms/        # Reductions, decompositions, and other complex algorithms
+└── visualizations/    # Plotting utilities
+</code></pre></div>
+<h3 id="naming-conventions">Naming Conventions</h3>
+<ul>
+<li><strong>Classes:</strong> <code>PascalCase</code> (e.g., <code>Vector</code>, <code>Matrix</code>)</li>
+<li><strong>Functions:</strong> <code>snake_case</code> (e.g., <code>dot</code>, <code>cross</code>, <code>rotation_matrix_2d</code>)</li>
+<li><strong>Constants:</strong> <code>UPPER_SNAKE_CASE</code> (if needed)</li>
+<li><strong>Private/helper methods:</strong> <code>_leading_underscore</code> (e.g., <code>_apply_transformation</code>)</li>
+</ul>
+<h3 id="type-hints">Type Hints</h3>
+<p>Always include type hints and guards. They're documentation and help catch errors.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">zero_vector</span><span class="p">(</span><span class="n">dims</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vector</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimension must be an integer. Got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">dims</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dims</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimension must be positive. Got </span><span class="si">{</span><span class="n">dims</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dims</span><span class="p">)])</span>
+</code></pre></div>
+<h3 id="minimalist-comments-except-docstrings">Minimalist Comments (Except Docstrings)</h3>
+<p>Some comments in more complex implementations are genuinely welcome, but if you find yourself needing many comments to explain what the code does, that's usually a sign to refactor rather than annotate.</p>
+<p><strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">ref</span><span class="p">(</span><span class="n">matrix</span><span class="p">:</span> <span class="n">Matrix</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Reduction</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">matrix</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">operations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pivots</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">matrix</span><span class="o">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">matrix</span><span class="o">.</span><span class="n">rows</span><span class="p">)):</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">swap_operations</span> <span class="o">=</span> <span class="n">_swap_pivot</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">operations</span> <span class="o">+=</span> <span class="n">swap_operations</span>
+        <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">addition_operations</span> <span class="o">=</span> <span class="n">_add_below_pivot</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="n">operations</span> <span class="o">+=</span> <span class="n">addition_operations</span>
+        <span class="n">pivots</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">operations</span><span class="p">,</span> <span class="n">pivots</span><span class="p">,</span> <span class="s2">&quot;REF&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Avoid:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reduce</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n">Matrix</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">ops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">pvts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">cols</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">rows</span><span class="p">)):</span>
+        <span class="c1"># Find a non-zero row below i in column j and swap it into position</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">_sp</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">ops</span> <span class="o">+=</span> <span class="n">s</span>
+        <span class="c1"># No pivot in this column, move on</span>
+        <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># Zero out all rows below the pivot row</span>
+        <span class="n">r</span><span class="p">,</span> <span class="n">a</span> <span class="o">=</span> <span class="n">_ab</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">ops</span> <span class="o">+=</span> <span class="n">a</span>
+        <span class="n">pvts</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># Return the result along with the recorded operations and pivot positions</span>
+    <span class="k">return</span> <span class="n">Reduction</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">ops</span><span class="p">,</span> <span class="n">pvts</span><span class="p">,</span> <span class="s2">&quot;REF&quot;</span><span class="p">)</span>
+</code></pre></div></p>
+<h3 id="no-debugprint-statements">No Debug/Print Statements</h3>
+<p>Never commit code with <code>print()</code> statements for debugging. Use proper logging if necessary, or remove them entirely.</p>
+<h3 id="explicit-over-implicit">Explicit Over Implicit</h3>
+<p>Be clear about what operations are happening.</p>
+<p><strong>Good:</strong>
+<div class="highlight"><pre><span></span><code><span class="n">row_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rows</span>
+<span class="n">col_count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cols</span>
+<span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">row_count</span><span class="p">):</span>
+    <span class="n">new_row</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">col_count</span><span class="p">):</span>
+        <span class="n">new_row</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+    <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_row</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>Avoid:</strong>
+<div class="highlight"><pre><span></span><code><span class="k">return</span> <span class="n">Matrix</span><span class="p">([[</span><span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">other</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cols</span><span class="p">)]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rows</span><span class="p">)])</span>
+</code></pre></div></p>
+<hr />
+<h2 id="testing-requirements">Testing Requirements</h2>
+<h3 id="test-every-public-function">Test Every Public Function</h3>
+<p>All public functions and methods must have tests covering:
+- Normal operation
+- Edge cases
+- Error conditions
+- Type validation</p>
+<h3 id="test-file-organization">Test File Organization</h3>
+<div class="highlight"><pre><span></span><code>tests/
+├── test_decompositions.py     # Decompositions function tests
+├── test_matrix.py             # Matrix class tests
+├── test_matrix_algorithms.py  # Matrix algorithm tests
+├── test_matrix_operations.py  # Matrix operation tests
+├── test_operations.py         # Operations function tests
+└── test_vector.py             # Vector class tests
+</code></pre></div>
+<h3 id="test-naming-convention">Test Naming Convention</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestVectorAddition</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_add_same_dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Test normal case</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_add_different_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Test error condition</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_add_zero_vector</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Test edge case</span>
+</code></pre></div>
+<h3 id="writing-good-tests">Writing Good Tests</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_matrix_multiplication_2x2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">m1</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+    <span class="n">m2</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">([[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">m1</span> <span class="o">*</span> <span class="n">m2</span>
+
+    <span class="n">expected</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">([[</span><span class="mi">19</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span> <span class="p">[</span><span class="mi">43</span><span class="p">,</span> <span class="mi">50</span><span class="p">]])</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">expected</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="test-error-messages">Test Error Messages</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_add_different_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="n">v1</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">v2</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">excinfo</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">+</span> <span class="n">v2</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;dimension&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">excinfo</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="run-tests-before-submitting">Run Tests Before Submitting</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Run all tests</span>
+pytest<span class="w"> </span>tests/
+
+<span class="c1"># Run specific test file</span>
+pytest<span class="w"> </span>tests/test_vector.py
+
+<span class="c1"># Run with verbose output</span>
+pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+
+<span class="c1"># Run with coverage report</span>
+pytest<span class="w"> </span>tests/<span class="w"> </span>--cov<span class="o">=</span>panchi
+</code></pre></div>
+<hr />
+<h2 id="documentation-standards">Documentation Standards</h2>
+<h3 id="docstring-format">Docstring Format</h3>
+<p>Use NumPy/Google style docstrings for all public functions and classes.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">rotation_matrix_2d</span><span class="p">(</span><span class="n">angle</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">,</span> <span class="n">radians</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Matrix</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a 2D rotation matrix.</span>
+
+<span class="sd">    Constructs a matrix that rotates points in 2D space by the specified</span>
+<span class="sd">    angle. The rotation is counterclockwise when using standard coordinate</span>
+<span class="sd">    orientation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    angle : int | float</span>
+<span class="sd">        Rotation angle. Interpreted as radians if radians=True,</span>
+<span class="sd">        degrees if radians=False.</span>
+<span class="sd">    radians : bool, optional</span>
+<span class="sd">        If True (default), angle is in radians. If False, angle is in degrees.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Matrix</span>
+<span class="sd">        A 2×2 rotation matrix.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from math import pi</span>
+<span class="sd">    &gt;&gt;&gt; rot90 = rotation_matrix_2d(pi / 2)</span>
+<span class="sd">    &gt;&gt;&gt; point = Vector([1, 0])</span>
+<span class="sd">    &gt;&gt;&gt; rotated = rot90 * point</span>
+<span class="sd">    &gt;&gt;&gt; print(rotated)</span>
+<span class="sd">    [0, 1]</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    rotation_matrix_3d : 3D rotation about an arbitrary axis</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">angle_radians</span> <span class="o">=</span> <span class="n">angle</span> <span class="k">if</span> <span class="n">radians</span> <span class="k">else</span> <span class="p">(</span><span class="n">angle</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span><span class="p">)</span>
+    <span class="n">cos_angle</span> <span class="o">=</span> <span class="n">cos</span><span class="p">(</span><span class="n">angle_radians</span><span class="p">)</span>
+    <span class="n">sin_angle</span> <span class="o">=</span> <span class="n">sin</span><span class="p">(</span><span class="n">angle_radians</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Matrix</span><span class="p">([[</span><span class="n">cos_angle</span><span class="p">,</span> <span class="o">-</span><span class="n">sin_angle</span><span class="p">],</span> <span class="p">[</span><span class="n">sin_angle</span><span class="p">,</span> <span class="n">cos_angle</span><span class="p">]])</span>
+</code></pre></div>
+<h3 id="docstring-sections">Docstring Sections</h3>
+<p>Include these sections as appropriate:
+- <strong>Short summary</strong> (one line)
+- <strong>Extended description</strong> (optional, for complex functions)
+- <strong>Parameters</strong> (all parameters with types and descriptions)
+- <strong>Returns</strong> (return type and description)
+- <strong>Raises</strong> (exceptions that can be raised)
+- <strong>Examples</strong> (working code examples)
+- <strong>See Also</strong> (related functions)
+- <strong>Notes</strong> (implementation details, algorithms used)</p>
+<h3 id="parameter-descriptions">Parameter Descriptions</h3>
+<p>Be specific about constraints:</p>
+<div class="highlight"><pre><span></span><code><span class="n">Parameters</span>
+<span class="o">----------</span>
+<span class="n">dims</span> <span class="p">:</span> <span class="nb">int</span>
+    <span class="n">Number</span> <span class="n">of</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">vector</span><span class="o">.</span> <span class="n">Must</span> <span class="n">be</span> <span class="n">positive</span><span class="o">.</span>
+<span class="n">index</span> <span class="p">:</span> <span class="nb">int</span>
+    <span class="n">Position</span> <span class="n">of</span> <span class="n">the</span> <span class="mi">1</span> <span class="n">component</span> <span class="p">(</span><span class="mi">0</span><span class="o">-</span><span class="n">indexed</span><span class="p">)</span><span class="o">.</span> <span class="n">Must</span> <span class="n">be</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">dims</span><span class="p">)</span><span class="o">.</span>
+</code></pre></div>
+<h3 id="examples-in-docstrings">Examples in Docstrings</h3>
+<ul>
+<li>Use actual code that can be copied and run</li>
+<li>Show expected output</li>
+<li>Cover common use cases</li>
+<li>Include edge cases when helpful</li>
+</ul>
+<hr />
+<h2 id="contribution-workflow">Contribution Workflow</h2>
+<h3 id="1-create-an-issue-optional-but-recommended">1. Create an Issue (Optional but Recommended)</h3>
+<p>Before starting work, create an issue describing:
+- What you want to add/fix
+- Why it's valuable
+- How you plan to implement it</p>
+<p>This helps avoid duplicate work and ensures alignment with project goals.</p>
+<h3 id="2-write-your-code">2. Write Your Code</h3>
+<p>Follow all code standards and write tests as you go.</p>
+<h3 id="3-update-documentation">3. Update Documentation</h3>
+<ul>
+<li>Add/update docstrings</li>
+<li>Update API documentation if needed</li>
+<li>Add examples if relevant</li>
+</ul>
+<h3 id="4-run-tests">4. Run Tests</h3>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>tests/<span class="w"> </span>-v
+</code></pre></div>
+<p>All tests must pass before submitting.</p>
+<h3 id="5-commit-your-changes">5. Commit Your Changes</h3>
+<p>Write clear, descriptive commit messages:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Good commit messages</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add determinant calculation for square matrices&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Fix dimension check in matrix multiplication&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Improve error message for incompatible vector addition&quot;</span>
+
+<span class="c1"># Avoid vague messages</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Update code&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Fix bug&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Changes&quot;</span>
+</code></pre></div>
+<h3 id="6-push-and-create-pull-request">6. Push and Create Pull Request</h3>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/your-feature-name
+OR
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>bug-fix/bug-name
+OR
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>documentation/change-name
+</code></pre></div>
+<p>Then create a pull request on GitHub with:
+- Clear title summarizing the change
+- Description of what changed and why
+- Reference to related issues
+- Examples of the new functionality</p>
+<h3 id="7-respond-to-review-feedback">7. Respond to Review Feedback</h3>
+<p>Reviewers may request changes. This is normal and helps maintain quality.</p>
+<hr />
+<h2 id="what-were-looking-for">What We're Looking For</h2>
+<h3 id="high-priority-contributions">High Priority Contributions</h3>
+<h4 id="1-qr-decomposition">1. QR Decomposition</h4>
+<p>Implement using Gram-Schmidt process.</p>
+<p><strong>Requirements:</strong>
+- Returns Q (orthogonal) and R (upper triangular)
+- Clear step-by-step implementation
+- Verification tests</p>
+<h4 id="2-visualization-tools">2. Visualization Tools</h4>
+<p>Create functions to visualize vectors and transformations.</p>
+<p><strong>Requirements:</strong>
+- Simple, clear visualizations
+- Works with existing Vector/Matrix classes
+- Matplotlib or Manim (optional dependency) 
+- Examples in documentation</p>
+<h3 id="also-welcome">Also Welcome</h3>
+<ul>
+<li><strong>Bug fixes</strong> with test cases</li>
+<li><strong>Documentation improvements</strong></li>
+<li><strong>Additional utility functions</strong> (with justification)</li>
+<li><strong>Performance improvements</strong> that maintain clarity</li>
+<li><strong>Educational examples</strong></li>
+<li><strong>Better error messages</strong></li>
+</ul>
+<h3 id="not-currently-seeking">Not Currently Seeking</h3>
+<ul>
+<li>Alternative implementations of existing features</li>
+<li>Features requiring external dependencies in core library</li>
+<li>Highly optimized but opaque implementations</li>
+<li>Features without clear educational value</li>
+</ul>
+<hr />
+<h2 id="code-review-process">Code Review Process</h2>
+<h3 id="what-reviewers-check">What Reviewers Check</h3>
+<ol>
+<li><strong>Correctness:</strong> Does it work? Are there bugs?</li>
+<li><strong>Clarity:</strong> Is the code easy to understand?</li>
+<li><strong>Tests:</strong> Are there comprehensive tests?</li>
+<li><strong>Documentation:</strong> Are docstrings complete and accurate?</li>
+<li><strong>Style:</strong> Does it follow project conventions?</li>
+<li><strong>Educational value:</strong> Does it help users learn?</li>
+</ol>
+<h3 id="approval-requirements">Approval Requirements</h3>
+<p>Pull requests need:
+- ✅ All tests passing
+- ✅ At least one maintainer approval
+- ✅ No unresolved conversations
+- ✅ Updated documentation</p>
+<hr />
+<h2 id="community-guidelines">Community Guidelines</h2>
+<h3 id="be-respectful">Be Respectful</h3>
+<ul>
+<li>Treat all contributors with respect</li>
+<li>Assume good intentions</li>
+<li>Provide constructive feedback</li>
+<li>Welcome newcomers</li>
+<li>Be kind to all in spite of such a cruel world :)</li>
+</ul>
+<h3 id="be-collaborative">Be Collaborative</h3>
+<ul>
+<li>Share knowledge</li>
+<li>Help others learn</li>
+<li>Credit contributions</li>
+<li>Build on each other's work</li>
+</ul>
+<h3 id="be-patient">Be Patient</h3>
+<ul>
+<li>Code review takes time</li>
+<li>Discussions may be lengthy</li>
+<li>Learning happens at different paces</li>
+</ul>
+<h3 id="ask-questions">Ask Questions</h3>
+<ul>
+<li>No question is too basic</li>
+<li>Clarify requirements before implementing</li>
+<li>Discuss design decisions</li>
+<li>Seek feedback early</li>
+</ul>
+<hr />
+<h2 id="getting-help">Getting Help</h2>
+<ul>
+<li><strong>Questions about implementation:</strong> Open a GitHub issue</li>
+<li><strong>Clarifying requirements:</strong> Comment on relevant issue/PR</li>
+<li><strong>General discussion:</strong> Use GitHub Discussions</li>
+<li><strong>Private concerns:</strong> Email maintainers (coming soon)</li>
+</ul>
+<hr />
+<h2 id="recognition">Recognition</h2>
+<p>All contributors are recognized in:
+- CONTRIBUTORS.md file
+- Release notes
+- Project README (for significant contributions)</p>
+<hr />
+<h2 id="license">License</h2>
+<p>By contributing to panchi, you agree that your contributions will be licensed under the MIT License.</p>
+<hr />
+<p><strong>Thank you for contributing to panchi! Your work helps make linear algebra more accessible and understandable for everyone!</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
