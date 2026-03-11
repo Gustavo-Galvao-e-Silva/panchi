@@ -13,6 +13,9 @@ build/
 # Local env files
 .env
 
+# Local Vim setup
+.ignore
+
 # MacOS stuff
 .DS_Store
 
