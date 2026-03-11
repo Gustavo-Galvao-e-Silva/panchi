@@ -10,6 +10,9 @@ dist/
 build/
 *.egg-info/
 
+# Documentation
+site/
+
 # Local env files
 .env
 

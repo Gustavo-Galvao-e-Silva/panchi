@@ -67,4 +67,4 @@ The step-by-step output is panchi's most distinctive feature — every algorithm
 
 ---
 
-From here, explore the [User Guide](../user-guide/vectors.md) for the concepts and math behind each part of the library.
+From here, explore the [User Guide](user-guide/vectors.md) for the concepts and math behind each part of the library.

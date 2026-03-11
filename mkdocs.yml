@@ -1,6 +1,6 @@
 site_name: panchi
 site_description: A Python-native linear algebra library for learning, experimentation, and visual intuition.
-site_url: https://panchi.readthedocs.io
+site_url: https://gustavo-galvao-e-silva.github.io/panchi
 repo_url: https://github.com/Gustavo-Galvao-e-Silva/panchi
 repo_name: panchi
 
@@ -46,9 +46,7 @@ extra_javascript:
 
 nav:
   - Home: index.md
-  - Getting Started:
-    - Installation: getting-started/installation.md
-    - Quickstart: getting-started/quickstart.md
+  - Getting Started: quickstart.md
   - User Guide:
     - Vectors: user-guide/vectors.md
     - Matrices: user-guide/matrices.md
@@ -60,5 +58,4 @@ nav:
   - API Reference:
     - panchi: api/panchi.md
     - panchi.algorithms: api/algorithms.md
-    - panchi.visualizations: api/visualizations.md
   - Contributing: contributing.md

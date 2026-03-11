@@ -15,7 +15,7 @@ panchi's central philosophy can be summed up in the following points:
 
 ## Where to start
 
-If you are new to panchi, begin with the [Quickstart](getting-started/quickstart.md) — it covers the core ideas in a few minutes.
+If you are new to panchi, begin with the [Getting started](quickstart.md) — it covers the core ideas in a few minutes.
 
 If you are looking for a specific function or class, go straight to the [API Reference](api/panchi.md).
 
