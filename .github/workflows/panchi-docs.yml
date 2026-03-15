@@ -32,7 +32,7 @@ jobs:
       - name: Install package and docs dependencies
         run: |
           pip install -e .
-          pip install mkdocs-material mkdocstrings[python]
+          pip install mkdocs-material "mkdocstrings[python]"
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
