@@ -34,7 +34,7 @@ B = pan.Matrix([[5, 6], [7, 8]])
 print(A @ B)          # matrix multiplication
 print(A.T)            # transpose
 print(A.trace)        # 5
-print(A.determinant)  # -2.0
+print(A.determinant)  # -2
 ```
 
 `@` is matrix multiplication, `*` is scalar multiplication — consistent with standard Python convention.

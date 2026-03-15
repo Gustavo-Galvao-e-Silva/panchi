@@ -466,3 +466,18 @@ def rotation_matrix_3d(
     ]
 
     return Matrix([row_1, row_2, row_3])
+
+def vector_column_matrix(vectors: list[Vector]) -> Matrix:
+    # Add type guard
+    num_vectors = len(vectors)
+    for i in range(num_vectors):
+        for j in range(i + 1, num_vectors):
+            if vectors[i].dims != vectors[j].dims:
+                raise ValueError("")
+
+    result = []
+    for vector in vectors:
+        result.append(vector.to_list())
+
+    return Matrix(result).T
+

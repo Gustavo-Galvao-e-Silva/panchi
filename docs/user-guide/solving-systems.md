@@ -16,7 +16,7 @@ panchi's `solve()` function identifies which case applies and, when a unique sol
 
 ```python
 import panchi as pan
-from panchi.algorithms import solve
+from panchi.algorithms.matrix_operations import solve
 
 A = pan.Matrix([[2, 1],
                 [5, 3]])

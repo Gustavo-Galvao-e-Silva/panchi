@@ -251,8 +251,8 @@ class TestVectorAddition:
 def test_matrix_multiplication_2x2(self):
     m1 = Matrix([[1, 2], [3, 4]])
     m2 = Matrix([[5, 6], [7, 8]])
-    result = m1 * m2
-    
+    result = m1 @ m2  # @ is matrix multiplication; * is scalar multiplication
+
     expected = Matrix([[19, 22], [43, 50]])
     assert result == expected
     assert result.shape == (2, 2)
