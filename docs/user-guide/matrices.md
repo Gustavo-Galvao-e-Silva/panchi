@@ -68,7 +68,7 @@ print(A.transpose()) # equivalent method
 A = pan.Matrix([[1, 2], [3, 4]])
 
 print(A.trace)        # 5       — sum of diagonal (square only)
-print(A.determinant)  # -2.0    — cofactor expansion (square only)
+print(A.determinant)  # -2      — cofactor expansion (square only)
 print(A.is_square)    # True
 ```
 
