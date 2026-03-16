@@ -376,6 +376,24 @@ class Vector:
         """
         return f"{self.data}"
 
+    def __repr__(self) -> str:
+        """
+        Return a constructor-style string for data inspection.
+
+        Returns
+        -------
+        str
+            A string showing the class name and data needed to recreate
+            this vector, such as 'Vector([1, 2, 3])'.
+
+        Examples
+        --------
+        >>> v = Vector([1, 2, 3])
+        >>> repr(v)
+        'Vector([1, 2, 3])'
+        """
+        return f"Vector({self.data})"
+
     @property
     def dims(self) -> int:
         """

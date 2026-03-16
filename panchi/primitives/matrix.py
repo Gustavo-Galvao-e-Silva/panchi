@@ -647,6 +647,24 @@ class Matrix:
         rows = ",\n ".join(str(row) for row in self.data)
         return f"[{rows}]"
 
+    def __repr__(self) -> str:
+        """
+        Return a constructor-style string for data inspection.
+
+        Returns
+        -------
+        str
+            A string showing the class name and data needed to recreate
+            this matrix, such as 'Matrix([[1, 2], [3, 4]])'.
+
+        Examples
+        --------
+        >>> m = Matrix([[1, 2], [3, 4]])
+        >>> repr(m)
+        'Matrix([[1, 2], [3, 4]])'
+        """
+        return f"Matrix({self.data})"
+
     @property
     def T(self) -> Matrix:
         """
