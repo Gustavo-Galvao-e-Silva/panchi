@@ -14,6 +14,8 @@ from panchi.algorithms.row_operations import RowSwap, RowScale, RowAdd
 from panchi.algorithms.reductions import Reduction, ref, rref
 from panchi.algorithms.decompositions import lu
 from panchi.algorithms.results import LUDecomposition, InverseResult, Solution
+from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
+from panchi.algorithms.vector_operations import dot, cross
 
 __all__ = [
     "RowSwap",
@@ -26,4 +28,9 @@ __all__ = [
     "LUDecomposition",
     "InverseResult",
     "Solution",
+    "inverse",
+    "solve",
+    "determinant_lu",
+    "dot",
+    "cross",
 ]

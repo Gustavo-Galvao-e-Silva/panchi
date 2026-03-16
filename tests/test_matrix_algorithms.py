@@ -1,10 +1,7 @@
 import pytest
 
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.vector import Vector
-from panchi.primitives.factories import identity
-from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
-from panchi.algorithms.reductions import ref, rref
+from panchi.primitives import Matrix, Vector, identity
+from panchi.algorithms import RowAdd, RowScale, RowSwap, ref, rref
 
 
 
