@@ -1,7 +1,5 @@
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.factories import identity
-from panchi.algorithms.decompositions import lu
-from panchi.algorithms.results import LUDecomposition
+from panchi.primitives import Matrix, identity
+from panchi.algorithms import lu, LUDecomposition
 
 # ==================== LU RESULT OBJECT TESTS ====================
 

@@ -22,10 +22,9 @@ from panchi.primitives.factories import (
     rotation_matrix_2d,
     rotation_matrix_3d,
 )
-from panchi.algorithms.vector_operations import (
-    dot,
-    cross,
-)
+from panchi.primitives.factories import vector_column_matrix
+from panchi.algorithms.vector_operations import dot, cross
+from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
 
 __all__ = [
     "Vector",
@@ -41,6 +40,10 @@ __all__ = [
     "random_matrix",
     "rotation_matrix_2d",
     "rotation_matrix_3d",
+    "vector_column_matrix",
     "dot",
     "cross",
+    "inverse",
+    "solve",
+    "determinant_lu",
 ]

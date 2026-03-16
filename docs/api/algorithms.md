@@ -4,9 +4,8 @@
 from panchi.algorithms import ref, rref, lu
 from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, InverseResult, Solution
-
-# inverse and solve live in the matrix_operations submodule
-from panchi.algorithms.matrix_operations import inverse, solve
+from panchi.algorithms import inverse, solve, determinant_lu
+from panchi.algorithms import dot, cross
 ```
 
 ## Row operations
@@ -29,9 +28,11 @@ from panchi.algorithms.matrix_operations import inverse, solve
 
 ## Solvers
 
-::: panchi.algorithms.matrix_operations.inverse
+::: panchi.algorithms.inverse
 
-::: panchi.algorithms.matrix_operations.solve
+::: panchi.algorithms.solve
+
+::: panchi.algorithms.determinant_lu
 
 ## Result types
 
