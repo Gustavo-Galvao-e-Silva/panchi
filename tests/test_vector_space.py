@@ -1,0 +1,384 @@
+import pytest
+
+from panchi.primitives import Vector
+from panchi.primitives.vector_space import VectorSpace
+
+# ==================== VECTOR SPACE TESTS ====================
+
+
+class TestVectorSpaceInitialization:
+    """Test cases for VectorSpace object initialization and validation."""
+
+    def test_valid_single_vector(self):
+        v = Vector([1, 2, 3])
+        vs = VectorSpace([v])
+        print(f"\n✓ VectorSpace([Vector([1,2,3])]) → data={vs.data}")
+        assert vs.data == [v]
+
+    def test_valid_two_independent_vectors(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ VectorSpace([e1, e2]) → data has {len(vs.data)} vectors")
+        assert len(vs.data) == 2
+
+    def test_valid_with_dependent_vector(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        v3 = Vector([1, 1])  # linearly dependent on v1 and v2
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ VectorSpace([e1, e2, e1+e2]) → data has {len(vs.data)} vectors (all 3 stored)")
+        assert len(vs.data) == 3
+
+    def test_valid_float_vectors(self):
+        v1 = Vector([1.0, 0.0])
+        v2 = Vector([0.0, 1.0])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ VectorSpace with float vectors → {len(vs.data)} vectors stored")
+        assert len(vs.data) == 2
+
+    def test_invalid_not_a_list(self):
+        print(f"\n✓ VectorSpace(Vector([1,2])) → raises TypeError")
+        with pytest.raises(TypeError):
+            VectorSpace(Vector([1, 2]))
+
+    def test_invalid_empty_list(self):
+        print(f"\n✓ VectorSpace([]) → raises ValueError")
+        with pytest.raises(ValueError):
+            VectorSpace([])
+
+    def test_invalid_non_vector_element(self):
+        print(f"\n✓ VectorSpace([[1,2,3]]) → raises TypeError (list not Vector)")
+        with pytest.raises(TypeError):
+            VectorSpace([[1, 2, 3]])
+
+    def test_invalid_mixed_elements(self):
+        v = Vector([1, 2])
+        print(f"\n✓ VectorSpace([Vector, 5]) → raises TypeError")
+        with pytest.raises(TypeError):
+            VectorSpace([v, 5])
+
+    def test_invalid_inconsistent_dimensions(self):
+        v1 = Vector([1, 2])
+        v2 = Vector([1, 2, 3])
+        print(f"\n✓ VectorSpace([2d, 3d]) → raises ValueError (dimension mismatch)")
+        with pytest.raises(ValueError):
+            VectorSpace([v1, v2])
+
+    def test_invalid_inconsistent_dimensions_first_matches(self):
+        v1 = Vector([1, 0, 0])
+        v2 = Vector([0, 1, 0])
+        v3 = Vector([1, 1])  # wrong dims
+        print(f"\n✓ VectorSpace([3d, 3d, 2d]) → raises ValueError")
+        with pytest.raises(ValueError):
+            VectorSpace([v1, v2, v3])
+
+
+class TestVectorSpaceBasis:
+    """Test cases for VectorSpace basis computation."""
+
+    def test_basis_all_independent(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        basis = vs.basis
+        print(f"\n✓ basis([e1, e2]) → {len(basis)} vectors (expected 2)")
+        assert len(basis) == 2
+
+    def test_basis_with_one_dependent(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        v3 = Vector([1, 1])  # v1 + v2
+        vs = VectorSpace([v1, v2, v3])
+        basis = vs.basis
+        print(f"\n✓ basis([e1, e2, e1+e2]) → {len(basis)} vectors (expected 2)")
+        assert len(basis) == 2
+
+    def test_basis_all_dependent_same_vector(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([2, 0])  # 2 * v1
+        v3 = Vector([3, 0])  # 3 * v1
+        vs = VectorSpace([v1, v2, v3])
+        basis = vs.basis
+        print(f"\n✓ basis([v, 2v, 3v]) → {len(basis)} vector (expected 1)")
+        assert len(basis) == 1
+
+    def test_basis_3d_three_independent(self):
+        v1 = Vector([1, 0, 0])
+        v2 = Vector([0, 1, 0])
+        v3 = Vector([0, 0, 1])
+        vs = VectorSpace([v1, v2, v3])
+        basis = vs.basis
+        print(f"\n✓ basis(standard R³ basis) → {len(basis)} vectors (expected 3)")
+        assert len(basis) == 3
+
+    def test_basis_3d_with_dependent(self):
+        v1 = Vector([1, 2, 3])
+        v2 = Vector([4, 5, 6])
+        v3 = Vector([7, 8, 9])  # v3 = 2*v2 - v1
+        vs = VectorSpace([v1, v2, v3])
+        basis = vs.basis
+        print(f"\n✓ basis([v1,v2,v3]) with v3 dependent → {len(basis)} vectors (expected 2)")
+        assert len(basis) == 2
+
+    def test_basis_returns_vectors_from_original_set(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        basis = vs.basis
+        print(f"\n✓ basis vectors are drawn from original data")
+        assert all(b in vs.data for b in basis)
+
+    def test_basis_single_vector(self):
+        v = Vector([3, 1, 4])
+        vs = VectorSpace([v])
+        basis = vs.basis
+        print(f"\n✓ basis([v]) → {len(basis)} vector (expected 1)")
+        assert len(basis) == 1
+        assert basis[0] is v
+
+
+class TestVectorSpaceGetItem:
+    """Test cases for VectorSpace __getitem__."""
+
+    def test_getitem_first(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ vs[0] = {vs[0]} (expected Vector([1, 0]))")
+        assert vs[0] == v1
+
+    def test_getitem_last(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ vs[1] = {vs[1]} (expected Vector([0, 1]))")
+        assert vs[1] == v2
+
+    def test_getitem_negative_index(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ vs[-1] = {vs[-1]} (expected Vector([0, 1]))")
+        assert vs[-1] == v2
+
+    def test_getitem_invalid_index_type(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ vs[1.0] → raises TypeError")
+        with pytest.raises(TypeError):
+            _ = vs[1.0]
+
+    def test_getitem_invalid_index_string(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ vs['0'] → raises TypeError")
+        with pytest.raises(TypeError):
+            _ = vs["0"]
+
+
+class TestVectorSpaceSetItem:
+    """Test cases for VectorSpace __setitem__."""
+
+    def test_setitem_valid(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        new_v = Vector([3, 0])
+        vs[0] = new_v
+        print(f"\n✓ vs[0] = Vector([3, 0]) → vs[0] = {vs[0]}")
+        assert vs[0] == new_v
+
+    def test_setitem_negative_index(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        new_v = Vector([2, 2])
+        vs[-1] = new_v
+        print(f"\n✓ vs[-1] = Vector([2, 2]) → vs[-1] = {vs[-1]}")
+        assert vs[-1] == new_v
+
+    def test_setitem_invalid_index_type(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ vs[1.0] = Vector([1, 0]) → raises TypeError")
+        with pytest.raises(TypeError):
+            vs[1.0] = Vector([1, 0])
+
+    def test_setitem_invalid_value_not_vector(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ vs[0] = [1, 0] → raises TypeError (list not Vector)")
+        with pytest.raises(TypeError):
+            vs[0] = [1, 0]
+
+    def test_setitem_invalid_dims_mismatch(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ vs[0] = Vector([1, 0, 0]) → raises ValueError (wrong dims)")
+        with pytest.raises(ValueError):
+            vs[0] = Vector([1, 0, 0])
+
+
+class TestVectorSpaceLen:
+    """Test cases for VectorSpace __len__."""
+
+    def test_len_single(self):
+        vs = VectorSpace([Vector([1, 2])])
+        print(f"\n✓ len(VectorSpace([v])) = {len(vs)} (expected 1)")
+        assert len(vs) == 1
+
+    def test_len_multiple(self):
+        v1, v2, v3 = Vector([1, 0]), Vector([0, 1]), Vector([1, 1])
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ len(VectorSpace([v1,v2,v3])) = {len(vs)} (expected 3)")
+        assert len(vs) == 3
+
+    def test_len_not_equal_to_dims(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        v3 = Vector([1, 1])  # dependent
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ len={len(vs)} != dims={vs.dims} when dependent vectors present")
+        assert len(vs) == 3
+        assert vs.dims == 2
+
+
+class TestVectorSpaceIter:
+    """Test cases for VectorSpace __iter__."""
+
+    def test_iter_yields_all_vectors(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        result = list(vs)
+        print(f"\n✓ list(vs) = {result}")
+        assert result == [v1, v2]
+
+    def test_iter_order_preserved(self):
+        v1 = Vector([3, 0])
+        v2 = Vector([0, 5])
+        v3 = Vector([1, 1])
+        vs = VectorSpace([v1, v2, v3])
+        result = list(vs)
+        print(f"\n✓ iteration order matches insertion order")
+        assert result[0] == v1
+        assert result[1] == v2
+        assert result[2] == v3
+
+
+class TestVectorSpaceEquality:
+    """Test cases for VectorSpace __eq__."""
+
+    def test_equal_same_data(self):
+        v1, v2 = Vector([1, 0]), Vector([0, 1])
+        vs1 = VectorSpace([v1, v2])
+        vs2 = VectorSpace([v1, v2])
+        print(f"\n✓ VectorSpace([v1,v2]) == VectorSpace([v1,v2]) → True")
+        assert vs1 == vs2
+
+    def test_not_equal_different_order(self):
+        v1, v2 = Vector([1, 0]), Vector([0, 1])
+        vs1 = VectorSpace([v1, v2])
+        vs2 = VectorSpace([v2, v1])
+        print(f"\n✓ VectorSpace([v1,v2]) != VectorSpace([v2,v1]) → False (order matters)")
+        assert vs1 != vs2
+
+    def test_not_equal_different_vectors(self):
+        vs1 = VectorSpace([Vector([1, 0])])
+        vs2 = VectorSpace([Vector([0, 1])])
+        print(f"\n✓ VectorSpace([v1]) != VectorSpace([v2]) → False")
+        assert vs1 != vs2
+
+    def test_not_equal_different_length(self):
+        v1, v2 = Vector([1, 0]), Vector([0, 1])
+        vs1 = VectorSpace([v1])
+        vs2 = VectorSpace([v1, v2])
+        print(f"\n✓ VectorSpace([v1]) != VectorSpace([v1, v2]) → False")
+        assert vs1 != vs2
+
+    def test_not_equal_to_non_vectorspace(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ VectorSpace != list → NotImplemented")
+        assert vs.__eq__([Vector([1, 0])]) is NotImplemented
+
+
+class TestVectorSpaceStrRepr:
+    """Test cases for VectorSpace __str__ and __repr__."""
+
+    def test_str_contains_ambient_dim(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        result = str(vs)
+        print(f"\n✓ str(vs) = '{result}'")
+        assert "R^3" in result
+
+    def test_str_contains_dimension(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        result = str(vs)
+        print(f"\n✓ str(vs) contains 'dimension 2'")
+        assert "dimension 2" in result
+
+    def test_str_contains_basis_vectors(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        result = str(vs)
+        print(f"\n✓ str(vs) contains basis vector representations")
+        assert "[1, 0]" in result
+        assert "[0, 1]" in result
+
+    def test_repr_format(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([1, 1, 0])])
+        result = repr(vs)
+        print(f"\n✓ repr(vs) = '{result}'")
+        assert result == "VectorSpace(ambient=3, dim=2, generators=3)"
+
+    def test_repr_single_vector(self):
+        vs = VectorSpace([Vector([1, 2])])
+        result = repr(vs)
+        print(f"\n✓ repr(single vector space) = '{result}'")
+        assert result == "VectorSpace(ambient=2, dim=1, generators=1)"
+
+
+class TestVectorSpaceDims:
+    """Test cases for VectorSpace dims property."""
+
+    def test_dims_two_independent(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ dims([e1, e2]) = {vs.dims} (expected 2)")
+        assert vs.dims == 2
+
+    def test_dims_with_dependent_vector(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        v3 = Vector([1, 1])
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ dims([e1, e2, e1+e2]) = {vs.dims} (expected 2)")
+        assert vs.dims == 2
+
+    def test_dims_single_vector(self):
+        v = Vector([1, 2, 3])
+        vs = VectorSpace([v])
+        print(f"\n✓ dims([v]) = {vs.dims} (expected 1)")
+        assert vs.dims == 1
+
+    def test_dims_all_dependent(self):
+        v1 = Vector([2, 4])
+        v2 = Vector([1, 2])  # 0.5 * v1
+        v3 = Vector([3, 6])  # 1.5 * v1
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ dims of collinear set = {vs.dims} (expected 1)")
+        assert vs.dims == 1
+
+    def test_dims_equals_len_basis(self):
+        v1 = Vector([1, 0, 0])
+        v2 = Vector([0, 1, 0])
+        v3 = Vector([1, 1, 0])  # dependent
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ dims == len(basis): {vs.dims} == {len(vs.basis)}")
+        assert vs.dims == len(vs.basis)
+
+    def test_dims_full_rank_3d(self):
+        v1 = Vector([1, 0, 0])
+        v2 = Vector([0, 1, 0])
+        v3 = Vector([0, 0, 1])
+        vs = VectorSpace([v1, v2, v3])
+        print(f"\n✓ dims(standard R³) = {vs.dims} (expected 3)")
+        assert vs.dims == 3

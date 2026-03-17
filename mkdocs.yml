@@ -50,6 +50,7 @@ nav:
   - User Guide:
     - Vectors: user-guide/vectors.md
     - Matrices: user-guide/matrices.md
+    - Vector Spaces: user-guide/vector-spaces.md
     - Linear Transformations: user-guide/transformations.md
     - Row Operations: user-guide/row-operations.md
     - Row Reduction: user-guide/row-reduction.md
