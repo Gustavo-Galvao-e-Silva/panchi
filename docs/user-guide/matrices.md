@@ -89,17 +89,19 @@ assert A @ A.right_identity == A
 
 ## Row and column access
 
+`row()` and `col()` mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.
+
 ```python
 A = pan.Matrix([[1, 2, 3], [4, 5, 6]])
 
-A.get_row(0)              # [1, 2, 3]
-A.get_col(1)              # [2, 5]
-A.get_rows()              # [[1, 2, 3], [4, 5, 6]]
-A.get_cols()              # [[1, 4], [2, 5], [3, 6]]
-A.get_cols(to_vector=True) # columns as Vector objects
+A.row()      # [Vector([1, 2, 3]), Vector([4, 5, 6])]
+A.col()      # [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]
+
+A.row()[0]   # Vector([1, 2, 3])
+A.col()[1]   # Vector([2, 5])
 ```
 
-All access methods return copies — modifying the result does not affect the original matrix.
+Both methods return copies — modifying the result does not affect the original matrix.
 
 ## Factory functions
 

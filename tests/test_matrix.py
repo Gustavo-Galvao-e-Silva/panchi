@@ -549,59 +549,60 @@ class TestMatrixDeterminant:
         assert abs((m1 @ m2).determinant - (m1.determinant * m2.determinant)) < 1e-10
 
 
-class TestMatrixGetMethods:
-    """Test cases for Matrix get_row, get_col, get_rows, get_cols methods."""
+class TestMatrixRowCol:
+    """Test cases for Matrix row() and col() methods."""
 
-    def test_get_row(self):
+    def test_row_returns_vectors(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        rows = m.row()
+        print(f"\n✓ row() returns list of Vectors")
+        assert all(isinstance(r, Vector) for r in rows)
+
+    def test_row_values(self):
         m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        row = m.get_row(1)
-        print(f"\n✓ get_row(1) = {row} (expected [4, 5, 6])")
-        assert row == [4, 5, 6]
+        rows = m.row()
+        print(f"\n✓ row() = {rows}")
+        assert rows[0].to_list() == [1, 2, 3]
+        assert rows[1].to_list() == [4, 5, 6]
+        assert rows[2].to_list() == [7, 8, 9]
 
-    def test_get_row_independence(self):
+    def test_row_independence(self):
         m = Matrix([[1, 2], [3, 4]])
-        row = m.get_row(0)
-        row[0] = 99
-        print(f"\n✓ get_row() returns copy: m[0][0] = {m[0][0]} (expected 1)")
+        rows = m.row()
+        rows[0][0] = 99
+        print(f"\n✓ row() returns copies: m[0][0] = {m[0][0]} (expected 1)")
         assert m[0][0] == 1
 
-    def test_get_row_invalid_index(self):
-        m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ get_row(invalid) → raises IndexError")
-        with pytest.raises(IndexError):
-            _ = m.get_row(5)
+    def test_row_count(self):
+        m = Matrix([[1, 2], [3, 4], [5, 6]])
+        print(f"\n✓ row() returns {m.rows} vectors for a {m.rows}×{m.cols} matrix")
+        assert len(m.row()) == m.rows
 
-    def test_get_col(self):
-        m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        col = m.get_col(1)
-        print(f"\n✓ get_col(1) = {col} (expected [2, 5, 8])")
-        assert col == [2, 5, 8]
-
-    def test_get_col_invalid_index(self):
-        m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ get_col(invalid) → raises IndexError")
-        with pytest.raises(IndexError):
-            _ = m.get_col(5)
-
-    def test_get_rows(self):
-        m = Matrix([[1, 2], [3, 4]])
-        rows = m.get_rows()
-        print(f"\n✓ get_rows() = {rows} (expected [[1,2],[3,4]])")
-        assert rows == [[1, 2], [3, 4]]
-
-    def test_get_cols(self):
+    def test_col_returns_vectors(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        cols = m.get_cols()
-        print(f"\n✓ get_cols() = {cols} (expected [[1,4],[2,5],[3,6]])")
-        assert cols == [[1, 4], [2, 5], [3, 6]]
+        cols = m.col()
+        print(f"\n✓ col() returns list of Vectors")
+        assert all(isinstance(c, Vector) for c in cols)
 
-    def test_get_cols_as_vectors(self):
+    def test_col_values(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        cols = m.col()
+        print(f"\n✓ col() = {cols}")
+        assert cols[0].to_list() == [1, 4]
+        assert cols[1].to_list() == [2, 5]
+        assert cols[2].to_list() == [3, 6]
+
+    def test_col_independence(self):
         m = Matrix([[1, 2], [3, 4]])
-        cols = m.get_cols(to_vector=True)
-        print(f"\n✓ get_cols(to_vector=True) returns Vectors")
-        assert all(isinstance(col, Vector) for col in cols)
-        assert cols[0].to_list() == [1, 3]
-        assert cols[1].to_list() == [2, 4]
+        cols = m.col()
+        cols[0][0] = 99
+        print(f"\n✓ col() returns copies: m[0][0] = {m[0][0]} (expected 1)")
+        assert m[0][0] == 1
+
+    def test_col_count(self):
+        m = Matrix([[1, 2, 3], [4, 5, 6]])
+        print(f"\n✓ col() returns {m.cols} vectors for a {m.rows}×{m.cols} matrix")
+        assert len(m.col()) == m.cols
 
 
 class TestMatrixTransform:

@@ -889,137 +889,74 @@ class Matrix:
         n = self.rows
         return sum(self.data[i][i] for i in range(n))
 
-    def get_row(self, index: int) -> list[int | float]:
+    def row(self) -> list[Vector]:
         """
-        Get a copy of a specific row.
+        Return all rows of the matrix as a list of Vectors.
 
-        Parameters
-        ----------
-        index : int
-            The row index (0-based). Negative indices are supported.
+        Corresponds to the mathematical operator Row(A), which extracts
+        the row vectors of a matrix. Each row becomes an independent
+        Vector object; modifying the result does not affect this matrix.
 
         Returns
         -------
-        list[int | float]
-            A copy of the row at the specified index.
+        list[Vector]
+            A list of Vector objects, one per row, in order.
 
         Raises
         ------
-        TypeError
-            If index is not an integer.
-        IndexError
-            If index is out of range (raised by Python).
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4], [5, 6]])
-        >>> m.get_row(1)
-        [3, 4]
-        >>> m.get_row(-1)
-        [5, 6]
-        """
-        if not isinstance(index, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(index).__name__}."
-            )
-
-        return self.data[index].copy()
-
-    def get_col(self, index: int) -> list[int | float]:
-        """
-        Get a specific column as a list.
-
-        Parameters
-        ----------
-        index : int
-            The column index (0-based). Negative indices are supported.
-
-        Returns
-        -------
-        list[int | float]
-            The column at the specified index.
-
-        Raises
-        ------
-        TypeError
-            If index is not an integer.
-        IndexError
-            If index is out of range (raised by Python).
+        ValueError
+            If the matrix is empty (has no rows).
 
         Examples
         --------
         >>> m = Matrix([[1, 2, 3], [4, 5, 6]])
-        >>> m.get_col(1)
-        [2, 5]
-        >>> m.get_col(-1)
-        [3, 6]
+        >>> m.row()
+        [Vector([1, 2, 3]), Vector([4, 5, 6])]
+        >>> m.row()[0]
+        Vector([1, 2, 3])
         """
-        if not isinstance(index, int):
-            raise TypeError(
-                f"Column index must be an integer. Got {type(index).__name__}."
+        if self.rows == 0:
+            raise ValueError(
+                "Cannot extract row vectors from an empty matrix."
             )
 
-        return [self.data[i][index] for i in range(self.rows)]
+        return [Vector(row.copy()) for row in self.data]
 
-    def get_rows(self) -> list[list[int | float]]:
+    def col(self) -> list[Vector]:
         """
-        Get all rows as a list of lists.
+        Return all columns of the matrix as a list of Vectors.
+
+        Corresponds to the mathematical operator Col(A), which extracts
+        the column vectors of a matrix. Each column becomes an independent
+        Vector object; modifying the result does not affect this matrix.
 
         Returns
         -------
-        list[list[int | float]]
-            A copy of all matrix rows.
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4]])
-        >>> m.get_rows()
-        [[1, 2], [3, 4]]
-        """
-        return [row.copy() for row in self.data]
-
-    def get_cols(
-        self, to_vector: bool = False
-    ) -> list[list[int | float]] | list[Vector]:
-        """
-        Get all columns as a list.
-
-        Parameters
-        ----------
-        to_vector : bool, optional
-            If True, return columns as Vector objects.
-            If False, return columns as lists. Default is False.
-
-        Returns
-        -------
-        list[list[int | float]] | list[Vector]
-            List of columns, either as lists or Vector objects.
+        list[Vector]
+            A list of Vector objects, one per column, in order.
 
         Raises
         ------
-        TypeError
-            If to_vector is not a boolean.
+        ValueError
+            If the matrix is empty (has no columns).
 
         Examples
         --------
         >>> m = Matrix([[1, 2, 3], [4, 5, 6]])
-        >>> m.get_cols()
-        [[1, 4], [2, 5], [3, 6]]
-        >>> m.get_cols(to_vector=True)
+        >>> m.col()
         [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]
+        >>> m.col()[1]
+        Vector([2, 5])
         """
-        if not isinstance(to_vector, bool):
-            raise TypeError(
-                f"Parameter 'to_vector' must be a boolean (True or False). "
-                f"Got {type(to_vector).__name__}."
+        if self.cols == 0:
+            raise ValueError(
+                "Cannot extract column vectors from an empty matrix."
             )
 
-        result = [[self.data[i][j] for i in range(self.rows)] for j in range(self.cols)]
-
-        if to_vector:
-            return [Vector(col) for col in result]
-
-        return result
+        return [
+            Vector([self.data[i][j] for i in range(self.rows)])
+            for j in range(self.cols)
+        ]
 
     def transform(self, vec: Vector) -> Vector:
         """
@@ -1106,7 +1043,7 @@ class Matrix:
         >>> m.to_list()
         [[1, 2], [3, 4]]
         """
-        return self.get_rows()
+        return [row.copy() for row in self.data]
 
     def copy(self) -> Matrix:
         """
@@ -1125,4 +1062,4 @@ class Matrix:
         >>> print(m1[0][0])
         1
         """
-        return Matrix(self.get_rows())
+        return Matrix([row.copy() for row in self.data])
