@@ -7,6 +7,7 @@ The goal is not performance. The goal is **clarity**.
 If you have ever used NumPy or SciPy and wondered *what the library is actually doing*, panchi is for you. Every algorithm is implemented directly in readable Python, every operation returns something you can inspect, and error messages are written to teach rather than just report.
 
 panchi's central philosophy can be summed up in the following points:
+
 * **Built for education:** the project's central aim is to allow for people to learn the beauty of linear algebra.
 * **Made for tinkering:** all design decisions - from the name to the code - are made to encourage building and taking things apart.
 * **Clarity is queen:** code should be as clear as possible, avoiding terse, overly pythonic notation and obscure algorithms so the central idea is clear-as-day.

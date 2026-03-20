@@ -2,9 +2,6 @@
 [data-md-color-scheme="default"] .logo-dark  { display: none !important; }
 [data-md-color-scheme="slate"]   .logo-light { display: none !important; }
 
-/* Logo: larger size in header */
-.md-header__button.md-logo img { height: 2.2rem !important; }
-
 /* Primary: very dark warm gray for header/nav (base + dark mode) */
 [data-md-color-primary="custom"] {
   --md-primary-fg-color:        #45423F;
@@ -58,4 +55,29 @@
 /* Dark mode links: pink */
 [data-md-color-scheme="slate"] {
   --md-typeset-a-color: #FFB592;
+}
+
+/* Hide library name */
+.md-header__title {
+  visibility: hidden;
+  width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.md-header__ellipsis {
+  display: none;
+}
+
+.md-header {
+  height: 96px;
+}
+
+.md-header__inner {
+  height: 96px;
+}
+
+.md-header__button.md-logo img {
+  height: 64px;
 }
