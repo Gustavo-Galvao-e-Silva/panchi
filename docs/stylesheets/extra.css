@@ -1,2 +1,41 @@
+/* Logo: light/dark switching */
 [data-md-color-scheme="default"] .logo-dark  { display: none !important; }
 [data-md-color-scheme="slate"]   .logo-light { display: none !important; }
+
+/* Primary: very dark warm gray for header/nav */
+[data-md-color-primary="custom"] {
+  --md-primary-fg-color:        #45423F;
+  --md-primary-fg-color--light: #8F8984;
+  --md-primary-fg-color--dark:  #2d2b28;
+  --md-primary-bg-color:        #ffffff;
+  --md-primary-bg-color--light: rgba(255, 255, 255, 0.70);
+}
+
+/* Accent: brown */
+[data-md-color-accent="custom"] {
+  --md-accent-fg-color:              #805B49;
+  --md-accent-fg-color--transparent: rgba(128, 91, 73, 0.10);
+  --md-accent-bg-color:              #ffffff;
+  --md-accent-bg-color--light:       rgba(255, 255, 255, 0.70);
+}
+
+/* Light mode: brown links */
+[data-md-color-scheme="default"] {
+  --md-typeset-a-color: #805B49;
+}
+
+/* Dark mode: warm hue drives the full slate palette */
+[data-md-color-scheme="slate"] {
+  --md-hue: 20deg;
+}
+
+/* Dark mode accent: pink (better contrast on dark backgrounds) */
+[data-md-color-scheme="slate"][data-md-color-accent="custom"] {
+  --md-accent-fg-color:              #FFB592;
+  --md-accent-fg-color--transparent: rgba(255, 181, 146, 0.10);
+}
+
+/* Dark mode links: pink */
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #FFB592;
+}
