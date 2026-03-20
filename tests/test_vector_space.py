@@ -272,12 +272,12 @@ class TestVectorSpaceEquality:
         print(f"\n✓ VectorSpace([v1,v2]) == VectorSpace([v1,v2]) → True")
         assert vs1 == vs2
 
-    def test_not_equal_different_order(self):
+    def test_equal_different_order(self):
         v1, v2 = Vector([1, 0]), Vector([0, 1])
         vs1 = VectorSpace([v1, v2])
         vs2 = VectorSpace([v2, v1])
-        print(f"\n✓ VectorSpace([v1,v2]) != VectorSpace([v2,v1]) → False (order matters)")
-        assert vs1 != vs2
+        print(f"\n✓ VectorSpace([v1,v2]) == VectorSpace([v2,v1]) → True (order does not matter)")
+        assert vs1 == vs2
 
     def test_not_equal_different_vectors(self):
         vs1 = VectorSpace([Vector([1, 0])])
@@ -382,3 +382,94 @@ class TestVectorSpaceDims:
         vs = VectorSpace([v1, v2, v3])
         print(f"\n✓ dims(standard R³) = {vs.dims} (expected 3)")
         assert vs.dims == 3
+
+
+class TestVectorSpaceAmbientDims:
+    """Test cases for VectorSpace ambient_dims property."""
+
+    def test_ambient_dims_2d(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ ambient_dims of R²-space = {vs.ambient_dims} (expected 2)")
+        assert vs.ambient_dims == 2
+
+    def test_ambient_dims_3d(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        print(f"\n✓ ambient_dims of R³-subspace = {vs.ambient_dims} (expected 3)")
+        assert vs.ambient_dims == 3
+
+    def test_ambient_dims_independent_of_num_vectors(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
+        print(f"\n✓ ambient_dims unchanged by number of spanning vectors")
+        assert vs.ambient_dims == 3
+
+
+class TestVectorSpaceIsFullRank:
+    """Test cases for VectorSpace is_full_rank property."""
+
+    def test_full_rank_standard_basis_2d(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        print(f"\n✓ standard R² basis is full rank")
+        assert vs.is_full_rank is True
+
+    def test_full_rank_standard_basis_3d(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
+        print(f"\n✓ standard R³ basis is full rank")
+        assert vs.is_full_rank is True
+
+    def test_not_full_rank_subspace(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        print(f"\n✓ plane in R³ is not full rank")
+        assert vs.is_full_rank is False
+
+    def test_not_full_rank_single_vector_in_3d(self):
+        vs = VectorSpace([Vector([1, 2, 3])])
+        print(f"\n✓ line in R³ is not full rank")
+        assert vs.is_full_rank is False
+
+    def test_not_full_rank_with_dependent_vectors(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([1, 1, 0])])
+        print(f"\n✓ dependent spanning set in R³ does not become full rank")
+        assert vs.is_full_rank is False
+
+
+class TestVectorSpaceContains:
+    """Test cases for VectorSpace contains method."""
+
+    def test_contains_basis_vector(self):
+        v1 = Vector([1, 0])
+        v2 = Vector([0, 1])
+        vs = VectorSpace([v1, v2])
+        print(f"\n✓ basis vector is contained in its own space")
+        assert vs.contains(v1) is True
+
+    def test_contains_linear_combination(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        print(f"\n✓ [3, 4] is in span of standard R² basis")
+        assert vs.contains(Vector([3, 4])) is True
+
+    def test_not_contains_out_of_plane(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        print(f"\n✓ [0, 0, 1] is not in the xy-plane subspace")
+        assert vs.contains(Vector([0, 0, 1])) is False
+
+    def test_contains_vector_in_line(self):
+        vs = VectorSpace([Vector([1, 2])])
+        print(f"\n✓ [3, 6] = 3*[1,2] is in the span")
+        assert vs.contains(Vector([3, 6])) is True
+
+    def test_not_contains_off_line(self):
+        vs = VectorSpace([Vector([1, 2])])
+        print(f"\n✓ [1, 3] is not a multiple of [1, 2]")
+        assert vs.contains(Vector([1, 3])) is False
+
+    def test_contains_invalid_type(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ contains([1, 0]) → raises TypeError")
+        with pytest.raises(TypeError):
+            vs.contains([1, 0])
+
+    def test_contains_wrong_dims(self):
+        vs = VectorSpace([Vector([1, 0])])
+        print(f"\n✓ contains(Vector([1, 0, 0])) in R²-space → raises ValueError")
+        with pytest.raises(ValueError):
+            vs.contains(Vector([1, 0, 0]))
