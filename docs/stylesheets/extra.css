@@ -2,16 +2,25 @@
 [data-md-color-scheme="default"] .logo-dark  { display: none !important; }
 [data-md-color-scheme="slate"]   .logo-light { display: none !important; }
 
-/* Logo: larger size in header (Material default is 1.2rem) */
-.md-header__button.md-logo img { height: 1.8rem !important; }
+/* Logo: larger size in header */
+.md-header__button.md-logo img { height: 2.2rem !important; }
 
-/* Primary: very dark warm gray for header/nav */
+/* Primary: very dark warm gray for header/nav (base + dark mode) */
 [data-md-color-primary="custom"] {
   --md-primary-fg-color:        #45423F;
   --md-primary-fg-color--light: #8F8984;
   --md-primary-fg-color--dark:  #2d2b28;
   --md-primary-bg-color:        #ffffff;
   --md-primary-bg-color--light: rgba(255, 255, 255, 0.70);
+}
+
+/* Light mode: warm off-white navbar with dark gray buttons */
+[data-md-color-scheme="default"][data-md-color-primary="custom"] {
+  --md-primary-fg-color:        #F2EDE9;
+  --md-primary-fg-color--light: #E8E2DC;
+  --md-primary-fg-color--dark:  #DDD6CE;
+  --md-primary-bg-color:        #45423F;
+  --md-primary-bg-color--light: rgba(69, 66, 63, 0.70);
 }
 
 /* Accent: base (dark mode fallback) */
@@ -40,7 +49,7 @@
   --md-hue: 20deg;
 }
 
-/* Dark mode accent: pink (better contrast on dark backgrounds) */
+/* Dark mode accent: pink */
 [data-md-color-scheme="slate"][data-md-color-accent="custom"] {
   --md-accent-fg-color:              #FFB592;
   --md-accent-fg-color--transparent: rgba(255, 181, 146, 0.10);
