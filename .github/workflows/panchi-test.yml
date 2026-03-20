@@ -3,8 +3,12 @@ name: TestCI
 on:
   push:
     branches: [main]
+    paths:
+      - 'panchi/**'
   pull_request:
     branches: [main]
+    paths:
+      - 'panchi/**'
 
 jobs:
   test:
