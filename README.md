@@ -1,6 +1,8 @@
+<div align="center">
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/panchi_logo_white.png">
-  <img src="docs/assets/logo/panchi_logo_color.png" alt="panchi" width=280 style ="display: block; margin: auto;"> 
+  <img src="docs/assets/logo/panchi_logo_color.png" alt="panchi" width=280>
 </picture>
 
 # panchi
@@ -14,6 +16,8 @@ The goal is not performance. The goal is **clarity**.
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+</div>
 
 ---
 
