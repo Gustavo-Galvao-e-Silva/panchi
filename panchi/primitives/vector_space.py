@@ -5,6 +5,7 @@ from typing import Iterator
 from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
 from panchi.algorithms.reductions import ref
+from panchi.algorithms.matrix_operations import solve
 
 
 class VectorSpace:
@@ -210,7 +211,7 @@ class VectorSpace:
         Check if two VectorSpaces are equal.
 
         Two VectorSpaces are equal if their generating sets contain the
-        same vectors in the same order.
+        same vectors, regardless of order.
 
         Parameters
         ----------
@@ -220,7 +221,7 @@ class VectorSpace:
         Returns
         -------
         bool
-            True if both spaces have identical generating sets, False otherwise.
+            True if both spaces have the same generating sets, False otherwise.
 
         Examples
         --------
@@ -228,7 +229,7 @@ class VectorSpace:
         >>> VectorSpace([v1, v2]) == VectorSpace([v1, v2])
         True
         >>> VectorSpace([v1, v2]) == VectorSpace([v2, v1])
-        False
+        True
         """
         if not isinstance(other, VectorSpace):
             return NotImplemented
@@ -236,7 +237,9 @@ class VectorSpace:
         if len(self.data) != len(other.data):
             return False
 
-        return all(a == b for a, b in zip(self.data, other.data))
+        return sorted(v.to_list() for v in self.data) == sorted(
+            v.to_list() for v in other.data
+        )
 
     def __str__(self) -> str:
         """
@@ -343,3 +346,98 @@ class VectorSpace:
         2
         """
         return len(self.basis)
+
+    @property
+    def ambient_dims(self) -> int:
+        """
+        Return the dimension of the ambient space R^n.
+
+        This is the number of components in each vector, i.e. the n in R^n
+        that this subspace lives inside.
+
+        Returns
+        -------
+        int
+            The number of components of each vector in this space.
+
+        Examples
+        --------
+        >>> vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        >>> vs.ambient_dims
+        3
+        """
+        return self.data[0].dims
+
+    @property
+    def is_full_rank(self) -> bool:
+        """
+        Return True if the subspace spans the entire ambient space.
+
+        A VectorSpace is full rank when its dimension equals the ambient
+        dimension — i.e. when the basis vectors span all of R^n.
+
+        Returns
+        -------
+        bool
+            True if ``dims == ambient_dims``, False otherwise.
+
+        Examples
+        --------
+        >>> vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        >>> vs.is_full_rank
+        True
+        >>> vs2 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        >>> vs2.is_full_rank
+        False
+        """
+        return self.dims == self.ambient_dims
+
+    def contains(self, v: Vector) -> bool:
+        """
+        Return True if vector v lies in this subspace.
+
+        Checks membership by attempting to solve the linear system
+        ``Bx = v``, where B is the matrix whose columns are the basis
+        vectors. The vector v is in the span if and only if the system
+        is consistent.
+
+        Parameters
+        ----------
+        v : Vector
+            The vector to test for membership.
+
+        Returns
+        -------
+        bool
+            True if v is in the span of this space, False otherwise.
+
+        Raises
+        ------
+        TypeError
+            If v is not a Vector.
+        ValueError
+            If v has a different number of components than the vectors
+            in this space.
+
+        Examples
+        --------
+        >>> vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        >>> vs.contains(Vector([3, 4]))
+        True
+        >>> vs2 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        >>> vs2.contains(Vector([0, 0, 1]))
+        False
+        """
+        if not isinstance(v, Vector):
+            raise TypeError(
+                f"contains() requires a Vector. Got {type(v).__name__}."
+            )
+
+        if v.dims != self.ambient_dims:
+            raise ValueError(
+                f"Vector has {v.dims} component(s), but this space lives in "
+                f"R^{self.ambient_dims}. Dimensions must match."
+            )
+
+        basis_matrix = Matrix([b.to_list() for b in self.basis]).T
+        return solve(basis_matrix, v).status != "inconsistent"
