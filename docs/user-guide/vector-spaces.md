@@ -86,13 +86,51 @@ Note that replacing a vector changes the generating set. The `basis` recomputes 
 
 ## Equality
 
-Two `VectorSpace` objects are equal if their generating sets contain the same vectors in the same order:
+Two `VectorSpace` objects are equal if their generating sets contain the same vectors, regardless of order:
 
 ```python
 v1, v2 = Vector([1, 0]), Vector([0, 1])
 
 VectorSpace([v1, v2]) == VectorSpace([v1, v2])  # True
-VectorSpace([v1, v2]) == VectorSpace([v2, v1])  # False — order matters
+VectorSpace([v1, v2]) == VectorSpace([v2, v1])  # True — order does not matter
+```
+
+## Ambient dimension
+
+`ambient_dims` returns the dimension of the ambient space R^n — the number of components in each vector, independent of how many generators the space was given.
+
+```python
+vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+vs.ambient_dims  # 3  — the space lives inside R³
+vs.dims          # 2  — the subspace itself is 2-dimensional
+```
+
+## Full rank
+
+`is_full_rank` returns `True` when the subspace spans all of R^n, i.e. when `dims == ambient_dims`.
+
+```python
+VectorSpace([Vector([1, 0]), Vector([0, 1])]).is_full_rank         # True  — spans R²
+VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])]).is_full_rank   # False — plane in R³
+```
+
+## Membership testing
+
+`contains(v)` returns `True` if vector `v` lies in the subspace. It solves the system `Bx = v` where B is the matrix of basis vectors, and reports whether the system is consistent.
+
+```python
+vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+vs.contains(Vector([3, 4]))   # True  — any R² vector is in the full plane
+
+vs2 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+vs2.contains(Vector([0, 0, 1]))  # False — z-axis is out of the xy-plane
+```
+
+Passing a non-`Vector` or a vector of the wrong dimension raises an error:
+
+```python
+vs.contains([1, 0])               # TypeError — argument must be a Vector
+vs.contains(Vector([1, 0, 0]))    # ValueError — wrong number of components
 ```
 
 ## String representation
