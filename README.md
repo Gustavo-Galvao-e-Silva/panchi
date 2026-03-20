@@ -1,3 +1,8 @@
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/panchi_logo_white.png">
+  <img src="docs/assets/logo/panchi_logo_color.png" alt="panchi" width="280">
+</picture>
+
 # panchi
 
 **panchi** is a Python-native linear algebra library designed for learning, experimentation, and visual intuition.
