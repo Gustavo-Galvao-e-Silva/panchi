@@ -1,22 +1,21 @@
 <div align="center">
-
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/panchi_logo_white.png">
-  <img src="docs/assets/logo/panchi_logo_color.png" alt="panchi" width=280>
-</picture>
-
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo/panchi_logo_white.png">
+        <img src="docs/assets/logo/panchi_logo_color.png" alt="panchi" width=280>
+    </picture>
+</div>
 # panchi
 
 **panchi** is a Python-native linear algebra library designed for learning, experimentation, and visual intuition.
 
 The goal is not performance. The goal is **clarity**.
 
-[![TestCI](https://github.com/Gustavo-Galvao-e-Silva/panchi/workflows/TestCI/badge.svg)](https://github.com/Gustavo-Galvao-e-Silva/panchi/actions/workflows/panchi-test.yml)
-[![PyPI version](https://img.shields.io/pypi/v/panchi.svg)](https://pypi.org/project/panchi/)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-
+<div align="center">
+    [![TestCI](https://github.com/Gustavo-Galvao-e-Silva/panchi/workflows/TestCI/badge.svg)](https://github.com/Gustavo-Galvao-e-Silva/panchi/actions/workflows/panchi-test.yml)
+    [![PyPI version](https://img.shields.io/pypi/v/panchi.svg)](https://pypi.org/project/panchi/)
+    [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+    [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+    [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 </div>
 
 ---
