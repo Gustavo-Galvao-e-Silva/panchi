@@ -7,7 +7,7 @@ repo_name: panchi
 theme:
   name: material
   favicon: ../assets/panchi_icon.png
-  custom_dir: override
+  custom_dir: overrides
   palette:
     - scheme: default
       toggle:
