@@ -1,2 +1,2 @@
-[data-md-color-scheme="default"] .logo-dark  { display: none; }
-[data-md-color-scheme="slate"]   .logo-light { display: none; }
+[data-md-color-scheme="default"] .logo-dark  { display: none !important; }
+[data-md-color-scheme="slate"]   .logo-light { display: none !important; }
