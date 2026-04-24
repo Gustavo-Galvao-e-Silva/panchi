@@ -4,6 +4,7 @@ Primitive linear algebra objects: Vector, Matrix, and factory functions.
 
 from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector_space import VectorSpace
 from panchi.primitives.factories import (
     identity,
     zero_matrix,
@@ -22,6 +23,7 @@ from panchi.primitives.factories import (
 __all__ = [
     "Vector",
     "Matrix",
+    "VectorSpace",
     "identity",
     "zero_matrix",
     "one_matrix",

@@ -133,6 +133,69 @@ vs.contains([1, 0])               # TypeError — argument must be a Vector
 vs.contains(Vector([1, 0, 0]))    # ValueError — wrong number of components
 ```
 
+## Subspace equality
+
+The `==` operator checks whether two `VectorSpace` objects were built with the same generators (order-independent). For a mathematical comparison — do the two spaces span the same subspace? — use `same_subspace`:
+
+```python
+v1, v2 = Vector([1, 0]), Vector([0, 1])
+
+vs1 = VectorSpace([v1, v2])
+vs2 = VectorSpace([v1, v1 + v2])
+
+vs1 == vs2              # False — different generators
+vs1.same_subspace(vs2)  # True  — both span all of R²
+```
+
+Two subspaces are equal when they have the same dimension and every basis vector of one is contained in the other. `same_subspace` checks this using the existing `contains` method:
+
+```python
+vs3 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+vs4 = VectorSpace([Vector([1, 1, 0]), Vector([1, -1, 0])])
+vs3.same_subspace(vs4)  # True — both span the xy-plane in R³
+```
+
+Comparing spaces of different ambient dimensions raises an error:
+
+```python
+vs_r2 = VectorSpace([Vector([1, 0])])
+vs_r3 = VectorSpace([Vector([1, 0, 0])])
+vs_r2.same_subspace(vs_r3)  # ValueError — different ambient dimensions
+```
+
+## Orthogonal complement
+
+The orthogonal complement of a subspace W is the set of all vectors perpendicular to every vector in W. Use `orthogonal_complement` from `panchi.algorithms`:
+
+```python
+from panchi.algorithms import orthogonal_complement
+
+vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+comp = orthogonal_complement(vs)
+print(comp)
+# VectorSpace in R^3, dimension 1
+# Basis:
+#   [0, 0, 1]
+```
+
+The complement satisfies the rank-nullity relationship: `comp.dims + vs.dims == vs.ambient_dims`.
+
+For a line in R²:
+
+```python
+vs = VectorSpace([Vector([1, 1])])
+comp = orthogonal_complement(vs)
+comp.basis  # [Vector([-1, 1])]  — perpendicular to [1, 1]
+```
+
+If the space spans all of R^n, the complement is trivial (the zero vector):
+
+```python
+vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+comp = orthogonal_complement(vs)
+comp.dims  # 0
+```
+
 ## String representation
 
 `str()` shows the ambient dimension, the computed dimension, and the basis:

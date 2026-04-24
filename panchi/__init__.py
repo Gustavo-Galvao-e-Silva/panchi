@@ -9,6 +9,7 @@ __version__ = "0.2.0a1"
 
 from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector_space import VectorSpace
 from panchi.primitives.factories import (
     identity,
     zero_matrix,
@@ -23,12 +24,13 @@ from panchi.primitives.factories import (
     rotation_matrix_3d,
 )
 from panchi.primitives.factories import vector_column_matrix
-from panchi.algorithms.vector_operations import dot, cross
+from panchi.algorithms.vector_operations import dot, cross, orthogonal_complement
 from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
 
 __all__ = [
     "Vector",
     "Matrix",
+    "VectorSpace",
     "identity",
     "zero_matrix",
     "one_matrix",
@@ -43,6 +45,7 @@ __all__ = [
     "vector_column_matrix",
     "dot",
     "cross",
+    "orthogonal_complement",
     "inverse",
     "solve",
     "determinant_lu",
