@@ -441,3 +441,58 @@ class VectorSpace:
 
         basis_matrix = Matrix([b.to_list() for b in self.basis]).T
         return solve(basis_matrix, v).status != "inconsistent"
+
+    def same_subspace(self, other: VectorSpace) -> bool:
+        """
+        Check if two VectorSpaces span the same subspace.
+
+        Two subspaces are equal if and only if they have the same dimension
+        and every basis vector of one is contained in the other. This is a
+        mathematical comparison — unlike ``__eq__``, which checks whether the
+        generating sets contain the same vectors, this method determines
+        whether the two spaces cover the same region of R^n.
+
+        Parameters
+        ----------
+        other : VectorSpace
+            The VectorSpace to compare with.
+
+        Returns
+        -------
+        bool
+            True if both spaces span the same subspace, False otherwise.
+
+        Raises
+        ------
+        TypeError
+            If other is not a VectorSpace.
+        ValueError
+            If the two spaces live in different ambient dimensions.
+
+        Examples
+        --------
+        >>> v1, v2 = Vector([1, 0]), Vector([0, 1])
+        >>> vs1 = VectorSpace([v1, v2])
+        >>> vs2 = VectorSpace([v1, v1 + v2])
+        >>> vs1.same_subspace(vs2)
+        True
+        >>> vs1 == vs2
+        False
+        """
+        if not isinstance(other, VectorSpace):
+            raise TypeError(
+                f"same_subspace() requires a VectorSpace. "
+                f"Got {type(other).__name__}."
+            )
+
+        if self.ambient_dims != other.ambient_dims:
+            raise ValueError(
+                f"Cannot compare subspaces of different ambient dimensions. "
+                f"This space lives in R^{self.ambient_dims}, "
+                f"but the other lives in R^{other.ambient_dims}."
+            )
+
+        if self.dims != other.dims:
+            return False
+
+        return all(other.contains(v) for v in self.basis)

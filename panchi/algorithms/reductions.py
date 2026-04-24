@@ -228,7 +228,9 @@ def ref(matrix: Matrix) -> Reduction:
     operations = []
     pivots = []
     i = 0
-    for j in range(min(matrix.cols, matrix.rows)):
+    for j in range(matrix.cols):
+        if i >= matrix.rows:
+            break
         result, swap_operations = _swap_pivot(i, j, result)
         operations += swap_operations
         if result[i][j] == 0:

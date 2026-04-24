@@ -473,3 +473,60 @@ class TestVectorSpaceContains:
         print(f"\n✓ contains(Vector([1, 0, 0])) in R²-space → raises ValueError")
         with pytest.raises(ValueError):
             vs.contains(Vector([1, 0, 0]))
+
+
+class TestVectorSpaceSameSubspace:
+    """Test cases for mathematical subspace equality comparison."""
+
+    def test_same_generators(self):
+        v1, v2 = Vector([1, 0]), Vector([0, 1])
+        vs1 = VectorSpace([v1, v2])
+        vs2 = VectorSpace([v1, v2])
+        assert vs1.same_subspace(vs2) is True
+
+    def test_different_generators_same_span(self):
+        v1, v2 = Vector([1, 0]), Vector([0, 1])
+        vs1 = VectorSpace([v1, v2])
+        vs2 = VectorSpace([v1, v1 + v2])
+        assert vs1.same_subspace(vs2) is True
+
+    def test_scalar_multiple_single_vector(self):
+        vs1 = VectorSpace([Vector([1, 2])])
+        vs2 = VectorSpace([Vector([2, 4])])
+        assert vs1.same_subspace(vs2) is True
+
+    def test_different_dimensions(self):
+        vs1 = VectorSpace([Vector([1, 0, 0])])
+        vs2 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        assert vs1.same_subspace(vs2) is False
+
+    def test_same_dimension_different_subspaces(self):
+        vs1 = VectorSpace([Vector([1, 0])])
+        vs2 = VectorSpace([Vector([0, 1])])
+        assert vs1.same_subspace(vs2) is False
+
+    def test_full_space_different_bases(self):
+        vs1 = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        vs2 = VectorSpace([Vector([1, 1]), Vector([1, -1])])
+        assert vs1.same_subspace(vs2) is True
+
+    def test_planes_in_r3(self):
+        vs1 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        vs2 = VectorSpace([Vector([1, 1, 0]), Vector([1, -1, 0])])
+        assert vs1.same_subspace(vs2) is True
+
+    def test_different_planes_in_r3(self):
+        vs1 = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        vs2 = VectorSpace([Vector([1, 0, 0]), Vector([0, 0, 1])])
+        assert vs1.same_subspace(vs2) is False
+
+    def test_type_error(self):
+        vs = VectorSpace([Vector([1, 0])])
+        with pytest.raises(TypeError):
+            vs.same_subspace("not a space")
+
+    def test_ambient_dimension_mismatch(self):
+        vs1 = VectorSpace([Vector([1, 0])])
+        vs2 = VectorSpace([Vector([1, 0, 0])])
+        with pytest.raises(ValueError):
+            vs1.same_subspace(vs2)
