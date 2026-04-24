@@ -2,50 +2,54 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/contributing/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/quickstart/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/api/algorithms/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/api/panchi/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/decompositions/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/matrices/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/row-operations/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/row-reduction/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/solving-systems/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/transformations/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
+    </url>
+    <url>
+         <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/vector-spaces/</loc>
+         <lastmod>2026-04-24</lastmod>
     </url>
     <url>
          <loc>https://gustavo-galvao-e-silva.github.io/panchi/user-guide/vectors/</loc>
-         <lastmod>2026-03-11</lastmod>
+         <lastmod>2026-04-24</lastmod>
     </url>
 </urlset>
