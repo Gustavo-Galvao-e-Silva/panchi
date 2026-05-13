@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panchi"
-version = "0.2.0a1"
+version = "0.3.0b1"
 description = "A Python-native linear algebra library for learning, experimentation, and visual intuition"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 keywords = [
   "linear algebra",
   "mathematics",
@@ -27,7 +27,6 @@ classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
@@ -71,6 +70,7 @@ packages = [
   "panchi.primitives",
   "panchi.algorithms",
   "panchi.visualizations",
+  "panchi.visualizations.animators",
   "panchi.visualizations.backends",
 ]
 
@@ -83,8 +83,6 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
-  "--ignore=tests/test_manim.py",
-  "--ignore=tests/test_matplot.py",
   "--strict-markers",
   "--strict-config",
   "-ra",
