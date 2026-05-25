@@ -48,6 +48,19 @@ D = pan.diagonal([1, 2, 3])
 R = pan.rotation_matrix_2d(3.14159 / 2)
 ```
 
+## Exact Arithmetic
+
+panchi supports exact fractions — write them as strings and they stay exact through every operation:
+
+```python
+v = pan.Vector(["1/3", "2/3", "1/2"])
+A = pan.exact_matrix([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
+inv = pan.inverse(A).inverse
+print(A @ inv)  # exact identity matrix, no floating-point drift
+```
+
+See the [Exact Arithmetic guide](user-guide/exact-arithmetic.md) for the full story.
+
 ## Algorithms
 
 Algorithms return result objects that carry both the answer and the work behind it.
