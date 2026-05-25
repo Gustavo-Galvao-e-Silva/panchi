@@ -1,5 +1,6 @@
 from __future__ import annotations
 import random
+from fractions import Fraction
 from math import pi, cos, sin
 
 from panchi.primitives.vector import Vector
@@ -248,7 +249,7 @@ def unit_vector(dims: int, index: int) -> Vector:
     return Vector([1 if i == index else 0 for i in range(dims)])
 
 
-def diagonal(values: list[int | float] | Vector) -> Matrix:
+def diagonal(values: list | Vector) -> Matrix:
     """
     Create a diagonal matrix from a list of values.
 
@@ -257,7 +258,7 @@ def diagonal(values: list[int | float] | Vector) -> Matrix:
 
     Parameters
     ----------
-    values : list[int | float] | Vector
+    values : list[int | float | Fraction] | Vector
         The diagonal values.
 
     Returns
@@ -466,6 +467,69 @@ def rotation_matrix_3d(
     ]
 
     return Matrix([row_1, row_2, row_3])
+
+def exact_vector(data: list) -> Vector:
+    """
+    Create a Vector with all elements converted to Fraction for exact arithmetic.
+
+    This is a convenience factory for working with exact rational arithmetic.
+    All numeric inputs (int, float, string fractions) are converted to Fraction
+    values, ensuring that all subsequent arithmetic stays exact.
+
+    Parameters
+    ----------
+    data : list
+        A list of values to convert. Accepts int, float, Fraction, or strings
+        like '1/3'.
+
+    Returns
+    -------
+    Vector
+        A Vector with all Fraction components.
+
+    Examples
+    --------
+    >>> v = exact_vector([1, 2, 3])
+    >>> print(v)
+    [1, 2, 3]
+    >>> v2 = exact_vector([1, 2, 3])
+    >>> result = v2 / 3
+    >>> print(result)
+    [1/3, 2/3, 1]
+    """
+    return Vector([Fraction(x) if not isinstance(x, Fraction) else x for x in data])
+
+
+def exact_matrix(data: list[list]) -> Matrix:
+    """
+    Create a Matrix with all elements converted to Fraction for exact arithmetic.
+
+    This is a convenience factory for working with exact rational arithmetic.
+    All numeric inputs (int, float, string fractions) are converted to Fraction
+    values, ensuring that all subsequent arithmetic stays exact.
+
+    Parameters
+    ----------
+    data : list[list]
+        A 2D list of values to convert. Accepts int, float, Fraction, or strings
+        like '1/3'.
+
+    Returns
+    -------
+    Matrix
+        A Matrix with all Fraction components.
+
+    Examples
+    --------
+    >>> m = exact_matrix([[1, 2], [3, 4]])
+    >>> print(m)
+    [[1, 2],
+     [3, 4]]
+    """
+    return Matrix(
+        [[Fraction(x) if not isinstance(x, Fraction) else x for x in row] for row in data]
+    )
+
 
 def vector_column_matrix(vectors: list[Vector]) -> Matrix:
     # Add type guard

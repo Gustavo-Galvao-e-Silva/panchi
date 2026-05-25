@@ -1,3 +1,4 @@
+from panchi.types import Scalar
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.factories import identity
@@ -34,7 +35,7 @@ def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
     return result
 
 
-def _main_diagonal_product(matrix: Matrix) -> float:
+def _main_diagonal_product(matrix: Matrix) -> Scalar:
     """
     Compute the product of all entries on the main diagonal.
 

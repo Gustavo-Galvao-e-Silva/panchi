@@ -1,6 +1,8 @@
 from __future__ import annotations
+from fractions import Fraction
 from typing import Iterator, overload
 
+from panchi.types import Scalar, SCALAR_TYPES, parse_scalar
 from panchi.primitives.vector import Vector
 
 
@@ -14,12 +16,13 @@ class Matrix:
 
     Parameters
     ----------
-    data : list[list[int | float]]
+    data : list[list[int | float | Fraction | str]]
         A 2D list representing the matrix. All rows must have the same length.
+        Strings like '1/3' are automatically parsed as Fraction values.
 
     Attributes
     ----------
-    data : list[list[int | float]]
+    data : list[list[int | float | Fraction]]
         The underlying 2D list of matrix elements.
     shape : tuple[int, int]
         The dimensions of the matrix as (rows, columns).
@@ -41,7 +44,7 @@ class Matrix:
      [3, 4]]
     """
 
-    def __init__(self, data: list[list[int | float]]) -> None:
+    def __init__(self, data: list[list[int | float | Fraction | str]]) -> None:
         if not isinstance(data, list):
             raise TypeError(
                 f"Matrix data must be a list. Got {type(data).__name__} instead."
@@ -55,17 +58,23 @@ class Matrix:
                 f"All rows must be lists. Found invalid row type(s): {', '.join(set(bad_types))}"
             )
 
+        parsed_data = []
         if data:
             for i, row in enumerate(data):
+                parsed_row = []
                 for j, elem in enumerate(row):
-                    if not isinstance(elem, (int, float)):
+                    try:
+                        parsed_row.append(parse_scalar(elem))
+                    except TypeError:
                         raise TypeError(
-                            f"All matrix elements must be numbers (int or float). "
+                            f"All matrix elements must be numbers (int, float, Fraction, "
+                            f"or string like '1/3'). "
                             f"Found {type(elem).__name__} at position [{i}][{j}]."
                         )
+                parsed_data.append(parsed_row)
 
-        self.data = data
-        self.shape = (len(self.data), len(self.data[0])) if data else (0, 0)
+        self.data = parsed_data
+        self.shape = (len(self.data), len(self.data[0])) if parsed_data else (0, 0)
 
         if self.data:
             expected_cols = self.cols
@@ -147,7 +156,7 @@ class Matrix:
 
         return Matrix(result)
 
-    def __getitem__(self, index: int) -> list[int | float]:
+    def __getitem__(self, index: int) -> list[Scalar]:
         """
         Access a row of the matrix by index.
 
@@ -158,7 +167,7 @@ class Matrix:
 
         Returns
         -------
-        list[int | float]
+        list[int | float | Fraction]
             The row at the specified index.
 
         Raises
@@ -185,7 +194,7 @@ class Matrix:
 
         return self.data[index]
 
-    def __setitem__(self, index: int, new_row: list[int | float]) -> None:
+    def __setitem__(self, index: int, new_row: list[Scalar]) -> None:
         """
         Replace a row of the matrix at a given index.
 
@@ -197,7 +206,7 @@ class Matrix:
         ----------
         index : int
             The row index (0-based). Negative indices are supported.
-        new_row : list[int | float]
+        new_row : list[int | float | Fraction]
             The new row to assign. Must contain only numbers and have the
             same length as the other rows in this matrix.
 
@@ -226,9 +235,9 @@ class Matrix:
             raise TypeError(f"Row must be a list. Got {type(new_row).__name__}.")
 
         for j, elem in enumerate(new_row):
-            if not isinstance(elem, (int, float)):
+            if not isinstance(elem, SCALAR_TYPES):
                 raise TypeError(
-                    f"All row elements must be numbers (int or float). "
+                    f"All row elements must be numbers (int, float, or Fraction). "
                     f"Found {type(elem).__name__} at position [{j}]."
                 )
 
@@ -460,7 +469,7 @@ class Matrix:
 
         return self._apply_transformation(other)
 
-    def __rmul__(self, other: int | float) -> Matrix:
+    def __rmul__(self, other: Scalar) -> Matrix:
         """
         Multiply matrix by a scalar (from the left).
 
@@ -468,7 +477,7 @@ class Matrix:
 
         Parameters
         ----------
-        other : int | float
+        other : int | float | Fraction
             The scalar to multiply by.
 
         Returns
@@ -489,10 +498,10 @@ class Matrix:
         [[3, 6],
          [9, 12]]
         """
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, SCALAR_TYPES):
             raise TypeError(
                 f"Cannot multiply Matrix by {type(other).__name__}. "
-                f"Scalar must be a number (int or float)."
+                f"Scalar must be a number (int, float, or Fraction)."
             )
 
         result = []
@@ -644,7 +653,10 @@ class Matrix:
         [[1, 2],
          [3, 4]]
         """
-        rows = ",\n ".join(str(row) for row in self.data)
+        formatted_rows = []
+        for row in self.data:
+            formatted_rows.append("[" + ", ".join(str(x) for x in row) + "]")
+        rows = ",\n ".join(formatted_rows)
         return f"[{rows}]"
 
     def __repr__(self) -> str:
@@ -855,7 +867,7 @@ class Matrix:
         return det
 
     @property
-    def trace(self) -> int | float:
+    def trace(self) -> Scalar:
         """
         Calculate the trace of the matrix.
 
@@ -865,7 +877,7 @@ class Matrix:
 
         Returns
         -------
-        int | float
+        int | float | Fraction
             The sum of the diagonal elements.
 
         Raises
@@ -1028,13 +1040,13 @@ class Matrix:
 
         return Matrix(result)
 
-    def to_list(self) -> list[list[int | float]]:
+    def to_list(self) -> list[list[Scalar]]:
         """
         Convert the matrix to a 2D list.
 
         Returns
         -------
-        list[list[int | float]]
+        list[list[int | float | Fraction]]
             A copy of the matrix data as a 2D list.
 
         Examples

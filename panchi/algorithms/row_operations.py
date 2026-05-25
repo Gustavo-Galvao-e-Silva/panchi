@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import overload
 
+from panchi.types import Scalar, SCALAR_TYPES
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.factories import identity
@@ -323,8 +324,8 @@ class RowSwap(RowOperation):
         self._validate_indices(n)
 
         grid: Matrix = identity(n)
-        row_a: list[int | float] = grid[self.a].copy()
-        row_b: list[int | float] = grid[self.b].copy()
+        row_a: list[Scalar] = grid[self.a].copy()
+        row_b: list[Scalar] = grid[self.b].copy()
         grid[self.a] = row_b
         grid[self.b] = row_a
 
@@ -415,7 +416,7 @@ class RowScale(RowOperation):
     ----------
     row : int
         Index of the row to scale (0-based).
-    scalar : int | float
+    scalar : int | float | Fraction
         The non-zero value to multiply the row by.
 
     Examples
@@ -437,7 +438,7 @@ class RowScale(RowOperation):
     'RowScale(row=1, scalar=3)'
     """
 
-    def __init__(self, row: int, scalar: int | float) -> None:
+    def __init__(self, row: int, scalar: Scalar) -> None:
         self.row = row
         self.scalar = scalar
         self._validate_row_type()
@@ -484,13 +485,13 @@ class RowScale(RowOperation):
         Raises
         ------
         TypeError
-            If scalar is not an int or float.
+            If scalar is not an int, float, or Fraction.
         ValueError
             If scalar is zero.
         """
-        if not isinstance(self.scalar, (int, float)):
+        if not isinstance(self.scalar, SCALAR_TYPES):
             raise TypeError(
-                f"Scalar must be a number (int or float). "
+                f"Scalar must be a number (int, float, or Fraction). "
                 f"Got {type(self.scalar).__name__}."
             )
 
@@ -633,7 +634,7 @@ class RowAdd(RowOperation):
         Index of the row being modified (0-based).
     source : int
         Index of the row being added (0-based). Must differ from target.
-    scalar : int | float
+    scalar : int | float | Fraction
         The value to multiply the source row by before adding.
 
     Examples
@@ -655,7 +656,7 @@ class RowAdd(RowOperation):
     'RowAdd(target=1, source=0, scalar=-3)'
     """
 
-    def __init__(self, target: int, source: int, scalar: int | float) -> None:
+    def __init__(self, target: int, source: int, scalar: Scalar) -> None:
         self.target = target
         self.source = source
         self.scalar = scalar
@@ -720,11 +721,11 @@ class RowAdd(RowOperation):
         Raises
         ------
         TypeError
-            If scalar is not an int or float.
+            If scalar is not an int, float, or Fraction.
         """
-        if not isinstance(self.scalar, (int, float)):
+        if not isinstance(self.scalar, SCALAR_TYPES):
             raise TypeError(
-                f"Scalar must be a number (int or float). "
+                f"Scalar must be a number (int, float, or Fraction). "
                 f"Got {type(self.scalar).__name__}."
             )
 

@@ -1,5 +1,8 @@
 from __future__ import annotations
+from fractions import Fraction
 from typing import Iterator
+
+from panchi.types import Scalar, SCALAR_TYPES, parse_scalar
 
 
 class Vector:
@@ -12,12 +15,13 @@ class Vector:
 
     Parameters
     ----------
-    data : list[int | float]
-        A list of numbers representing the vector components.
+    data : list[int | float | Fraction | str]
+        A list of numbers representing the vector components. Strings
+        like '1/3' are automatically parsed as Fraction values.
 
     Attributes
     ----------
-    data : list[int | float]
+    data : list[int | float | Fraction]
         The underlying list of vector components.
     shape : tuple[int, int]
         The dimensions of the vector as (dims, 1).
@@ -36,16 +40,24 @@ class Vector:
     [1, 2, 3]
     """
 
-    def __init__(self, data: list[int | float]) -> None:
-        if not (
-            isinstance(data, list) and all(isinstance(x, (int, float)) for x in data)
-        ):
+    def __init__(self, data: list[int | float | Fraction | str]) -> None:
+        if not isinstance(data, list):
             raise TypeError("Vectors can only be created with lists of numbers")
 
-        self.data = data
-        self.shape = (len(data), 1)
+        parsed = []
+        for i, x in enumerate(data):
+            try:
+                parsed.append(parse_scalar(x))
+            except TypeError:
+                raise TypeError(
+                    f"All vector elements must be numbers (int, float, Fraction, "
+                    f"or string like '1/3'). Found {type(x).__name__} at index {i}."
+                )
 
-    def __getitem__(self, key: int) -> int | float:
+        self.data = parsed
+        self.shape = (len(parsed), 1)
+
+    def __getitem__(self, key: int) -> Scalar:
         """
         Access a vector component by index.
 
@@ -56,7 +68,7 @@ class Vector:
 
         Returns
         -------
-        int | float
+        int | float | Fraction
             The value at the specified index.
 
         Raises
@@ -77,7 +89,7 @@ class Vector:
 
         return self.data[key]
 
-    def __setitem__(self, key: int, new_value: int | float) -> None:
+    def __setitem__(self, key: int, new_value: Scalar) -> None:
         """
         Set a vector component at a specific index.
 
@@ -85,7 +97,7 @@ class Vector:
         ----------
         key : int
             The index (0-based) of the component to modify.
-        new_value : int | float
+        new_value : int | float | Fraction
             The new value to assign.
 
         Raises
@@ -103,7 +115,7 @@ class Vector:
         if not isinstance(key, int):
             raise TypeError("Indexes can only be integer values")
 
-        if not isinstance(new_value, (int, float)):
+        if not isinstance(new_value, SCALAR_TYPES):
             raise TypeError("Vectors can only hold numbers")
 
         self.data[key] = new_value
@@ -229,7 +241,7 @@ class Vector:
 
         return Vector(result)
 
-    def __rmul__(self, other: int | float) -> Vector:
+    def __rmul__(self, other: Scalar) -> Vector:
         """
         Multiply vector by a scalar (from the left).
 
@@ -237,7 +249,7 @@ class Vector:
 
         Parameters
         ----------
-        other : int | float
+        other : int | float | Fraction
             The scalar to multiply by.
 
         Returns
@@ -257,7 +269,7 @@ class Vector:
         >>> print(result)
         [3, 6, 9]
         """
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, SCALAR_TYPES):
             return NotImplemented
 
         result = []
@@ -267,7 +279,7 @@ class Vector:
 
         return Vector(result)
 
-    def __truediv__(self, other: int | float) -> Vector:
+    def __truediv__(self, other: Scalar) -> Vector:
         """
         Divide vector by a scalar.
 
@@ -275,7 +287,7 @@ class Vector:
 
         Parameters
         ----------
-        other : int | float
+        other : int | float | Fraction
             The scalar to divide by.
 
         Returns
@@ -295,7 +307,7 @@ class Vector:
         >>> print(result)
         [2.0, 3.0, 4.0]
         """
-        if not isinstance(other, (int, float)):
+        if not isinstance(other, SCALAR_TYPES):
             return NotImplemented
 
         result = []
@@ -374,7 +386,7 @@ class Vector:
         >>> print(v)
         [1, 2, 3]
         """
-        return f"{self.data}"
+        return "[" + ", ".join(str(x) for x in self.data) + "]"
 
     def __repr__(self) -> str:
         """
@@ -483,13 +495,13 @@ class Vector:
         """
         return Vector(self.data.copy())
 
-    def to_list(self) -> list[int | float]:
+    def to_list(self) -> list[Scalar]:
         """
         Convert the vector to a list.
 
         Returns
         -------
-        list[int | float]
+        list[int | float | Fraction]
             A copy of the vector components as a list.
 
         Examples
@@ -500,13 +512,13 @@ class Vector:
         """
         return self.data.copy()
 
-    def to_tuple(self) -> tuple[int | float, ...]:
+    def to_tuple(self) -> tuple[Scalar, ...]:
         """
         Convert the vector to a tuple.
 
         Returns
         -------
-        tuple[int | float, ...]
+        tuple[int | float | Fraction, ...]
             The vector components as a tuple.
 
         Examples
