@@ -12,7 +12,14 @@ print(v)       # [1, 2, 3]
 print(v.dims)  # 3
 ```
 
-Vectors can only hold numbers (int or float). Passing anything else raises a `TypeError` with an explanation.
+Vectors hold numbers (int, float, or Fraction). You can write fractions as strings:
+
+```python
+v = pan.Vector(["1/3", "2/3", "1/2"])
+print(v)  # [1/3, 2/3, 1/2]
+```
+
+For full details on exact arithmetic, see [Exact Arithmetic](exact-arithmetic.md).
 
 ## Arithmetic
 

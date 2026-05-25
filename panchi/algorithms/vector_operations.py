@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from panchi.types import Scalar
 from panchi.primitives.vector import Vector
 
 
-def dot(vector_1: Vector, vector_2: Vector) -> float:
+def dot(vector_1: Vector, vector_2: Vector) -> Scalar:
     """
     Compute the dot product (inner product) of two vectors.
 
@@ -19,7 +20,7 @@ def dot(vector_1: Vector, vector_2: Vector) -> float:
 
     Returns
     -------
-    float
+    int | float | Fraction
         The dot product of the two vectors.
 
     Raises

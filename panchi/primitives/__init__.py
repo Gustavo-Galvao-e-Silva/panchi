@@ -18,6 +18,8 @@ from panchi.primitives.factories import (
     rotation_matrix_2d,
     rotation_matrix_3d,
     vector_column_matrix,
+    exact_vector,
+    exact_matrix,
 )
 
 __all__ = [
@@ -36,4 +38,6 @@ __all__ = [
     "rotation_matrix_2d",
     "rotation_matrix_3d",
     "vector_column_matrix",
+    "exact_vector",
+    "exact_matrix",
 ]

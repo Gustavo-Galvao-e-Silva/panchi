@@ -36,6 +36,12 @@ import panchi as pan
 
 ::: panchi.rotation_matrix_3d
 
+## Exact arithmetic factories
+
+::: panchi.exact_vector
+
+::: panchi.exact_matrix
+
 ## Vector operations
 
 ::: panchi.dot

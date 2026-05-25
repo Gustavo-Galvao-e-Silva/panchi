@@ -17,6 +17,15 @@ print(A.cols)   # 3
 
 Every row must have the same number of columns. Inconsistent rows raise a `ValueError`.
 
+Matrices accept fractions as strings:
+
+```python
+A = pan.Matrix([["1/2", "1/3"],
+                ["1/4", "1/5"]])
+```
+
+See [Exact Arithmetic](exact-arithmetic.md) for more on working with rational numbers.
+
 ## Arithmetic
 
 ```python
