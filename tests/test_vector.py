@@ -99,8 +99,8 @@ class TestVectorAddition:
     def test_add_different_dimensions(self):
         v1 = Vector([1, 2])
         v2 = Vector([1, 2, 3])
-        print(f"\n✓ [1,2] + [1,2,3] → raises TypeError (dimension mismatch)")
-        with pytest.raises(TypeError):
+        print(f"\n✓ [1,2] + [1,2,3] → raises ValueError (dimension mismatch)")
+        with pytest.raises(ValueError):
             _ = v1 + v2
 
     def test_add_non_vector(self):
@@ -137,8 +137,8 @@ class TestVectorSubtraction:
     def test_subtract_different_dimensions(self):
         v1 = Vector([1, 2])
         v2 = Vector([1, 2, 3])
-        print(f"\n✓ [1,2] - [1,2,3] → raises TypeError")
-        with pytest.raises(TypeError):
+        print(f"\n✓ [1,2] - [1,2,3] → raises ValueError (dimension mismatch)")
+        with pytest.raises(ValueError):
             _ = v1 - v2
 
     def test_subtract_non_vector(self):

@@ -176,7 +176,9 @@ class Vector:
         Raises
         ------
         TypeError
-            If other is not a Vector or dimensions don't match.
+            If other is not a Vector.
+        ValueError
+            If vectors have different dimensions.
 
         Examples
         --------
@@ -187,10 +189,16 @@ class Vector:
         [5, 7, 9]
         """
         if not isinstance(other, Vector):
-            raise TypeError("Cannot add up non-matrix objects to matrix")
+            raise TypeError(
+                f"Cannot add Vector and {type(other).__name__}. "
+                f"Both operands must be vectors."
+            )
 
         if self.dims != other.dims:
-            raise TypeError("Cannot add up vectors with different dimensions")
+            raise ValueError(
+                f"Cannot add vectors with different dimensions. "
+                f"First vector is {self.dims}D, second vector is {other.dims}D."
+            )
 
         result = []
         row_num = self.dims
@@ -218,7 +226,9 @@ class Vector:
         Raises
         ------
         TypeError
-            If other is not a Vector or dimensions don't match.
+            If other is not a Vector.
+        ValueError
+            If vectors have different dimensions.
 
         Examples
         --------
@@ -229,10 +239,16 @@ class Vector:
         [4, 5, 6]
         """
         if not isinstance(other, Vector):
-            raise TypeError("Cannot add up non-matrix objects to matrix")
+            raise TypeError(
+                f"Cannot subtract {type(other).__name__} from Vector. "
+                f"Both operands must be vectors."
+            )
 
         if self.dims != other.dims:
-            raise TypeError(f"Cannot add up vectors with different dimensions")
+            raise ValueError(
+                f"Cannot subtract vectors with different dimensions. "
+                f"First vector is {self.dims}D, second vector is {other.dims}D."
+            )
 
         result = []
         row_num = self.dims
