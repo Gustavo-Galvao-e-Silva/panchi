@@ -121,7 +121,7 @@ git checkout -b feature/your-feature-name
 panchi/
 ├── primitives/        # Core classes (Vector, Matrix) and factory functions
 ├── algorithms/        # Reductions, decompositions, and other complex algorithms
-└── visualizations/    # Plotting utilities
+└── visualizations/    # Animator2D and backends (matplotlib, manim)
 ```
 
 ### Naming Conventions
@@ -437,14 +437,13 @@ Implement using Gram-Schmidt process.
 - Clear step-by-step implementation
 - Verification tests
 
-#### 2. Visualization Tools
-Create functions to visualize vectors and transformations.
+#### 2. Visualization Enhancements
+The `Animator2D` class (see [Visualizations](user-guide/visualizations.md)) covers vectors, addition, scaling, linear transformations, and spans. Contributions welcome for:
 
-**Requirements:**
-- Simple, clear visualizations
-- Works with existing Vector/Matrix classes
-- Matplotlib or Manim (optional dependency) 
-- Examples in documentation
+- 3D visualization support
+- RREF step-by-step animation
+- Projection visualization
+- Additional animation styles or color themes
 
 ### Also Welcome
 

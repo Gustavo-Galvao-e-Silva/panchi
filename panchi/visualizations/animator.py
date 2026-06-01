@@ -1,0 +1,265 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
+from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.base import _BaseBackend
+
+
+class Animator2D:
+    """2D visualization of vectors, matrices, and linear transformations.
+
+    Parameters
+    ----------
+    backend : str
+        Visualization backend: ``"matplotlib"`` (default) or ``"manim"``.
+    save_path : str or Path, optional
+        Directory for saving output. If ``None``, matplotlib displays
+        interactively and manim saves to ``./media``.
+    quality : str
+        Render quality: ``"low"``, ``"medium"`` (default), ``"high"``,
+        or ``"production"`` (manim only).
+    figsize : tuple[int, int]
+        Figure size in inches (matplotlib only). Default ``(8, 8)``.
+
+    Examples
+    --------
+    >>> from panchi import Vector, Matrix
+    >>> from panchi.visualizations import Animator2D
+    >>>
+    >>> animator = Animator2D()
+    >>> animator.plot_vectors(Vector([3, 2]), Vector([1, 3]))
+    >>> animator.animate_transform(Matrix([[0, -1], [1, 0]]))
+    """
+
+    def __init__(
+        self,
+        backend: str = "matplotlib",
+        save_path: str | Path | None = None,
+        quality: str = "medium",
+        figsize: tuple[int, int] = (8, 8),
+    ) -> None:
+        resolved_path = Path(save_path) if save_path else None
+
+        if backend == "matplotlib":
+            from panchi.visualizations.matplotlib import _MatplotlibBackend
+
+            self._backend: _BaseBackend = _MatplotlibBackend(
+                save_path=resolved_path,
+                quality=quality,
+                figsize=figsize,
+            )
+        elif backend == "manim":
+            from panchi.visualizations.manim import _ManimBackend
+
+            self._backend = _ManimBackend(
+                save_path=resolved_path or Path("./media"),
+                quality=quality,
+            )
+        else:
+            raise ValueError(
+                f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'."
+            )
+
+        self.backend = backend
+
+    def plot_vectors(
+        self,
+        *vectors: Vector,
+        colors: list[str] | None = None,
+        labels: list[str] | None = None,
+        grid: bool = True,
+        name: str | None = None,
+    ) -> None:
+        """Plot one or more 2D vectors.
+
+        Parameters
+        ----------
+        *vectors : Vector
+            2D vectors to plot.
+        colors : list[str], optional
+            Colors for each vector.
+        labels : list[str], optional
+            Labels for each vector.
+        grid : bool
+            Whether to show grid lines. Default ``True``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        self._validate_2d(*vectors)
+        self._backend.plot_vectors(
+            *vectors,
+            colors=colors,
+            labels=labels,
+            grid=grid,
+            name=name or "plot_vectors",
+        )
+
+    def animate_addition(
+        self,
+        v1: Vector,
+        v2: Vector,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+    ) -> None:
+        """Animate the addition of two 2D vectors.
+
+        Parameters
+        ----------
+        v1 : Vector
+            First vector.
+        v2 : Vector
+            Second vector.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        self._validate_2d(v1, v2)
+        self._backend.animate_addition(
+            v1, v2, frames=frames, interval=interval, name=name or "animate_addition"
+        )
+
+    def animate_scaling(
+        self,
+        vector: Vector,
+        scale_factor: float,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+    ) -> None:
+        """Animate scalar multiplication of a 2D vector.
+
+        Parameters
+        ----------
+        vector : Vector
+            Vector to scale.
+        scale_factor : float
+            Scaling factor.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        self._validate_2d(vector)
+        self._backend.animate_scaling(
+            vector,
+            scale_factor,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_scaling",
+        )
+
+    def animate_transform(
+        self,
+        matrix: Matrix,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+    ) -> None:
+        """Animate a 2x2 linear transformation with full grid deformation.
+
+        Shows the standard basis vectors and coordinate grid morphing
+        smoothly from the identity to the given matrix.
+
+        Parameters
+        ----------
+        matrix : Matrix
+            A 2x2 transformation matrix.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        self._validate_2x2(matrix)
+        self._backend.animate_transform(
+            matrix,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_transform",
+        )
+
+    def plot_span(
+        self,
+        *vectors_or_space: Vector | VectorSpace,
+        colors: list[str] | None = None,
+        labels: list[str] | None = None,
+        grid: bool = True,
+        name: str | None = None,
+    ) -> None:
+        """Visualize the span of vectors with a shaded region and basis arrows.
+
+        Accepts either a ``VectorSpace`` or one or more ``Vector`` objects.
+        A 1D subspace is drawn as a line through the origin; a 2D subspace
+        shades the entire plane.
+
+        Parameters
+        ----------
+        *vectors_or_space : Vector or VectorSpace
+            A single ``VectorSpace``, or one or more 2D ``Vector`` objects.
+        colors : list[str], optional
+            Colors for the basis vectors.
+        labels : list[str], optional
+            Labels for the basis vectors.
+        grid : bool
+            Whether to show grid lines. Default ``True``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        vectors, space = self._resolve_span_input(vectors_or_space)
+        self._validate_2d(*vectors)
+        self._backend.plot_span(
+            vectors,
+            space,
+            colors=colors,
+            labels=labels,
+            grid=grid,
+            name=name or "plot_span",
+        )
+
+    @staticmethod
+    def _validate_2d(*vectors: Vector) -> None:
+        for v in vectors:
+            if v.dims != 2:
+                raise ValueError(
+                    f"Only 2D vectors are supported for visualization. "
+                    f"Got {v.dims}D vector: {v}"
+                )
+
+    @staticmethod
+    def _validate_2x2(matrix: Matrix) -> None:
+        if matrix.shape != (2, 2):
+            raise ValueError(
+                f"Only 2x2 matrices are supported for transformation "
+                f"visualization. Got shape {matrix.rows}x{matrix.cols}."
+            )
+
+    @staticmethod
+    def _resolve_span_input(
+        args: tuple[Vector | VectorSpace, ...],
+    ) -> tuple[list[Vector], VectorSpace]:
+        if len(args) == 1 and isinstance(args[0], VectorSpace):
+            space = args[0]
+            return list(space.data), space
+
+        vectors = []
+        for arg in args:
+            if not isinstance(arg, Vector):
+                raise TypeError(
+                    f"Expected Vector or VectorSpace, got {type(arg).__name__}."
+                )
+            vectors.append(arg)
+
+        if not vectors:
+            raise ValueError("At least one Vector or VectorSpace is required.")
+
+        return vectors, VectorSpace(vectors)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panchi"
-version = "0.3.1b1"
+version = "1.0.0"
 description = "A Python-native linear algebra library for learning, experimentation, and visual intuition"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,7 +24,7 @@ maintainers = [
   { name = "Gustavo Galvao e Silva", email = "gustavo.galvaoesilva@gmail.com" },
 ]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
   "Operating System :: OS Independent",
@@ -70,8 +70,6 @@ packages = [
   "panchi.primitives",
   "panchi.algorithms",
   "panchi.visualizations",
-  "panchi.visualizations.animators",
-  "panchi.visualizations.backends",
 ]
 
 [tool.setuptools.package-data]
@@ -86,6 +84,9 @@ addopts = [
   "--strict-markers",
   "--strict-config",
   "-ra",
+]
+markers = [
+  "manim: tests requiring manim installation",
 ]
 
 [tool.black]

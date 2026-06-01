@@ -78,6 +78,31 @@ print(reduction)         # full step-by-step walkthrough
 
 The step-by-step output is panchi's most distinctive feature — every algorithm lets you see exactly what happened, not just the final answer.
 
+## Visualizations
+
+panchi can visualize vectors, transformations, and spans right out of the box.
+
+```python
+from panchi.visualizations import Animator2D
+
+animator = Animator2D()
+
+# Plot vectors
+animator.plot_vectors(pan.Vector([3, 2]), pan.Vector([-1, 3]), labels=["v1", "v2"])
+
+# Animate a linear transformation (grid morph)
+animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))
+```
+
+For video output, use the manim backend (`pip install panchi[manim]`):
+
+```python
+animator = Animator2D(backend="manim", save_path="./videos")
+animator.animate_transform(pan.Matrix([[1, 1], [0, 1]]))
+```
+
+See the [Visualizations guide](user-guide/visualizations.md) for the full feature set.
+
 ---
 
 From here, explore the [User Guide](user-guide/vectors.md) for the concepts and math behind each part of the library.
