@@ -33,7 +33,7 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 - LU decomposition with partial pivoting
 - Matrix inverse and linear system solving
 - Rich result formats for algorithms, allowing for step-by-step inspection
-- Visualization via Matplotlib, with optional Manim backend
+- [2D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend
 
 ---
 

@@ -76,6 +76,15 @@ print(reduction)        # full step-by-step walkthrough
 print(reduction.rank)   # 3
 ```
 
+See what a matrix does to the plane:
+
+```python
+from panchi.visualizations import Animator2D
+
+animator = Animator2D()
+animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))  # 90° rotation
+```
+
 ---
 
 ## Documentation

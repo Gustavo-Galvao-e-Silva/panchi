@@ -63,7 +63,9 @@ nav:
     - Row Reduction: user-guide/row-reduction.md
     - Decompositions: user-guide/decompositions.md
     - Solving Systems: user-guide/solving-systems.md
+    - Visualizations: user-guide/visualizations.md
   - API Reference:
     - panchi: api/panchi.md
     - panchi.algorithms: api/algorithms.md
+    - panchi.visualizations: api/visualizations.md
   - Contributing: contributing.md
