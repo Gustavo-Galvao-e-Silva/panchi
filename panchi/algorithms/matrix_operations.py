@@ -293,7 +293,28 @@ def solve(A: Matrix, b: Vector) -> Solution:
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
-        return Solution(A, b, "infinite", None, steps)
+        from panchi.primitives.vector_space import VectorSpace
+
+        n = A.cols
+        pivot_cols = {col for _, col in matrix_rref.pivots}
+        pivot_map = {col: row for row, col in matrix_rref.pivots}
+        free_cols = [j for j in range(n) if j not in pivot_cols]
+
+        null_vectors = []
+        for fc in free_cols:
+            components: list[Scalar] = [0] * n
+            components[fc] = 1
+            for pc, pr in pivot_map.items():
+                components[pc] = -matrix_rref.result[pr][fc]
+            null_vectors.append(Vector(components))
+
+        particular_components: list[Scalar] = [0] * n
+        for pc, pr in pivot_map.items():
+            particular_components[pc] = applied_b[pr]
+        particular = Vector(particular_components)
+
+        null_space = VectorSpace(null_vectors)
+        return Solution(A, b, "infinite", None, steps, particular, null_space)
 
     pivot_row_indices = [row for row, _ in sorted(matrix_rref.pivots, key=lambda p: p[1])]
     solution = Vector([applied_b[row] for row in pivot_row_indices])

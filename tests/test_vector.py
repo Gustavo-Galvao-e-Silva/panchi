@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 import pytest
 
 from panchi.primitives import Vector
@@ -181,6 +183,21 @@ class TestVectorScalarMultiplication:
         with pytest.raises(TypeError):
             result = "string" * v
 
+    def test_right_multiply_integer(self):
+        v = Vector([1, 2, 3])
+        result = v * 3
+        print(f"\n✓ [1,2,3] * 3 = {result.data} (expected [3,6,9])")
+        assert result.data == [3, 6, 9]
+
+    def test_right_multiply_fraction(self):
+        v = Vector([2, 4, 6])
+        result = v * Fraction(1, 2)
+        assert result.data == [Fraction(1, 1), Fraction(2, 1), Fraction(3, 1)]
+
+    def test_right_multiply_equals_left(self):
+        v = Vector([1, 2, 3])
+        assert v * 5 == 5 * v
+
 
 class TestVectorSetItem:
     """Test cases for Vector element assignment."""
@@ -208,6 +225,16 @@ class TestVectorSetItem:
         print(f"\n✓ v[0] = 'string' → raises TypeError")
         with pytest.raises(TypeError):
             v[0] = "string"
+
+    def test_set_string_fraction(self):
+        v = Vector([1, 2, 3])
+        v[0] = '1/3'
+        assert v[0] == Fraction(1, 3)
+
+    def test_set_string_integer(self):
+        v = Vector([1, 2, 3])
+        v[0] = '5'
+        assert v[0] == 5
 
 
 class TestVectorDivision:

@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 import pytest
 
 from panchi.primitives import Matrix, Vector, identity
@@ -320,3 +322,78 @@ class TestSolveInfinite:
         A = Matrix([[0, 0], [0, 0]])
         b = Vector([0, 0])
         assert solve(A, b).status == "infinite"
+
+    def test_particular_satisfies_system(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([7, 8])
+        result = solve(A, b)
+        assert result.particular is not None
+        assert A @ result.particular == b
+
+    def test_null_space_vectors_in_kernel(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([7, 8])
+        result = solve(A, b)
+        zero = Vector([0, 0])
+        for v in result.null_space:
+            assert A @ v == zero
+
+    def test_null_space_dimension_equals_nullity(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([7, 8])
+        result = solve(A, b)
+        assert result.null_space.dims == 1
+
+    def test_rank_deficient_square(self):
+        A = Matrix([[1, 2], [2, 4]])
+        b = Vector([1, 2])
+        result = solve(A, b)
+        assert result.particular is not None
+        assert A @ result.particular == b
+        assert result.null_space.dims == 1
+
+    def test_homogeneous_particular_is_zero(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([0, 0])
+        result = solve(A, b)
+        zero = Vector([0, 0, 0])
+        assert result.particular == zero
+
+    def test_str_nonhomogeneous(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([7, 8])
+        result = solve(A, b)
+        s = str(result)
+        assert "infinite" in s
+        assert "x = " in s
+        assert "t·" in s
+
+    def test_str_homogeneous_omits_zero(self):
+        A = Matrix([[1, 2, 3], [4, 5, 6]])
+        b = Vector([0, 0])
+        result = solve(A, b)
+        s = str(result)
+        assert "x = t·" in s
+
+    def test_two_free_variables(self):
+        A = Matrix([[1, 2, 3, 4], [5, 6, 7, 8]])
+        b = Vector([9, 10])
+        result = solve(A, b)
+        assert result.null_space.dims == 2
+        assert result.particular is not None
+        assert A @ result.particular == b
+        zero = Vector([0, 0])
+        for v in result.null_space:
+            assert A @ v == zero
+        s = str(result)
+        assert "s·" in s
+        assert "t·" in s
+
+    def test_three_free_variables(self):
+        A = Matrix([[1, 0, 1, 0, 1]])
+        b = Vector([1])
+        result = solve(A, b)
+        assert result.null_space.dims == 4
+        s = str(result)
+        assert "t1·" in s
+        assert "t4·" in s

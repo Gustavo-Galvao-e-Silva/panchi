@@ -1,3 +1,5 @@
+from fractions import Fraction
+
 import pytest
 
 from panchi.primitives import Matrix, Vector
@@ -92,6 +94,25 @@ class TestMatrixIndexing:
         print(f"\n✓ m[1.5] → raises TypeError")
         with pytest.raises(TypeError):
             _ = m[1.5]
+
+
+class TestMatrixSetItem:
+    """Test cases for Matrix __setitem__ with parse_scalar support."""
+
+    def test_setitem_with_string_fraction(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m[0] = ['1/3', '2/3']
+        assert m[0] == [Fraction(1, 3), Fraction(2, 3)]
+
+    def test_setitem_with_integer_strings(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m[0] = [10, 20]
+        assert m[0] == [10, 20]
+
+    def test_setitem_rejects_invalid_type(self):
+        m = Matrix([[1, 2], [3, 4]])
+        with pytest.raises(TypeError):
+            m[0] = [1, [2]]
 
 
 class TestMatrixAddition:
@@ -198,11 +219,11 @@ class TestMatrixMultiplication:
         print(f"\n✓ M * I = {result.data} (expected [[1,2],[3,4]])")
         assert result.data == [[1, 2], [3, 4]]
 
-    def test_multiply_by_non_matrix(self):
+    def test_matmul_by_non_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ Matrix * scalar → raises TypeError")
+        print(f"\n✓ Matrix @ string → raises TypeError")
         with pytest.raises(TypeError):
-            result = m * 5
+            _ = m @ "hello"
 
 
 class TestMatrixScalarMultiplication:
@@ -233,6 +254,22 @@ class TestMatrixScalarMultiplication:
         result = -1 * m
         print(f"\n✓ -1 * M = {result.data} (expected [[-1,-2],[-3,-4]])")
         assert result.data == [[-1, -2], [-3, -4]]
+
+    def test_right_multiply_integer(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m * 3
+        print(f"\n✓ [[1,2],[3,4]] * 3 = {result.data} (expected [[3,6],[9,12]])")
+        assert result.data == [[3, 6], [9, 12]]
+
+    def test_right_multiply_fraction(self):
+        m = Matrix([[2, 4], [6, 8]])
+        result = m * Fraction(1, 2)
+        print(f"\n✓ M * 1/2 = {result.data}")
+        assert result.data == [[Fraction(1, 1), Fraction(2, 1)], [Fraction(3, 1), Fraction(4, 1)]]
+
+    def test_right_multiply_equals_left(self):
+        m = Matrix([[1, 2], [3, 4]])
+        assert m * 5 == 5 * m
 
 
 class TestMatrixEquality:
@@ -550,59 +587,59 @@ class TestMatrixDeterminant:
 
 
 class TestMatrixRowCol:
-    """Test cases for Matrix row() and col() methods."""
+    """Test cases for Matrix row_vectors and col_vectors properties."""
 
     def test_row_returns_vectors(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        rows = m.row()
-        print(f"\n✓ row() returns list of Vectors")
+        rows = m.row_vectors
+        print(f"\n✓ row_vectors returns list of Vectors")
         assert all(isinstance(r, Vector) for r in rows)
 
     def test_row_values(self):
         m = Matrix([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-        rows = m.row()
-        print(f"\n✓ row() = {rows}")
+        rows = m.row_vectors
+        print(f"\n✓ row_vectors = {rows}")
         assert rows[0].to_list() == [1, 2, 3]
         assert rows[1].to_list() == [4, 5, 6]
         assert rows[2].to_list() == [7, 8, 9]
 
     def test_row_independence(self):
         m = Matrix([[1, 2], [3, 4]])
-        rows = m.row()
+        rows = m.row_vectors
         rows[0][0] = 99
-        print(f"\n✓ row() returns copies: m[0][0] = {m[0][0]} (expected 1)")
+        print(f"\n✓ row_vectors returns copies: m[0][0] = {m[0][0]} (expected 1)")
         assert m[0][0] == 1
 
     def test_row_count(self):
         m = Matrix([[1, 2], [3, 4], [5, 6]])
-        print(f"\n✓ row() returns {m.rows} vectors for a {m.rows}×{m.cols} matrix")
-        assert len(m.row()) == m.rows
+        print(f"\n✓ row_vectors returns {m.rows} vectors for a {m.rows}×{m.cols} matrix")
+        assert len(m.row_vectors) == m.rows
 
     def test_col_returns_vectors(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        cols = m.col()
-        print(f"\n✓ col() returns list of Vectors")
+        cols = m.col_vectors
+        print(f"\n✓ col_vectors returns list of Vectors")
         assert all(isinstance(c, Vector) for c in cols)
 
     def test_col_values(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        cols = m.col()
-        print(f"\n✓ col() = {cols}")
+        cols = m.col_vectors
+        print(f"\n✓ col_vectors = {cols}")
         assert cols[0].to_list() == [1, 4]
         assert cols[1].to_list() == [2, 5]
         assert cols[2].to_list() == [3, 6]
 
     def test_col_independence(self):
         m = Matrix([[1, 2], [3, 4]])
-        cols = m.col()
+        cols = m.col_vectors
         cols[0][0] = 99
-        print(f"\n✓ col() returns copies: m[0][0] = {m[0][0]} (expected 1)")
+        print(f"\n✓ col_vectors returns copies: m[0][0] = {m[0][0]} (expected 1)")
         assert m[0][0] == 1
 
     def test_col_count(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        print(f"\n✓ col() returns {m.cols} vectors for a {m.rows}×{m.cols} matrix")
-        assert len(m.col()) == m.cols
+        print(f"\n✓ col_vectors returns {m.cols} vectors for a {m.rows}×{m.cols} matrix")
+        assert len(m.col_vectors) == m.cols
 
 
 class TestMatrixTransform:

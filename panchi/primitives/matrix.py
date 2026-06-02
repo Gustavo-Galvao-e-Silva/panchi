@@ -235,7 +235,9 @@ class Matrix:
             raise TypeError(f"Row must be a list. Got {type(new_row).__name__}.")
 
         for j, elem in enumerate(new_row):
-            if not isinstance(elem, SCALAR_TYPES):
+            try:
+                new_row[j] = parse_scalar(elem)
+            except TypeError:
                 raise TypeError(
                     f"All row elements must be numbers (int, float, or Fraction). "
                     f"Found {type(elem).__name__} at position [{j}]."
@@ -514,6 +516,37 @@ class Matrix:
 
         return Matrix(result)
 
+    def __mul__(self, other: Scalar) -> Matrix:
+        """
+        Multiply matrix by a scalar (from the right).
+
+        Allows scalar multiplication in the form: matrix * scalar
+
+        Parameters
+        ----------
+        other : int | float | Fraction
+            The scalar to multiply by.
+
+        Returns
+        -------
+        Matrix
+            The result of scalar multiplication.
+
+        Raises
+        ------
+        TypeError
+            If other is not a number.
+
+        Examples
+        --------
+        >>> m = Matrix([[1, 2], [3, 4]])
+        >>> result = m * 3
+        >>> print(result)
+        [[3, 6],
+         [9, 12]]
+        """
+        return self.__rmul__(other)
+
     def __pow__(self, exponent: int) -> Matrix:
         """
         Raise matrix to an integer power.
@@ -636,6 +669,8 @@ class Matrix:
                     return False
 
         return True
+
+    __hash__ = None
 
     def __str__(self) -> str:
         """
@@ -901,7 +936,8 @@ class Matrix:
         n = self.rows
         return sum(self.data[i][i] for i in range(n))
 
-    def row(self) -> list[Vector]:
+    @property
+    def row_vectors(self) -> list[Vector]:
         """
         Return all rows of the matrix as a list of Vectors.
 
@@ -922,9 +958,9 @@ class Matrix:
         Examples
         --------
         >>> m = Matrix([[1, 2, 3], [4, 5, 6]])
-        >>> m.row()
+        >>> m.row_vectors
         [Vector([1, 2, 3]), Vector([4, 5, 6])]
-        >>> m.row()[0]
+        >>> m.row_vectors[0]
         Vector([1, 2, 3])
         """
         if self.rows == 0:
@@ -934,7 +970,8 @@ class Matrix:
 
         return [Vector(row.copy()) for row in self.data]
 
-    def col(self) -> list[Vector]:
+    @property
+    def col_vectors(self) -> list[Vector]:
         """
         Return all columns of the matrix as a list of Vectors.
 
@@ -955,9 +992,9 @@ class Matrix:
         Examples
         --------
         >>> m = Matrix([[1, 2, 3], [4, 5, 6]])
-        >>> m.col()
+        >>> m.col_vectors
         [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]
-        >>> m.col()[1]
+        >>> m.col_vectors[1]
         Vector([2, 5])
         """
         if self.cols == 0:

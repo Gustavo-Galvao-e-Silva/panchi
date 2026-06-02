@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "panchi"
-version = "1.0.1"
+version = "1.1.0"
 description = "A Python-native linear algebra library for learning, experimentation, and visual intuition"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -43,7 +43,7 @@ dependencies = ["matplotlib>=3.5.0"]
 
 [project.urls]
 Homepage = "https://github.com/Gustavo-Galvao-e-Silva/panchi"
-Documentation = "https://github.com/Gustavo-Galvao-e-Silva/panchi#readme"
+Documentation = "https://gustavo-galvao-e-silva.github.io/panchi/"
 Repository = "https://github.com/Gustavo-Galvao-e-Silva/panchi"
 "Bug Tracker" = "https://github.com/Gustavo-Galvao-e-Silva/panchi/issues"
 Changelog = "https://github.com/Gustavo-Galvao-e-Silva/panchi/releases"

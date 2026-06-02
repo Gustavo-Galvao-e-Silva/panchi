@@ -32,6 +32,7 @@ b = pan.Vector([4, 5, 6])
 print(a + b)   # [5, 7, 9]
 print(a - b)   # [-3, -3, -3]
 print(2 * a)   # [2, 4, 6]
+print(a * 2)   # [2, 4, 6]  — same as above
 print(a / 2)   # [0.5, 1.0, 1.5]
 print(-a)      # [-1, -2, -3]
 ```

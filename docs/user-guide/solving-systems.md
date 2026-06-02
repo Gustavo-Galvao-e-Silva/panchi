@@ -10,7 +10,7 @@ A linear system always falls into exactly one of three cases:
 - **Infinite solutions** — infinitely many x satisfy it (the system is underdetermined)
 - **Inconsistent** — no x satisfies it (the system is contradictory)
 
-panchi's `solve()` function identifies which case applies and, when a unique solution exists, returns it.
+panchi's `solve()` function identifies which case applies, returns the unique solution when one exists, and provides the general solution (particular solution + null space) for underdetermined systems.
 
 ## Basic usage
 
@@ -39,11 +39,13 @@ assert A @ result.solution == b
 `solve()` returns a `Solution` object:
 
 ```python
-result.original   # the coefficient matrix A
-result.target     # the right-hand side vector b
-result.status     # 'unique', 'infinite', or 'inconsistent'
-result.solution   # the solution Vector, or None if not unique
-result.steps      # row operations applied to the augmented matrix [A | b]
+result.original    # the coefficient matrix A
+result.target      # the right-hand side vector b
+result.status      # 'unique', 'infinite', or 'inconsistent'
+result.solution    # the solution Vector, or None if not unique
+result.steps       # row operations applied to the augmented matrix [A | b]
+result.particular  # particular solution Vector (infinite case only)
+result.null_space  # VectorSpace basis for the null space (infinite case only)
 ```
 
 ## Inconsistent systems
@@ -67,10 +69,30 @@ b = pan.Vector([7, 8])
 
 result = solve(A, b)
 print(result.status)    # 'infinite'
-print(result.solution)  # None
 ```
 
-When the status is `'infinite'`, `solution` is `None`. A unique solution cannot be extracted without additional constraints. The `steps` attribute still records the full reduction of the augmented matrix, which shows the free variables.
+When the status is `'infinite'`, the general solution is expressed as a particular solution plus the null space of A:
+
+```python
+print(result.particular)  # a Vector satisfying A @ x == b
+print(result.null_space)  # VectorSpace — basis for the null space of A
+
+# Verify
+assert A @ result.particular == b
+for v in result.null_space:
+    assert A @ v == pan.Vector([0, 0])
+```
+
+Printing the result shows the full parametric form:
+
+```python
+print(result)
+# Solution to 2×3 system — infinite
+#
+# x = [-6.33..., 6.66..., 0] + t·[1.0, -2.0, 1]
+```
+
+For homogeneous systems (b = 0), the particular solution is the zero vector and is omitted from the display. Systems with multiple free variables use `s, t` (for two) or `t1, t2, ...` (for three or more) as parameters.
 
 ## How it works
 
