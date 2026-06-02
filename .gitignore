@@ -29,6 +29,9 @@ tests/test_matplot.py
 # Test media output (manim/matplotlib renders)
 test_media/
 
+# Example output (rendered videos)
+examples/output/
+
 # Claude Code workflow (not project code)
 CLAUDE.md
 memory/

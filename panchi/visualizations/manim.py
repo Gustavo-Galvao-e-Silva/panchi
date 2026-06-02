@@ -33,6 +33,24 @@ from panchi.visualizations.base import _BaseBackend
 
 DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE]
 
+
+def _label_direction(vx: float, vy: float) -> manim.Vector:
+    ax, ay = abs(vx), abs(vy)
+    if ax < 0.3 and ay < 0.3:
+        return manim.UP + manim.RIGHT
+    if ax < 0.3:
+        return manim.RIGHT if vy > 0 else manim.RIGHT
+    if ay < 0.3:
+        return manim.UP if vx > 0 else manim.UP
+    if vx > 0 and vy > 0:
+        return manim.UP + manim.LEFT
+    if vx < 0 and vy > 0:
+        return manim.UP + manim.RIGHT
+    if vx < 0 and vy < 0:
+        return manim.DOWN + manim.RIGHT
+    return manim.DOWN + manim.LEFT
+
+
 _QUALITY_MAP = {
     "low": "low_quality",
     "medium": "medium_quality",
@@ -127,7 +145,9 @@ class _ManimBackend(_BaseBackend):
                         max_tip_length_to_length_ratio=0.15,
                     )
                     label_mob = MathTex(label, color=color).scale(0.9)
-                    label_mob.next_to(arrow.get_end(), manim.UP + manim.RIGHT, buff=0.1)
+                    label_mob.next_to(
+                        arrow.get_end(), _label_direction(vec[0], vec[1]), buff=0.2
+                    )
                     inner_self.play(GrowArrow(arrow), Write(label_mob), run_time=0.8)
 
                 inner_self.wait(1.5)
@@ -169,7 +189,9 @@ class _ManimBackend(_BaseBackend):
                 )
                 label_v1 = MathTex(r"v_1", color=manim.RED).scale(0.9)
                 label_v1.next_to(
-                    arrow_v1.get_center(), manim.UP + manim.LEFT, buff=0.15
+                    arrow_v1.get_end(),
+                    _label_direction(v1_coords[0], v1_coords[1]),
+                    buff=0.2,
                 )
 
                 inner_self.play(GrowArrow(arrow_v1), Write(label_v1), run_time=1)
@@ -186,9 +208,9 @@ class _ManimBackend(_BaseBackend):
 
                 label_v2_origin = MathTex(r"v_2", color=manim.ORANGE).scale(0.9)
                 label_v2_origin.next_to(
-                    arrow_v2_origin.get_center(),
-                    manim.DOWN + manim.RIGHT,
-                    buff=0.15,
+                    arrow_v2_origin.get_end(),
+                    _label_direction(v2_coords[0], v2_coords[1]),
+                    buff=0.2,
                 )
                 label_v2_origin.set_opacity(0.3)
 
@@ -210,9 +232,9 @@ class _ManimBackend(_BaseBackend):
 
                 label_v2_shifted = MathTex(r"v_2", color=manim.ORANGE).scale(0.9)
                 label_v2_shifted.next_to(
-                    arrow_v2_shifted.get_center(),
-                    manim.UP + manim.RIGHT,
-                    buff=0.15,
+                    arrow_v2_shifted.get_end(),
+                    _label_direction(v2_coords[0], v2_coords[1]),
+                    buff=0.2,
                 )
 
                 inner_self.play(
@@ -264,7 +286,11 @@ class _ManimBackend(_BaseBackend):
                     max_tip_length_to_length_ratio=0.15,
                 )
                 label_result = MathTex(r"v_1 + v_2", color=manim.GREEN).scale(1.0)
-                label_result.next_to(arrow_result.get_center(), manim.LEFT, buff=0.2)
+                label_result.next_to(
+                    arrow_result.get_end(),
+                    _label_direction(result_coords[0], result_coords[1]),
+                    buff=0.2,
+                )
 
                 inner_self.play(
                     GrowArrow(arrow_result), Write(label_result), run_time=1.5
@@ -307,7 +333,9 @@ class _ManimBackend(_BaseBackend):
                     max_tip_length_to_length_ratio=0.15,
                 )
                 label = MathTex(r"v", color=manim.RED).scale(0.9)
-                label.next_to(arrow.get_end(), manim.UP + manim.RIGHT, buff=0.1)
+                label.next_to(
+                    arrow.get_end(), _label_direction(v_coords[0], v_coords[1]), buff=0.2
+                )
 
                 inner_self.play(GrowArrow(arrow), Write(label), run_time=1)
                 inner_self.wait(0.5)
@@ -325,7 +353,9 @@ class _ManimBackend(_BaseBackend):
                     f"{scale_factor}", r"\cdot", r"v", color=manim.BLUE
                 ).scale(0.9)
                 scale_text.next_to(
-                    scaled_arrow.get_end(), manim.UP + manim.RIGHT, buff=0.1
+                    scaled_arrow.get_end(),
+                    _label_direction(scaled_coords[0], scaled_coords[1]),
+                    buff=0.2,
                 )
 
                 inner_self.play(
@@ -363,6 +393,17 @@ class _ManimBackend(_BaseBackend):
                 )
                 inner_self.play(Create(plane), run_time=1)
 
+                matrix_tex = MathTex(
+                    r"\begin{bmatrix}"
+                    f" {mat[0][0]:.3g} & {mat[0][1]:.3g} "
+                    r"\\"
+                    f" {mat[1][0]:.3g} & {mat[1][1]:.3g} "
+                    r"\end{bmatrix}",
+                    color=manim.YELLOW,
+                ).scale(0.9)
+                matrix_tex.to_corner(manim.UR, buff=0.5)
+                inner_self.play(Write(matrix_tex), run_time=0.8)
+
                 arrow_e1 = Arrow(
                     plane.c2p(0, 0),
                     plane.c2p(1, 0),
@@ -381,10 +422,10 @@ class _ManimBackend(_BaseBackend):
                 )
 
                 label_e1 = MathTex(r"\hat{e}_1", color=manim.RED).scale(0.8)
-                label_e1.next_to(arrow_e1.get_end(), manim.UP + manim.RIGHT, buff=0.1)
+                label_e1.next_to(arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2)
 
                 label_e2 = MathTex(r"\hat{e}_2", color=manim.BLUE).scale(0.8)
-                label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.1)
+                label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
 
                 inner_self.play(
                     GrowArrow(arrow_e1),
@@ -394,6 +435,17 @@ class _ManimBackend(_BaseBackend):
                     run_time=1,
                 )
                 inner_self.wait(0.5)
+
+                label_e1.add_updater(
+                    lambda m: m.next_to(
+                        arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2
+                    )
+                )
+                label_e2.add_updater(
+                    lambda m: m.next_to(
+                        arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2
+                    )
+                )
 
                 inner_self.play(
                     plane.animate.apply_matrix(mat),
@@ -408,21 +460,8 @@ class _ManimBackend(_BaseBackend):
                     run_time=3,
                 )
 
-                col1_label = MathTex(
-                    f"[{mat[0][0]:.3g}, {mat[1][0]:.3g}]", color=manim.RED
-                ).scale(0.7)
-                col1_label.next_to(arrow_e1.get_end(), manim.UP + manim.RIGHT, buff=0.1)
-
-                col2_label = MathTex(
-                    f"[{mat[0][1]:.3g}, {mat[1][1]:.3g}]", color=manim.BLUE
-                ).scale(0.7)
-                col2_label.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.1)
-
-                inner_self.play(
-                    Transform(label_e1, col1_label),
-                    Transform(label_e2, col2_label),
-                    run_time=1,
-                )
+                label_e1.clear_updaters()
+                label_e2.clear_updaters()
                 inner_self.wait(2)
 
         self._configure(name)
@@ -502,7 +541,11 @@ class _ManimBackend(_BaseBackend):
                         max_tip_length_to_length_ratio=0.15,
                     )
                     label_mob = MathTex(label, color=color).scale(0.9)
-                    label_mob.next_to(arrow.get_end(), manim.UP + manim.RIGHT, buff=0.1)
+                    label_mob.next_to(
+                        arrow.get_end(),
+                        _label_direction(vec[0], vec[1]),
+                        buff=0.2,
+                    )
                     inner_self.play(GrowArrow(arrow), Write(label_mob), run_time=0.8)
 
                 inner_self.wait(1.5)
