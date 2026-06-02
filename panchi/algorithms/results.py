@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.algorithms.row_operations import RowOperation
+
+if TYPE_CHECKING:
+    from panchi.primitives.vector_space import VectorSpace
 
 
 class Reduction:
@@ -393,6 +398,12 @@ class Solution:
     steps : list[RowOperation]
         The ordered sequence of row operations applied to the augmented
         matrix [A | b] during reduction.
+    particular : Vector or None
+        A particular solution for infinite-solution systems. None for
+        unique or inconsistent systems.
+    null_space : VectorSpace or None
+        A basis for the null space of A for infinite-solution systems.
+        None for unique or inconsistent systems.
 
     Examples
     --------
@@ -412,12 +423,16 @@ class Solution:
         status: str,
         solution: Vector | None,
         steps: list[RowOperation],
+        particular: Vector | None = None,
+        null_space: VectorSpace | None = None,
     ) -> None:
         self.original = original
         self.target = target
         self.status = status
         self.solution = solution
         self.steps = steps
+        self.particular = particular
+        self.null_space = null_space
 
     def __str__(self) -> str:
         """
@@ -447,7 +462,31 @@ class Solution:
         if self.solution is not None:
             return header + f"\nx = {self.solution}"
 
+        if self.particular is not None and self.null_space is not None:
+            return header + "\n" + self._format_general_solution()
+
         return header
+
+    def _format_general_solution(self) -> str:
+        basis = self.null_space.basis
+        n = len(basis)
+
+        if n == 1:
+            params = ["t"]
+        elif n == 2:
+            params = ["s", "t"]
+        else:
+            params = [f"t{i + 1}" for i in range(n)]
+
+        is_zero = all(self.particular[i] == 0 for i in range(self.particular.dims))
+
+        parts = []
+        if not is_zero:
+            parts.append(str(self.particular))
+        for param, vec in zip(params, basis):
+            parts.append(f"{param}·{vec}")
+
+        return "x = " + " + ".join(parts)
 
     def __repr__(self) -> str:
         """

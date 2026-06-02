@@ -115,7 +115,9 @@ class Vector:
         if not isinstance(key, int):
             raise TypeError("Indexes can only be integer values")
 
-        if not isinstance(new_value, SCALAR_TYPES):
+        try:
+            new_value = parse_scalar(new_value)
+        except TypeError:
             raise TypeError("Vectors can only hold numbers")
 
         self.data[key] = new_value
@@ -295,6 +297,36 @@ class Vector:
 
         return Vector(result)
 
+    def __mul__(self, other: Scalar) -> Vector:
+        """
+        Multiply vector by a scalar (from the right).
+
+        Allows scalar multiplication in the form: vector * scalar
+
+        Parameters
+        ----------
+        other : int | float | Fraction
+            The scalar to multiply by.
+
+        Returns
+        -------
+        Vector
+            The result of scalar multiplication.
+
+        Raises
+        ------
+        TypeError
+            If other is not a number.
+
+        Examples
+        --------
+        >>> v = Vector([1, 2, 3])
+        >>> result = v * 3
+        >>> print(result)
+        [3, 6, 9]
+        """
+        return self.__rmul__(other)
+
     def __truediv__(self, other: Scalar) -> Vector:
         """
         Divide vector by a scalar.
@@ -386,6 +418,8 @@ class Vector:
                 return False
 
         return True
+
+    __hash__ = None
 
     def __str__(self) -> str:
         """

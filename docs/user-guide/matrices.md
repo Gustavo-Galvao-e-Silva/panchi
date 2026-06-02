@@ -35,6 +35,7 @@ B = pan.Matrix([[5, 6], [7, 8]])
 print(A + B)   # element-wise addition
 print(A - B)   # element-wise subtraction
 print(2 * A)   # scalar multiplication
+print(A * 2)   # same as above
 print(-A)      # negation
 ```
 
@@ -46,7 +47,7 @@ Matrix multiplication uses the `@` operator, following Python convention:
 print(A @ B)   # [[19, 22], [43, 50]]
 ```
 
-`*` is reserved for scalar multiplication. Using `*` between two matrices raises a `TypeError` — this is intentional, since it avoids a common source of confusion.
+`@` is used for matrix–matrix and matrix–vector multiplication. `*` is reserved for scalar multiplication only.
 
 Multiplying a matrix by a vector also uses `@` and returns a `Vector`:
 
@@ -98,19 +99,19 @@ assert A @ A.right_identity == A
 
 ## Row and column access
 
-`row()` and `col()` mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.
+`row_vectors` and `col_vectors` mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.
 
 ```python
 A = pan.Matrix([[1, 2, 3], [4, 5, 6]])
 
-A.row()      # [Vector([1, 2, 3]), Vector([4, 5, 6])]
-A.col()      # [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]
+A.row_vectors      # [Vector([1, 2, 3]), Vector([4, 5, 6])]
+A.col_vectors      # [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]
 
-A.row()[0]   # Vector([1, 2, 3])
-A.col()[1]   # Vector([2, 5])
+A.row_vectors[0]   # Vector([1, 2, 3])
+A.col_vectors[1]   # Vector([2, 5])
 ```
 
-Both methods return copies — modifying the result does not affect the original matrix.
+Both properties return copies — modifying the result does not affect the original matrix.
 
 ## Factory functions
 
