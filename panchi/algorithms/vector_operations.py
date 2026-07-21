@@ -158,3 +158,25 @@ def orthogonal_complement(space: VectorSpace) -> VectorSpace:
         null_vectors.append(Vector(components))
 
     return VectorSpace(null_vectors)
+
+
+def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
+    scalar_projection = dot(projected_vector, axis_vector) / dot(axis_vector, axis_vector)
+    return scalar_projection * axis_vector
+
+
+# TODO: Decide if this is a smart file to keep gram schmidt in
+def gram_schmidt_algorithm(vectors: list[Vector]) -> list[Vector]:
+    if not vectors:
+        raise ValueError
+
+    n = len(vectors)
+    orthogonal_vectors = []
+    for i in range(n):
+        orthogonal_vector = vectors[i]
+        for j in range(i):
+            orthogonal_vector -= vector_projection(vectors[i], orthogonal_vectors[j])
+
+        orthogonal_vectors.append(orthogonal_vector)
+
+    return [v.normalize() for v in orthogonal_vectors]

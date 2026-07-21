@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from panchi.primitives.matrix import Matrix
-from panchi.primitives.factories import identity
+from panchi.primitives.factories import identity, vector_column_matrix
 from panchi.algorithms.reductions import ref
 from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from panchi.algorithms.results import LUDecomposition
+from panchi.algorithms.vector_operations import gram_schmidt_algorithm
+from panchi.algorithms.results import LUDecomposition, QRDecomposition
 
 
 def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
@@ -116,3 +117,11 @@ def lu(matrix: Matrix) -> LUDecomposition:
     u = matrix_ref.result
     p = _calculate_p(n, steps)
     return LUDecomposition(matrix, l, u, p, steps)
+
+
+def qr_decomposition(matrix: Matrix) -> QRDecomposition:
+    column_vectors = matrix.col_vectors
+    orthonormal_vectors = gram_schmidt_algorithm(column_vectors)
+    q = vector_column_matrix(orthonormal_vectors)
+    r = q.T @ matrix
+    return QRDecomposition(matrix, q, r)

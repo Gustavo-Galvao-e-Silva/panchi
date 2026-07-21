@@ -279,6 +279,18 @@ class LUDecomposition:
         )
 
 
+class QRDecomposition:
+    def __init__(
+        self,
+        original: Matrix,
+        q: Matrix,
+        r: Matrix,
+    ) -> None:
+        self.original = original
+        self.q = q
+        self.r = r
+
+
 class InverseResult:
     """
     The result of a matrix inversion via Gauss-Jordan elimination.
