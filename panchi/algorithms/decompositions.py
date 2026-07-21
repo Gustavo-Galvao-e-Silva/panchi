@@ -4,7 +4,7 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.factories import identity, vector_column_matrix
 from panchi.algorithms.reductions import ref
 from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from panchi.algorithms.vector_operations import gram_schmidt_algorithm
+from panchi.algorithms.vector_operations import gram_schmidt
 from panchi.algorithms.results import LUDecomposition, QRDecomposition
 
 
@@ -121,7 +121,7 @@ def lu(matrix: Matrix) -> LUDecomposition:
 
 def qr_decomposition(matrix: Matrix) -> QRDecomposition:
     column_vectors = matrix.col_vectors
-    orthonormal_vectors = gram_schmidt_algorithm(column_vectors)
+    orthonormal_vectors = gram_schmidt(column_vectors)
     q = vector_column_matrix(orthonormal_vectors)
     r = q.T @ matrix
     return QRDecomposition(matrix, q, r)

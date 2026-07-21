@@ -161,14 +161,86 @@ def orthogonal_complement(space: VectorSpace) -> VectorSpace:
 
 
 def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
+    """
+    Project one vector orthogonally onto the line spanned by another.
+
+    The projection of v onto a is the component of v that lies along a,
+    computed as (v . a) / (a . a) * a. It is the closest point to v on the
+    line through the origin in the direction of a.
+
+    Parameters
+    ----------
+    projected_vector : Vector
+        The vector being projected (v).
+    axis_vector : Vector
+        The vector defining the direction to project onto (a). Must be
+        non-zero.
+
+    Returns
+    -------
+    Vector
+        The projection of projected_vector onto axis_vector.
+
+    Raises
+    ------
+    ValueError
+        If the vectors have different dimensions.
+    ZeroDivisionError
+        If axis_vector is the zero vector.
+
+    Examples
+    --------
+    >>> v = Vector([2, 3])
+    >>> a = Vector([1, 0])
+    >>> print(vector_projection(v, a))
+    [2.0, 0.0]
+    """
     scalar_projection = dot(projected_vector, axis_vector) / dot(axis_vector, axis_vector)
     return scalar_projection * axis_vector
 
 
-# TODO: Decide if this is a smart file to keep gram schmidt in
-def gram_schmidt_algorithm(vectors: list[Vector]) -> list[Vector]:
+def gram_schmidt(vectors: list[Vector]) -> list[Vector]:
+    """
+    Orthonormalize a list of vectors using the Gram-Schmidt process.
+
+    Given a list of linearly independent vectors, produces an orthonormal
+    list spanning the same subspace: each output vector has unit length and
+    is orthogonal to all the others. Each input vector has its components
+    along the previously produced directions removed, and the remainder is
+    normalized.
+
+    Parameters
+    ----------
+    vectors : list[Vector]
+        The vectors to orthonormalize. Must be non-empty; the vectors are
+        expected to be linearly independent.
+
+    Returns
+    -------
+    list[Vector]
+        An orthonormal list of vectors spanning the same subspace, in the
+        same order as the inputs.
+
+    Raises
+    ------
+    ValueError
+        If vectors is empty.
+    ZeroDivisionError
+        If the vectors are linearly dependent (a vector reduces to the zero
+        vector and cannot be normalized).
+
+    Examples
+    --------
+    >>> a = Vector([1, 1, 0])
+    >>> b = Vector([1, 0, 1])
+    >>> q = gram_schmidt([a, b])
+    >>> round(dot(q[0], q[1]), 10)
+    0.0
+    >>> round(q[0].magnitude, 10)
+    1.0
+    """
     if not vectors:
-        raise ValueError
+        raise ValueError("gram_schmidt() requires at least one vector.")
 
     n = len(vectors)
     orthogonal_vectors = []

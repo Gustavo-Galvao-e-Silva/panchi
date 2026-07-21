@@ -29,8 +29,15 @@ from panchi.primitives.factories import (
     exact_vector,
     exact_matrix,
 )
-from panchi.algorithms.vector_operations import dot, cross, orthogonal_complement
+from panchi.algorithms.vector_operations import (
+    dot,
+    cross,
+    orthogonal_complement,
+    vector_projection,
+    gram_schmidt,
+)
 from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
+from panchi.algorithms.decompositions import qr_decomposition
 
 __all__ = [
     "Fraction",
@@ -55,7 +62,10 @@ __all__ = [
     "dot",
     "cross",
     "orthogonal_complement",
+    "vector_projection",
+    "gram_schmidt",
     "inverse",
     "solve",
     "determinant_lu",
+    "qr_decomposition",
 ]
