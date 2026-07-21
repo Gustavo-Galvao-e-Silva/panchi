@@ -280,15 +280,100 @@ class LUDecomposition:
 
 
 class QRDecomposition:
+    """
+    The result of a (thin) QR decomposition via Gram-Schmidt.
+
+    Stores the original matrix, the matrix Q with orthonormal columns, the
+    upper triangular matrix R, and the ordered list of Gram-Schmidt steps
+    used to build Q. The decomposition satisfies original == Q @ R.
+
+    Q is formed by orthonormalizing the columns of the original matrix, so
+    its columns are an orthonormal basis for the column space. R = Qᵀ @ A is
+    upper triangular and its diagonal entries record how much of each column
+    survived orthogonalization. The recorded steps expose the column-by-column
+    derivation of Q, mirroring how a Reduction exposes its row operations.
+
+    Parameters
+    ----------
+    original : Matrix
+        The matrix that was decomposed, with linearly independent columns.
+    q : Matrix
+        The matrix with orthonormal columns.
+    r : Matrix
+        The upper triangular matrix satisfying original == q @ r.
+    steps : list[GramSchmidtStep]
+        The ordered Gram-Schmidt steps, one per column, used to build Q.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 0], [0, 1]])
+    >>> decomp = qr_decomposition(A)
+    >>> decomp.q @ decomp.r == A
+    True
+    """
+
     def __init__(
         self,
         original: Matrix,
         q: Matrix,
         r: Matrix,
+        steps: list,
     ) -> None:
         self.original = original
         self.q = q
         self.r = r
+        self.steps = steps
+
+    def __str__(self) -> str:
+        """
+        Return a readable summary of the QR decomposition.
+
+        Shows the column-by-column Gram-Schmidt walkthrough, then Q and R
+        individually, and states the factorisation relationship A = Q @ R.
+
+        Returns
+        -------
+        str
+            Human-readable decomposition summary.
+        """
+        header: str = (
+            f"QR decomposition of "
+            f"{self.original.rows}×{self.original.cols} matrix"
+            f" — {len(self.steps)} steps\n"
+        )
+
+        steps_str: str = ""
+        for step in self.steps:
+            steps_str += f"\n{step}\n"
+
+        body: str = (
+            f"\nA = Q @ R\n"
+            f"\nA:\n{self.original}\n"
+            f"\nQ:\n{self.q}\n"
+            f"\nR:\n{self.r}"
+        )
+
+        return header + steps_str + body
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this QRDecomposition.
+
+        Returns
+        -------
+        str
+            Compact representation showing shape and number of steps.
+
+        Examples
+        --------
+        >>> qr_decomposition(Matrix([[1, 0], [0, 1]]))
+        QRDecomposition(shape=2×2, steps=2)
+        """
+        return (
+            f"QRDecomposition("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"steps={len(self.steps)})"
+        )
 
 
 class InverseResult:

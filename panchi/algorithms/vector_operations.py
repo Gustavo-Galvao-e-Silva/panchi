@@ -199,6 +199,82 @@ def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
     return scalar_projection * axis_vector
 
 
+class GramSchmidtStep:
+    """
+    The derivation of a single orthonormal vector in Gram-Schmidt.
+
+    Records, for one input vector, the projections that were removed to make
+    it orthogonal to the previously produced directions, the resulting
+    orthogonal vector before normalization, and the final unit vector.
+
+    Parameters
+    ----------
+    index : int
+        The position of this vector in the input list (0-based).
+    original : Vector
+        The input vector this step started from.
+    projections : list[Vector]
+        The projections onto each previously produced orthogonal vector,
+        subtracted in order, that were removed from original.
+    orthogonal : Vector
+        The orthogonalized vector, before normalization.
+    orthonormal : Vector
+        The final unit vector (orthogonal normalized to length 1).
+    """
+
+    def __init__(
+        self,
+        index: int,
+        original: Vector,
+        projections: list[Vector],
+        orthogonal: Vector,
+        orthonormal: Vector,
+    ) -> None:
+        self.index = index
+        self.original = original
+        self.projections = projections
+        self.orthogonal = orthogonal
+        self.orthonormal = orthonormal
+
+    def __str__(self) -> str:
+        lines = [f"Step {self.index + 1}: v{self.index} = {self.original}"]
+        for j, projection in enumerate(self.projections):
+            lines.append(f"  remove projection onto q{j}: {projection}")
+        lines.append(f"  orthogonal: {self.orthogonal}")
+        lines.append(f"  normalize -> q{self.index}: {self.orthonormal}")
+        return "\n".join(lines)
+
+
+def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:
+    """
+    Run Gram-Schmidt, recording the derivation of each orthonormal vector.
+
+    Shared internal implementation behind gram_schmidt (which keeps only the
+    final orthonormal vectors) and qr_decomposition (which keeps the full
+    step-by-step walkthrough).
+    """
+    if not vectors:
+        raise ValueError("gram_schmidt() requires at least one vector.")
+
+    steps: list[GramSchmidtStep] = []
+    orthogonal_vectors: list[Vector] = []
+    for i, vector in enumerate(vectors):
+        orthogonal_vector = vector
+        projections: list[Vector] = []
+        for previous in orthogonal_vectors:
+            projection = vector_projection(vector, previous)
+            projections.append(projection)
+            orthogonal_vector -= projection
+
+        orthogonal_vectors.append(orthogonal_vector)
+        orthonormal = orthogonal_vector.normalize()
+        steps.append(
+            GramSchmidtStep(i, vector, projections, orthogonal_vector, orthonormal)
+        )
+
+    return steps
+
+
 def gram_schmidt(vectors: list[Vector]) -> list[Vector]:
     """
     Orthonormalize a list of vectors using the Gram-Schmidt process.
@@ -239,16 +315,4 @@ def gram_schmidt(vectors: list[Vector]) -> list[Vector]:
     >>> round(q[0].magnitude, 10)
     1.0
     """
-    if not vectors:
-        raise ValueError("gram_schmidt() requires at least one vector.")
-
-    n = len(vectors)
-    orthogonal_vectors = []
-    for i in range(n):
-        orthogonal_vector = vectors[i]
-        for j in range(i):
-            orthogonal_vector -= vector_projection(vectors[i], orthogonal_vectors[j])
-
-        orthogonal_vectors.append(orthogonal_vector)
-
-    return [v.normalize() for v in orthogonal_vectors]
+    return [step.orthonormal for step in _gram_schmidt_steps(vectors)]

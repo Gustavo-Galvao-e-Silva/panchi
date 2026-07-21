@@ -4,7 +4,7 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.factories import identity, vector_column_matrix
 from panchi.algorithms.reductions import ref
 from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from panchi.algorithms.vector_operations import gram_schmidt
+from panchi.algorithms.vector_operations import _gram_schmidt_steps
 from panchi.algorithms.results import LUDecomposition, QRDecomposition
 
 
@@ -120,8 +120,45 @@ def lu(matrix: Matrix) -> LUDecomposition:
 
 
 def qr_decomposition(matrix: Matrix) -> QRDecomposition:
-    column_vectors = matrix.col_vectors
-    orthonormal_vectors = gram_schmidt(column_vectors)
+    """
+    Compute the (thin) QR decomposition of a matrix.
+
+    Factors the matrix into a matrix Q with orthonormal columns and an
+    upper triangular matrix R such that matrix == Q @ R. Q is built by
+    applying Gram-Schmidt to the columns of the matrix, and R is recovered
+    as Q.T @ matrix.
+
+    This is the reduced ("thin") QR decomposition and assumes the columns
+    of the matrix are linearly independent. Dependent columns produce a zero
+    orthogonal vector during Gram-Schmidt, which cannot be normalized and
+    raises ZeroDivisionError.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to decompose. Its columns are expected to be linearly
+        independent.
+
+    Returns
+    -------
+    QRDecomposition
+        A result object containing the original matrix, Q, R, and the
+        ordered list of Gram-Schmidt steps used to build Q.
+
+    Raises
+    ------
+    ZeroDivisionError
+        If the columns of the matrix are linearly dependent.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 0], [0, 1]])
+    >>> decomp = qr_decomposition(A)
+    >>> decomp.q @ decomp.r == A
+    True
+    """
+    steps = _gram_schmidt_steps(matrix.col_vectors)
+    orthonormal_vectors = [step.orthonormal for step in steps]
     q = vector_column_matrix(orthonormal_vectors)
     r = q.T @ matrix
-    return QRDecomposition(matrix, q, r)
+    return QRDecomposition(matrix, q, r, steps)
