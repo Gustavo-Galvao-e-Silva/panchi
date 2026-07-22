@@ -468,6 +468,7 @@ def rotation_matrix_3d(
 
     return Matrix([row_1, row_2, row_3])
 
+
 def exact_vector(data: list) -> Vector:
     """
     Create a Vector with all elements converted to Fraction for exact arithmetic.
@@ -527,21 +528,63 @@ def exact_matrix(data: list[list]) -> Matrix:
      [3, 4]]
     """
     return Matrix(
-        [[Fraction(x) if not isinstance(x, Fraction) else x for x in row] for row in data]
+        [
+            [Fraction(x) if not isinstance(x, Fraction) else x for x in row]
+            for row in data
+        ]
     )
 
 
 def vector_column_matrix(vectors: list[Vector]) -> Matrix:
-    # Add type guard
+    """
+    Build a Matrix whose columns are the given vectors.
+
+    Each vector becomes one column, in order, so the resulting matrix has
+    as many rows as the vectors' shared dimension and as many columns as
+    there are vectors. This is the natural way to assemble a matrix from a
+    set of column vectors, such as the orthonormal basis produced by
+    Gram-Schmidt when forming Q in a QR decomposition.
+
+    Parameters
+    ----------
+    vectors : list[Vector]
+        The vectors to place as columns. Must be non-empty and all share
+        the same dimension.
+
+    Returns
+    -------
+    Matrix
+        A matrix with the given vectors as its columns.
+
+    Raises
+    ------
+    ValueError
+        If vectors is empty, or if the vectors do not all share the same
+        dimension.
+
+    Examples
+    --------
+    >>> a = Vector([1, 2, 3])
+    >>> b = Vector([4, 5, 6])
+    >>> print(vector_column_matrix([a, b]))
+    [[1, 4],
+     [2, 5],
+     [3, 6]]
+    """
+    if not vectors:
+        raise ValueError("vector_column_matrix() requires at least one vector.")
+
     num_vectors = len(vectors)
     for i in range(num_vectors):
         for j in range(i + 1, num_vectors):
             if vectors[i].dims != vectors[j].dims:
-                raise ValueError("")
+                raise ValueError(
+                    f"All vectors must share the same dimension. "
+                    f"Got {vectors[i].dims} and {vectors[j].dims}."
+                )
 
     result = []
     for vector in vectors:
         result.append(vector.to_list())
 
     return Matrix(result).T
-

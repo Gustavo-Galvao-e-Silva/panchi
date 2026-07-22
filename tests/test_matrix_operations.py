@@ -397,3 +397,32 @@ class TestSolveInfinite:
         s = str(result)
         assert "t1·" in s
         assert "t4·" in s
+
+
+class TestSolveTolerance:
+    """Test the optional tolerance flag on solve()."""
+
+    def test_default_is_exact(self):
+        # An approximately-singular matrix is full-rank under exact comparison.
+        A = Matrix([[1.0, 1.0], [1.0, 1.0 + 1e-12]])
+        result = solve(A, Vector([0.0, 0.0]))
+        assert result.status == "unique"
+        assert result.null_space is None
+
+    def test_tolerance_detects_near_singular(self):
+        # With a tolerance, the tiny pivot is treated as zero → infinite solutions.
+        A = Matrix([[1.0, 1.0], [1.0, 1.0 + 1e-12]])
+        result = solve(A, Vector([0.0, 0.0]), tolerance=1e-6)
+        assert result.status == "infinite"
+        assert result.null_space is not None
+        assert result.null_space.dims == 1
+
+    def test_tolerance_does_not_change_exact_systems(self):
+        # A genuinely non-singular system solves the same with a small tolerance.
+        A = Matrix([[2, 1], [5, 3]])
+        b = Vector([1, 2])
+        exact = solve(A, b)
+        toleranced = solve(A, b, tolerance=1e-9)
+        assert toleranced.status == exact.status == "unique"
+        for i in range(b.dims):
+            assert toleranced.solution[i] == pytest.approx(exact.solution[i], abs=1e-12)

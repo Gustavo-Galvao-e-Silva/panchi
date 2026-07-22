@@ -1,11 +1,11 @@
 from panchi.types import Scalar
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.primitives.factories import identity
+from panchi.primitives.factories import identity, zero_vector
 from panchi.algorithms.row_operations import RowOperation, RowSwap
-from panchi.algorithms.results import InverseResult, Reduction, Solution
+from panchi.algorithms.results import InverseResult, Reduction, Solution, EigenResult
 from panchi.algorithms.reductions import rref
-from panchi.algorithms.decompositions import lu
+from panchi.algorithms.decompositions import lu, qr_decomposition
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
@@ -78,7 +78,9 @@ def _swap_parity(steps: list[RowOperation]) -> int:
     return (-1) ** swap_count
 
 
-def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
+def _inconsistent_rows(
+    matrix_rref: Reduction, applied_b: Vector, tolerance: float = 0.0
+) -> list[int]:
     """
     Find row indices that make the system inconsistent.
 
@@ -93,6 +95,9 @@ def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
     applied_b : Vector
         The right-hand side vector b after the same row operations from
         matrix_rref have been applied to it.
+    tolerance : float, optional
+        Entries of the transformed b with magnitude at or below this value
+        are treated as zero. The default of 0.0 means exact comparison.
 
     Returns
     -------
@@ -104,7 +109,7 @@ def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
     zero_row_indices = set(range(matrix_rref.result.rows)) - pivot_row_indices
     inconsistent_indices = []
     for i in zero_row_indices:
-        if applied_b[i] != 0:
+        if abs(applied_b[i]) > tolerance:
             inconsistent_indices.append(i)
 
     return inconsistent_indices
@@ -224,7 +229,7 @@ def determinant_lu(matrix: Matrix) -> float:
     return parity * upper_diagonal_product
 
 
-def solve(A: Matrix, b: Vector) -> Solution:
+def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
     """
     Solve the linear system Ax = b.
 
@@ -241,6 +246,13 @@ def solve(A: Matrix, b: Vector) -> Solution:
         The coefficient matrix in the system Ax = b.
     b : Vector
         The right-hand side vector in the system Ax = b.
+    tolerance : float, optional
+        Pivot and right-hand-side magnitudes at or below this value are
+        treated as zero during reduction. The default of 0.0 performs an
+        exact solve. A small positive tolerance lets the solver treat a
+        matrix that is only approximately rank-deficient as singular, which
+        is how eigenvectors are recovered as the null space of A - λI for a
+        floating-point eigenvalue estimate λ.
 
     Returns
     -------
@@ -282,14 +294,14 @@ def solve(A: Matrix, b: Vector) -> Solution:
             f"A has {A.rows} rows but b has {b.dims} entries."
         )
 
-    matrix_rref = rref(A)
+    matrix_rref = rref(A, tolerance)
     steps = matrix_rref.steps
 
     applied_b = b
     for step in steps:
         applied_b = step.apply(applied_b)
 
-    if _inconsistent_rows(matrix_rref, applied_b):
+    if _inconsistent_rows(matrix_rref, applied_b, tolerance):
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
@@ -319,3 +331,127 @@ def solve(A: Matrix, b: Vector) -> Solution:
     pivot_row_indices = [row for row, _ in sorted(matrix_rref.pivots, key=lambda p: p[1])]
     solution = Vector([applied_b[row] for row in pivot_row_indices])
     return Solution(A, b, "unique", solution, steps)
+
+
+def _below_diagonal_mass(matrix: Matrix) -> float:
+    """
+    Sum the absolute values of the strictly-below-diagonal entries.
+
+    Used as the convergence measure for the QR algorithm: when this sum is
+    small, the iterate is (near) upper triangular and its diagonal holds the
+    eigenvalues.
+    """
+    n = matrix.rows
+    return sum(abs(matrix[i][j]) for i in range(n) for j in range(i))
+
+
+def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
+    """
+    Find an eigenvector for a known eigenvalue as the null space of A - λI.
+
+    Solves the homogeneous system ``(A - λI) x = 0`` with a scale-relative
+    tolerance, reusing solve(). Because a floating-point λ makes ``A - λI``
+    only approximately singular, the tolerance is what lets solve() report an
+    infinite solution set and expose the null space. Returns the first
+    null-space basis vector, normalized, or None if the system is not
+    detected as rank-deficient (e.g. for tightly clustered eigenvalues).
+    """
+    shifted = matrix - eigenvalue * identity(n)
+    scale = max(1.0, max(abs(shifted[i][j]) for i in range(n) for j in range(n)))
+    solution = solve(shifted, zero_vector(n), tolerance=1e-6 * scale)
+
+    if solution.null_space is None:
+        return None
+    return solution.null_space.basis[0].normalize()
+
+
+def eigen(
+    matrix: Matrix,
+    max_iterations: int = 1000,
+    tolerance: float = 1e-12,
+) -> EigenResult:
+    """
+    Compute the eigenvalues of a square matrix using the QR algorithm.
+
+    Starting from the original matrix, repeatedly computes a QR
+    decomposition and reassembles the matrix as R @ Q. For matrices with
+    real eigenvalues this sequence converges to an upper triangular matrix
+    whose diagonal entries are the eigenvalues.
+
+    The iteration stops once the strictly-below-diagonal entries sum to less
+    than ``tolerance`` (recorded as converged), or once ``max_iterations`` is
+    reached (recorded as not converged). Eigenvalues are the diagonal of the
+    final iterate. Eigenvectors are computed separately and are only
+    populated when the iteration converges.
+
+    Only real eigenvalues are supported. Matrices with complex eigenvalues
+    or eigenvalues of equal magnitude may fail to converge, in which case the
+    returned result has ``converged`` set to False and no eigenvectors.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix whose eigenvalues will be computed.
+    max_iterations : int, optional
+        The maximum number of QR iterations to perform. Defaults to 1000.
+    tolerance : float, optional
+        The convergence threshold on the below-diagonal mass. Defaults to
+        1e-12.
+
+    Returns
+    -------
+    EigenResult
+        A result object containing the eigenvalues, eigenvectors, the number
+        of iterations performed, whether the iteration converged, and the
+        final (near) upper-triangular matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> sorted(round(v, 6) for v in result.eigenvalues)
+    [1.0, 3.0]
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Eigenvalues are only defined for Matrix objects."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot compute the eigenvalues of a non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}. "
+            f"Eigenvalues are only defined for square matrices (n×n)."
+        )
+
+    n = matrix.rows
+    current = matrix
+    converged = False
+    iterations = 0
+    for iterations in range(1, max_iterations + 1):
+        if _below_diagonal_mass(current) < tolerance:
+            converged = True
+            iterations -= 1
+            break
+        try:
+            decomposition = qr_decomposition(current)
+        except ZeroDivisionError:
+            # A singular iterate cannot be orthonormalized by Gram-Schmidt;
+            # treat this as failure to converge rather than crashing.
+            break
+        current = decomposition.r @ decomposition.q
+
+    eigenvalues = [current[i][i] for i in range(n)]
+    eigenvectors: list[Vector] = []
+    if converged:
+        for eigenvalue in eigenvalues:
+            vector = _eigenvector(matrix, eigenvalue, n)
+            if vector is not None:
+                eigenvectors.append(vector)
+    return EigenResult(matrix, eigenvalues, eigenvectors, iterations, converged, current)

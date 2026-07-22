@@ -5,7 +5,7 @@ panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "1.0.1"
+__version__ = "1.2.0"
 
 from fractions import Fraction
 
@@ -29,8 +29,15 @@ from panchi.primitives.factories import (
     exact_vector,
     exact_matrix,
 )
-from panchi.algorithms.vector_operations import dot, cross, orthogonal_complement
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
+from panchi.algorithms.vector_operations import (
+    dot,
+    cross,
+    orthogonal_complement,
+    vector_projection,
+    gram_schmidt,
+)
+from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
+from panchi.algorithms.decompositions import qr_decomposition
 
 __all__ = [
     "Fraction",
@@ -55,7 +62,11 @@ __all__ = [
     "dot",
     "cross",
     "orthogonal_complement",
+    "vector_projection",
+    "gram_schmidt",
     "inverse",
     "solve",
     "determinant_lu",
+    "qr_decomposition",
+    "eigen",
 ]

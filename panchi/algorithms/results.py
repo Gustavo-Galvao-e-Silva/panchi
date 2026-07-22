@@ -279,6 +279,103 @@ class LUDecomposition:
         )
 
 
+class QRDecomposition:
+    """
+    The result of a (thin) QR decomposition via Gram-Schmidt.
+
+    Stores the original matrix, the matrix Q with orthonormal columns, the
+    upper triangular matrix R, and the ordered list of Gram-Schmidt steps
+    used to build Q. The decomposition satisfies original == Q @ R.
+
+    Q is formed by orthonormalizing the columns of the original matrix, so
+    its columns are an orthonormal basis for the column space. R = Qᵀ @ A is
+    upper triangular and its diagonal entries record how much of each column
+    survived orthogonalization. The recorded steps expose the column-by-column
+    derivation of Q, mirroring how a Reduction exposes its row operations.
+
+    Parameters
+    ----------
+    original : Matrix
+        The matrix that was decomposed, with linearly independent columns.
+    q : Matrix
+        The matrix with orthonormal columns.
+    r : Matrix
+        The upper triangular matrix satisfying original == q @ r.
+    steps : list[GramSchmidtStep]
+        The ordered Gram-Schmidt steps, one per column, used to build Q.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 0], [0, 1]])
+    >>> decomp = qr_decomposition(A)
+    >>> decomp.q @ decomp.r == A
+    True
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        q: Matrix,
+        r: Matrix,
+        steps: list,
+    ) -> None:
+        self.original = original
+        self.q = q
+        self.r = r
+        self.steps = steps
+
+    def __str__(self) -> str:
+        """
+        Return a readable summary of the QR decomposition.
+
+        Shows the column-by-column Gram-Schmidt walkthrough, then Q and R
+        individually, and states the factorisation relationship A = Q @ R.
+
+        Returns
+        -------
+        str
+            Human-readable decomposition summary.
+        """
+        header: str = (
+            f"QR decomposition of "
+            f"{self.original.rows}×{self.original.cols} matrix"
+            f" — {len(self.steps)} steps\n"
+        )
+
+        steps_str: str = ""
+        for step in self.steps:
+            steps_str += f"\n{step}\n"
+
+        body: str = (
+            f"\nA = Q @ R\n"
+            f"\nA:\n{self.original}\n"
+            f"\nQ:\n{self.q}\n"
+            f"\nR:\n{self.r}"
+        )
+
+        return header + steps_str + body
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this QRDecomposition.
+
+        Returns
+        -------
+        str
+            Compact representation showing shape and number of steps.
+
+        Examples
+        --------
+        >>> qr_decomposition(Matrix([[1, 0], [0, 1]]))
+        QRDecomposition(shape=2×2, steps=2)
+        """
+        return (
+            f"QRDecomposition("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"steps={len(self.steps)})"
+        )
+
+
 class InverseResult:
     """
     The result of a matrix inversion via Gauss-Jordan elimination.
@@ -507,4 +604,125 @@ class Solution:
             f"shape={self.original.rows}×{self.original.cols}, "
             f"status={self.status}, "
             f"solution={self.solution})"
+        )
+
+
+class EigenResult:
+    """
+    The result of an eigenvalue computation via the QR algorithm.
+
+    Stores the original matrix, the computed eigenvalues, the corresponding
+    eigenvectors, and metadata about the iterative process: how many
+    iterations were run, whether the iteration converged, and the final
+    (near) upper-triangular matrix the QR algorithm produced.
+
+    Eigenvalues are read off the diagonal of the QR iterate, and each
+    eigenvector is paired with the eigenvalue at the same index. The values
+    are numerical approximations, not exact or symbolic results.
+
+    Only real eigenvalues are supported. Matrices with complex eigenvalues
+    (or eigenvalues of equal magnitude) may not converge; in that case
+    ``converged`` is False and ``eigenvectors`` is empty.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square matrix whose spectrum was computed.
+    eigenvalues : list[float]
+        The computed eigenvalues, in the order they appear on the diagonal
+        of the final iterate.
+    eigenvectors : list[Vector]
+        The eigenvectors, paired by index with eigenvalues. Empty when the
+        iteration did not converge.
+    iterations : int
+        The number of QR iterations performed.
+    converged : bool
+        Whether the below-diagonal mass fell below the tolerance before the
+        iteration limit was reached.
+    triangular : Matrix
+        The final (near) upper-triangular matrix produced by the iteration.
+
+    Examples
+    --------
+    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> sorted(round(v, 6) for v in result.eigenvalues)
+    [1.0, 3.0]
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        eigenvalues: list[float],
+        eigenvectors: list[Vector],
+        iterations: int,
+        converged: bool,
+        triangular: Matrix,
+    ) -> None:
+        self.original = original
+        self.eigenvalues = eigenvalues
+        self.eigenvectors = eigenvectors
+        self.iterations = iterations
+        self.converged = converged
+        self.triangular = triangular
+
+    @property
+    def pairs(self) -> list[tuple[float, Vector]]:
+        """
+        The eigenvalue/eigenvector pairs, zipped by index.
+
+        Returns
+        -------
+        list[tuple[float, Vector]]
+            One (eigenvalue, eigenvector) tuple per computed eigenvector.
+            Empty when no eigenvectors were computed.
+        """
+        return list(zip(self.eigenvalues, self.eigenvectors))
+
+    def __str__(self) -> str:
+        """
+        Return a readable summary of the eigenvalue computation.
+
+        Shows the iteration count and convergence status, then each
+        eigenvalue together with its eigenvector when available.
+
+        Returns
+        -------
+        str
+            Human-readable eigendecomposition summary.
+        """
+        header: str = (
+            f"Eigendecomposition of "
+            f"{self.original.rows}×{self.original.cols} matrix"
+            f" — {self.iterations} iterations (converged: {self.converged})\n"
+        )
+
+        if self.eigenvectors:
+            body = "\n" + "\n".join(
+                f"λ = {value}\n  v = {vector}" for value, vector in self.pairs
+            )
+        else:
+            body = "\nEigenvalues: " + ", ".join(str(v) for v in self.eigenvalues)
+
+        return header + body
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this EigenResult.
+
+        Returns
+        -------
+        str
+            Compact representation showing shape, iteration count, and
+            convergence status.
+
+        Examples
+        --------
+        >>> eigen(Matrix([[2, 1], [1, 2]]))
+        EigenResult(shape=2×2, iterations=..., converged=True)
+        """
+        return (
+            f"EigenResult("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"iterations={self.iterations}, "
+            f"converged={self.converged})"
         )
