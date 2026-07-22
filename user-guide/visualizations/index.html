@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/user-guide/row-operations/">
+        <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/user-guide/visualizations/">
       
       
-        <link rel="prev" href="../transformations/">
+        <link rel="prev" href="../solving-systems/">
       
       
-        <link rel="next" href="../row-reduction/">
+        <link rel="next" href="../../api/panchi/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Row Operations - panchi</title>
+        <title>Visualizations - panchi</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#row-operations" class="md-skip">
+        <a href="#visualizations" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Row Operations
+              Visualizations
             
           </span>
         </div>
@@ -503,37 +503,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Row Operations
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../row-operations/" class="md-nav__link">
         
   
   
@@ -549,70 +522,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#elementary-matrices" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Elementary matrices
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inverses" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inverses
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#string-representation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        String representation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -706,10 +615,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../visualizations/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -725,6 +661,142 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-an-animator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Creating an animator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an animator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plotting-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plotting vectors
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animating-vector-addition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animating vector addition
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animating-scalar-multiplication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animating scalar multiplication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animating-linear-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animating linear transformations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizing-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualizing spans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -931,10 +1003,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-three-operations" class="md-nav__link">
+  <a href="#setup" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three operations
+        Setup
       
     </span>
   </a>
@@ -942,10 +1014,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#elementary-matrices" class="md-nav__link">
+  <a href="#creating-an-animator" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Elementary matrices
+        Creating an animator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating an animator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#constructor-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Constructor options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plotting-vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plotting vectors
       
     </span>
   </a>
@@ -953,10 +1053,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inverses" class="md-nav__link">
+  <a href="#animating-vector-addition" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inverses
+        Animating vector addition
       
     </span>
   </a>
@@ -964,10 +1064,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#string-representation" class="md-nav__link">
+  <a href="#animating-scalar-multiplication" class="md-nav__link">
     <span class="md-ellipsis">
       
-        String representation
+        Animating scalar multiplication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#animating-linear-transformations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Animating linear transformations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizing-spans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualizing spans
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#saving-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saving output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backend-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backend comparison
       
     </span>
   </a>
@@ -994,69 +1138,194 @@
   
 
 
-<h1 id="row-operations">Row Operations</h1>
-<p>Every row reduction algorithm — Gaussian elimination, Gauss-Jordan, LU decomposition — is built from three elementary row operations. In panchi, these are first-class objects, not implementation details.</p>
-<h2 id="the-three-operations">The three operations</h2>
-<p><strong>RowSwap</strong> — swap two rows:</p>
-<div class="arithmatex">\[R_a \leftrightarrow R_b\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowSwap</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
+<h1 id="visualizations">Visualizations</h1>
+<p>panchi includes a built-in visualization system for 2D vectors, linear transformations, and vector spaces. All visualizations are accessed through a single class: <code>Animator2D</code>.</p>
+<h2 id="setup">Setup</h2>
+<p>panchi ships with a <strong>matplotlib</strong> backend by default. For higher-quality, video-based output, install the optional <strong>manim</strong> backend:</p>
+<div class="highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>panchi<span class="o">[</span>manim<span class="o">]</span>
+</code></pre></div>
+<h2 id="creating-an-animator">Creating an animator</h2>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">Matrix</span><span class="p">,</span> <span class="n">VectorSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">panchi.visualizations</span><span class="w"> </span><span class="kn">import</span> <span class="n">Animator2D</span>
 
-<span class="n">m</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[5, 6],</span>
-<span class="c1">#  [3, 4],</span>
-<span class="c1">#  [1, 2]]</span>
-</code></pre></div>
-<p><strong>RowScale</strong> — multiply a row by a non-zero scalar:</p>
-<div class="arithmatex">\[R_i \to c \cdot R_i\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowScale</span>
+<span class="c1"># Interactive display (matplotlib pops up a window)</span>
+<span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">()</span>
 
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowScale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[1,  2],</span>
-<span class="c1">#  [9, 12],</span>
-<span class="c1">#  [5,  6]]</span>
-</code></pre></div>
-<p><strong>RowAdd</strong> — add a scalar multiple of one row to another:</p>
-<div class="arithmatex">\[R_{\text{target}} \to R_{\text{target}} + c \cdot R_{\text{source}}\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowAdd</span>
+<span class="c1"># Save to disk instead</span>
+<span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">(</span><span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;./my_plots&quot;</span><span class="p">)</span>
 
-<span class="n">m</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowAdd</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[1,  2],</span>
-<span class="c1">#  [0, -2]]</span>
+<span class="c1"># Use manim for video output</span>
+<span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;manim&quot;</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;./videos&quot;</span><span class="p">)</span>
 </code></pre></div>
-<p>This is the core step of Gaussian elimination: choosing a scalar that zeroes out an entry below the pivot.</p>
-<h2 id="elementary-matrices">Elementary matrices</h2>
-<p>Each row operation corresponds to an elementary matrix — the identity matrix with the operation applied to it. Multiplying a matrix on the left by an elementary matrix performs the row operation:</p>
-<div class="highlight"><pre><span></span><code><span class="n">op</span> <span class="o">=</span> <span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">E</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">elementary_matrix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
-<span class="c1"># [[0, 1],</span>
-<span class="c1">#  [1, 0]]</span>
+<p>The <code>backend</code> parameter selects which rendering engine to use. Manim is only imported when you request it, so matplotlib users never need it installed.</p>
+<h3 id="constructor-options">Constructor options</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>backend</code></td>
+<td><code>"matplotlib"</code></td>
+<td><code>"matplotlib"</code> or <code>"manim"</code></td>
+</tr>
+<tr>
+<td><code>save_path</code></td>
+<td><code>None</code></td>
+<td>Directory for output files. If <code>None</code>, matplotlib shows interactively.</td>
+</tr>
+<tr>
+<td><code>quality</code></td>
+<td><code>"medium"</code></td>
+<td>Render quality: <code>"low"</code>, <code>"medium"</code>, <code>"high"</code>, <code>"production"</code> (manim only)</td>
+</tr>
+<tr>
+<td><code>figsize</code></td>
+<td><code>(8, 8)</code></td>
+<td>Figure size in inches (matplotlib only)</td>
+</tr>
+</tbody>
+</table>
+<p>When <code>save_path</code> is set, static plots are saved as <code>.png</code> and animations as <code>.gif</code> (matplotlib) or <code>.mp4</code> (manim).</p>
+<hr />
+<h2 id="plotting-vectors">Plotting vectors</h2>
+<div class="highlight"><pre><span></span><code><span class="n">v1</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">v2</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">v3</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
-<span class="k">assert</span> <span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">==</span> <span class="n">E</span> <span class="o">@</span> <span class="n">m</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_vectors</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;v1&quot;</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">,</span> <span class="s2">&quot;v3&quot;</span><span class="p">])</span>
 </code></pre></div>
-<p>This connection between row operations and matrix multiplication is a core idea in linear algebra, and panchi makes it explicit.</p>
-<h2 id="inverses">Inverses</h2>
-<p>Every row operation has an inverse that undoes it:</p>
-<div class="highlight"><pre><span></span><code><span class="n">op</span> <span class="o">=</span> <span class="n">RowAdd</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">inv</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
-<span class="c1"># RowAdd(target=1, source=0, scalar=3)</span>
+<p>Pass any number of 2D vectors as positional arguments. Optional parameters:</p>
+<ul>
+<li><code>colors</code> — list of hex color strings (e.g. <code>["#FF0000", "#0000FF"]</code>)</li>
+<li><code>labels</code> — list of label strings</li>
+<li><code>grid</code> — show coordinate grid (default <code>True</code>)</li>
+<li><code>name</code> — output filename when saving (default <code>"plot_vectors"</code>)</li>
+</ul>
+<hr />
+<h2 id="animating-vector-addition">Animating vector addition</h2>
+<div class="highlight"><pre><span></span><code><span class="n">v1</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+<span class="n">v2</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 
-<span class="k">assert</span> <span class="n">inv</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">==</span> <span class="n">m</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_addition</span><span class="p">(</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">)</span>
 </code></pre></div>
-<p>Inverses are used internally when building the L matrix in LU decomposition.</p>
-<h2 id="string-representation">String representation</h2>
-<p>Operations print in standard mathematical notation:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>            <span class="c1"># R0 &lt;-&gt; R2</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">RowScale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>           <span class="c1"># R1 -&gt; 3 * R1</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">RowAdd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">))</span>         <span class="c1"># R1 -&gt; R1 + (-3) * R0</span>
+<p>The animation shows v1 drawn first, then v2 growing from the origin and from v1's tip simultaneously, and finally the result vector appearing. The manim backend also draws the parallelogram with dashed lines.</p>
+<p>Optional parameters: <code>frames</code>, <code>interval</code> (milliseconds between frames), <code>name</code>.</p>
+<hr />
+<h2 id="animating-scalar-multiplication">Animating scalar multiplication</h2>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_scaling</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">scale_factor</span><span class="o">=</span><span class="mf">2.5</span><span class="p">)</span>
 </code></pre></div>
-<p>This makes the step-by-step output from <code>ref()</code> and <code>rref()</code> readable without any translation.</p>
+<p>The vector smoothly stretches (or shrinks, or flips for negative factors) from its original length to the scaled length.</p>
+<p>Optional parameters: <code>frames</code>, <code>interval</code>, <code>name</code>.</p>
+<hr />
+<h2 id="animating-linear-transformations">Animating linear transformations</h2>
+<p>This is the signature visualization — a full grid deformation showing how a 2x2 matrix transforms the plane, in the style of 3Blue1Brown's <em>Essence of Linear Algebra</em>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 90-degree rotation</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+
+<span class="c1"># Horizontal shear</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+
+<span class="c1"># Projection onto the x-axis</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+</code></pre></div>
+<p>The animation shows:</p>
+<ol>
+<li>The standard basis vectors e1 (red) and e2 (blue) on a coordinate grid</li>
+<li>The entire grid smoothly morphing from the identity to the target transformation</li>
+<li>Labels updating to show the final column vectors of the matrix</li>
+</ol>
+<p>Only 2x2 matrices are supported — a <code>ValueError</code> is raised for other shapes.</p>
+<p>Optional parameters: <code>frames</code>, <code>interval</code>, <code>name</code>.</p>
+<hr />
+<h2 id="visualizing-spans">Visualizing spans</h2>
+<p><code>plot_span</code> draws the subspace spanned by a set of vectors, with a shaded region and basis vector arrows.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># From individual vectors</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_span</span><span class="p">(</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]))</span>                        <span class="c1"># 1D span (line)</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_span</span><span class="p">(</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]),</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]))</span>        <span class="c1"># 2D span (full plane)</span>
+
+<span class="c1"># From a VectorSpace object</span>
+<span class="n">space</span> <span class="o">=</span> <span class="n">VectorSpace</span><span class="p">([</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]),</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">])])</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_span</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;v1&quot;</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">])</span>
+</code></pre></div>
+<p>The visualization adapts to the dimension of the subspace:</p>
+<ul>
+<li><strong>dim 1</strong> — a line through the origin in the basis direction, highlighted with a colored band</li>
+<li><strong>dim 2</strong> — the entire visible plane shaded to indicate it spans all of R²</li>
+</ul>
+<p>If you pass linearly dependent vectors, panchi computes the actual basis automatically:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># These two vectors are parallel — the span is still 1D</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_span</span><span class="p">(</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">Vector</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">]))</span>
+</code></pre></div>
+<p>Optional parameters: <code>colors</code>, <code>labels</code>, <code>grid</code>, <code>name</code>.</p>
+<hr />
+<h2 id="saving-output">Saving output</h2>
+<p>When <code>save_path</code> is set, every method saves its output to that directory:</p>
+<div class="highlight"><pre><span></span><code><span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">(</span><span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;./output&quot;</span><span class="p">)</span>
+
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_vectors</span><span class="p">(</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_vectors&quot;</span><span class="p">)</span>
+<span class="c1"># → ./output/my_vectors.png</span>
+
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;rotation&quot;</span><span class="p">)</span>
+<span class="c1"># → ./output/rotation.gif  (matplotlib)</span>
+<span class="c1"># → ./output/rotation.mp4  (manim)</span>
+</code></pre></div>
+<p>The <code>name</code> parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. <code>"plot_vectors"</code>, <code>"animate_transform"</code>).</p>
+<hr />
+<h2 id="backend-comparison">Backend comparison</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>matplotlib</th>
+<th>manim</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Install</td>
+<td>Included with panchi</td>
+<td><code>pip install panchi[manim]</code> + system deps</td>
+</tr>
+<tr>
+<td>Output format</td>
+<td><code>.png</code> / <code>.gif</code></td>
+<td><code>.mp4</code> video</td>
+</tr>
+<tr>
+<td>Interactive display</td>
+<td>Yes (<code>plt.show()</code>)</td>
+<td>No (always renders to file)</td>
+</tr>
+<tr>
+<td>Grid morph quality</td>
+<td>Good (LineCollection interpolation)</td>
+<td>Excellent (native NumberPlane)</td>
+</tr>
+<tr>
+<td>LaTeX labels</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Parallelogram in addition</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Render speed</td>
+<td>Fast</td>
+<td>Slower (video encoding)</td>
+</tr>
+</tbody>
+</table>
+<p>Both backends support all five visualization methods with the same API.</p>
 
 
 

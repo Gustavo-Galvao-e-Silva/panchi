@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/user-guide/row-operations/">
+        <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/user-guide/exact-arithmetic/">
       
       
-        <link rel="prev" href="../transformations/">
+        <link rel="prev" href="../matrices/">
       
       
-        <link rel="next" href="../row-reduction/">
+        <link rel="next" href="../vector-spaces/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Row Operations - panchi</title>
+        <title>Exact Arithmetic - panchi</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#row-operations" class="md-skip">
+        <a href="#exact-arithmetic" class="md-skip">
           Skip to content
         </a>
       
@@ -119,7 +119,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Row Operations
+              Exact Arithmetic
             
           </span>
         </div>
@@ -419,10 +419,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../exact-arithmetic/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -438,6 +465,142 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#writing-fractions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Writing fractions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#factory-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Factory functions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-fraction-directly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using Fraction directly
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exact-algorithms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exact algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RREF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inverse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#determinant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Determinant
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-exact-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use exact arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backward-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward compatibility
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -503,37 +666,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Row Operations
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../row-operations/" class="md-nav__link">
         
   
   
@@ -549,70 +685,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-operations" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three operations
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#elementary-matrices" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Elementary matrices
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#inverses" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inverses
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#string-representation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        String representation
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -931,10 +1003,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-three-operations" class="md-nav__link">
+  <a href="#writing-fractions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three operations
+        Writing fractions
       
     </span>
   </a>
@@ -942,10 +1014,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#elementary-matrices" class="md-nav__link">
+  <a href="#factory-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Elementary matrices
+        Factory functions
       
     </span>
   </a>
@@ -953,10 +1025,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#inverses" class="md-nav__link">
+  <a href="#using-fraction-directly" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Inverses
+        Using Fraction directly
       
     </span>
   </a>
@@ -964,10 +1036,82 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#string-representation" class="md-nav__link">
+  <a href="#exact-algorithms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        String representation
+        Exact algorithms
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Exact algorithms">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rref" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RREF
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inverse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#determinant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Determinant
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#when-to-use-exact-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to use exact arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backward-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backward compatibility
       
     </span>
   </a>
@@ -994,69 +1138,117 @@
   
 
 
-<h1 id="row-operations">Row Operations</h1>
-<p>Every row reduction algorithm — Gaussian elimination, Gauss-Jordan, LU decomposition — is built from three elementary row operations. In panchi, these are first-class objects, not implementation details.</p>
-<h2 id="the-three-operations">The three operations</h2>
-<p><strong>RowSwap</strong> — swap two rows:</p>
-<div class="arithmatex">\[R_a \leftrightarrow R_b\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowSwap</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
+<h1 id="exact-arithmetic">Exact Arithmetic</h1>
+<p>When working with linear algebra by hand, fractions like <span class="arithmatex">\(\frac{1}{3}\)</span> stay exact. But computers default to floating-point, which introduces rounding errors — <span class="arithmatex">\(0.333...\)</span> instead of <span class="arithmatex">\(\frac{1}{3}\)</span>, or <span class="arithmatex">\(0.9999...\)</span> instead of <span class="arithmatex">\(1\)</span>.</p>
+<p>panchi supports exact rational arithmetic using Python's <code>fractions.Fraction</code>. This means <span class="arithmatex">\(\frac{1}{3}\)</span> stays <span class="arithmatex">\(\frac{1}{3}\)</span> through every operation — RREF, solve, inverse, determinant — with zero rounding.</p>
+<h2 id="writing-fractions">Writing fractions</h2>
+<p>The simplest way to use fractions is to write them as strings:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
 
-<span class="n">m</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">],</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[5, 6],</span>
-<span class="c1">#  [3, 4],</span>
-<span class="c1">#  [1, 2]]</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="s2">&quot;1/3&quot;</span><span class="p">,</span> <span class="s2">&quot;2/3&quot;</span><span class="p">,</span> <span class="s2">&quot;1/2&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># [1/3, 2/3, 1/2]</span>
 </code></pre></div>
-<p><strong>RowScale</strong> — multiply a row by a non-zero scalar:</p>
-<div class="arithmatex">\[R_i \to c \cdot R_i\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowScale</span>
+<p>You can mix fractions with regular numbers:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="s2">&quot;1/3&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># [1/3, 2, 0]</span>
+</code></pre></div>
+<p>Matrices work the same way:</p>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="s2">&quot;1/2&quot;</span><span class="p">,</span> <span class="s2">&quot;1/3&quot;</span><span class="p">],</span>
+                <span class="p">[</span><span class="s2">&quot;1/4&quot;</span><span class="p">,</span> <span class="s2">&quot;1/5&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="c1"># [[1/2, 1/3],</span>
+<span class="c1">#  [1/4, 1/5]]</span>
+</code></pre></div>
+<p>Negative fractions use a minus sign in the numerator:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="s2">&quot;-1/3&quot;</span><span class="p">,</span> <span class="s2">&quot;5/7&quot;</span><span class="p">])</span>
+</code></pre></div>
+<h2 id="factory-functions">Factory functions</h2>
+<p>If you want all elements to be exact (even integers), use the factory functions:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
+</code></pre></div>
+<p>These convert every element to <code>Fraction</code>, ensuring that all subsequent arithmetic stays exact. This is especially useful when division would normally produce floats:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">v</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># [1/3, 2/3, 1]   — not [0.333..., 0.666..., 1.0]</span>
+</code></pre></div>
+<h2 id="using-fraction-directly">Using Fraction directly</h2>
+<p>You can also use Python's <code>Fraction</code> type directly:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">fractions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fraction</span>
 
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowScale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[1,  2],</span>
-<span class="c1">#  [9, 12],</span>
-<span class="c1">#  [5,  6]]</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="n">Fraction</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">Fraction</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)])</span>
 </code></pre></div>
-<p><strong>RowAdd</strong> — add a scalar multiple of one row to another:</p>
-<div class="arithmatex">\[R_{\text{target}} \to R_{\text{target}} + c \cdot R_{\text{source}}\]</div>
-<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">RowAdd</span>
+<p>panchi re-exports <code>Fraction</code> for convenience:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fraction</span>
+</code></pre></div>
+<h2 id="exact-algorithms">Exact algorithms</h2>
+<p>All panchi algorithms work with fractions out of the box. The results are exact — no floating-point drift.</p>
+<h3 id="rref">RREF</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rref</span>
 
-<span class="n">m</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
-<span class="n">op</span> <span class="o">=</span> <span class="n">RowAdd</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
-<span class="c1"># [[1,  2],</span>
-<span class="c1">#  [0, -2]]</span>
-</code></pre></div>
-<p>This is the core step of Gaussian elimination: choosing a scalar that zeroes out an entry below the pivot.</p>
-<h2 id="elementary-matrices">Elementary matrices</h2>
-<p>Each row operation corresponds to an elementary matrix — the identity matrix with the operation applied to it. Multiplying a matrix on the left by an elementary matrix performs the row operation:</p>
-<div class="highlight"><pre><span></span><code><span class="n">op</span> <span class="o">=</span> <span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">E</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">elementary_matrix</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">E</span><span class="p">)</span>
-<span class="c1"># [[0, 1],</span>
-<span class="c1">#  [1, 0]]</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
 
-<span class="k">assert</span> <span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="o">==</span> <span class="n">E</span> <span class="o">@</span> <span class="n">m</span>
+<span class="n">reduction</span> <span class="o">=</span> <span class="n">rref</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">reduction</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># [[1, 0, 0],</span>
+<span class="c1">#  [0, 1, 0],</span>
+<span class="c1">#  [0, 0, 1]]</span>
 </code></pre></div>
-<p>This connection between row operations and matrix multiplication is a core idea in linear algebra, and panchi makes it explicit.</p>
-<h2 id="inverses">Inverses</h2>
-<p>Every row operation has an inverse that undoes it:</p>
-<div class="highlight"><pre><span></span><code><span class="n">op</span> <span class="o">=</span> <span class="n">RowAdd</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">scalar</span><span class="o">=-</span><span class="mi">3</span><span class="p">)</span>
-<span class="n">inv</span> <span class="o">=</span> <span class="n">op</span><span class="o">.</span><span class="n">inverse</span><span class="p">()</span>
-<span class="c1"># RowAdd(target=1, source=0, scalar=3)</span>
+<h3 id="inverse">Inverse</h3>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
 
-<span class="k">assert</span> <span class="n">inv</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">op</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">==</span> <span class="n">m</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
+<span class="c1"># [[-2/3, -4/3, 1],</span>
+<span class="c1">#  [-2/3, 11/3, -2],</span>
+<span class="c1">#  [1, -2, 1]]</span>
+
+<span class="c1"># Verify: A @ A⁻¹ = I (exactly, not approximately)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">result</span><span class="o">.</span><span class="n">inverse</span><span class="p">)</span>
+<span class="c1"># [[1, 0, 0],</span>
+<span class="c1">#  [0, 1, 0],</span>
+<span class="c1">#  [0, 0, 1]]</span>
 </code></pre></div>
-<p>Inverses are used internally when building the L matrix in LU decomposition.</p>
-<h2 id="string-representation">String representation</h2>
-<p>Operations print in standard mathematical notation:</p>
-<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">RowSwap</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>            <span class="c1"># R0 &lt;-&gt; R2</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">RowScale</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>           <span class="c1"># R1 -&gt; 3 * R1</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">RowAdd</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">))</span>         <span class="c1"># R1 -&gt; R1 + (-3) * R0</span>
+<h3 id="solve">Solve</h3>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                      <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">]])</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>  <span class="c1"># [1, -1]</span>
 </code></pre></div>
-<p>This makes the step-by-step output from <code>ref()</code> and <code>rref()</code> readable without any translation.</p>
+<h3 id="determinant">Determinant</h3>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">determinant</span><span class="p">)</span>  <span class="c1"># -2</span>
+</code></pre></div>
+<h2 id="when-to-use-exact-arithmetic">When to use exact arithmetic</h2>
+<p><strong>Use exact arithmetic when:</strong></p>
+<ul>
+<li>You're learning linear algebra and want to see clean results</li>
+<li>You need to verify that <span class="arithmatex">\(A A^{-1} = I\)</span> exactly</li>
+<li>You're working through textbook problems with rational answers</li>
+<li>Floating-point drift is obscuring the mathematical structure</li>
+</ul>
+<p><strong>Stick with floats when:</strong></p>
+<ul>
+<li>You need <code>normalize()</code> or <code>magnitude</code> (these involve square roots, which are irrational)</li>
+<li>You're working with measured/experimental data</li>
+<li>Performance matters for large matrices</li>
+</ul>
+<h2 id="backward-compatibility">Backward compatibility</h2>
+<p>Existing code is unaffected. <code>Vector([1, 2, 3])</code> with integers stays as integers. Fractions are opt-in — you choose to use them by passing string fractions or using <code>exact_vector()</code> / <code>exact_matrix()</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># These still work exactly as before</span>
+<span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># &lt;class &#39;int&#39;&gt;</span>
+
+<span class="n">w</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>  <span class="c1"># &lt;class &#39;float&#39;&gt;</span>
+</code></pre></div>
 
 
 

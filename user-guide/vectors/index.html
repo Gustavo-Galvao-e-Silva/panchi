@@ -557,6 +557,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../vector-spaces/" class="md-nav__link">
         
   
@@ -718,6 +746,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -817,6 +873,34 @@
     
   
     panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
   
 
     
@@ -1007,7 +1091,11 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>       <span class="c1"># [1, 2, 3]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>  <span class="c1"># 3</span>
 </code></pre></div>
-<p>Vectors can only hold numbers (int or float). Passing anything else raises a <code>TypeError</code> with an explanation.</p>
+<p>Vectors hold numbers (int, float, or Fraction). You can write fractions as strings:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="s2">&quot;1/3&quot;</span><span class="p">,</span> <span class="s2">&quot;2/3&quot;</span><span class="p">,</span> <span class="s2">&quot;1/2&quot;</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>  <span class="c1"># [1/3, 2/3, 1/2]</span>
+</code></pre></div>
+<p>For full details on exact arithmetic, see <a href="../exact-arithmetic/">Exact Arithmetic</a>.</p>
 <h2 id="arithmetic">Arithmetic</h2>
 <p>Vectors support standard arithmetic with natural syntax:</p>
 <div class="highlight"><pre><span></span><code><span class="n">a</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
@@ -1016,6 +1104,7 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>   <span class="c1"># [5, 7, 9]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>   <span class="c1"># [-3, -3, -3]</span>
 <span class="nb">print</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>   <span class="c1"># [2, 4, 6]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># [2, 4, 6]  — same as above</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># [0.5, 1.0, 1.5]</span>
 <span class="nb">print</span><span class="p">(</span><span class="o">-</span><span class="n">a</span><span class="p">)</span>      <span class="c1"># [-1, -2, -3]</span>
 </code></pre></div>

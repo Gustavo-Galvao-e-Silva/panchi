@@ -16,7 +16,7 @@
         <link rel="prev" href="../decompositions/">
       
       
-        <link rel="next" href="../../api/panchi/">
+        <link rel="next" href="../visualizations/">
       
       
         
@@ -422,6 +422,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../vector-spaces/" class="md-nav__link">
         
   
@@ -687,10 +715,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#numerical-tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical tolerance
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -795,6 +862,34 @@
     
   
     panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
   
 
     
@@ -934,6 +1029,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#numerical-tolerance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Numerical tolerance
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -963,7 +1069,7 @@
 <li><strong>Infinite solutions</strong> — infinitely many x satisfy it (the system is underdetermined)</li>
 <li><strong>Inconsistent</strong> — no x satisfies it (the system is contradictory)</li>
 </ul>
-<p>panchi's <code>solve()</code> function identifies which case applies and, when a unique solution exists, returns it.</p>
+<p>panchi's <code>solve()</code> function identifies which case applies, returns the unique solution when one exists, and provides the general solution (particular solution + null space) for underdetermined systems.</p>
 <h2 id="basic-usage">Basic usage</h2>
 <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve</span>
@@ -982,11 +1088,13 @@
 </code></pre></div>
 <h2 id="the-solution-object">The Solution object</h2>
 <p><code>solve()</code> returns a <code>Solution</code> object:</p>
-<div class="highlight"><pre><span></span><code><span class="n">result</span><span class="o">.</span><span class="n">original</span>   <span class="c1"># the coefficient matrix A</span>
-<span class="n">result</span><span class="o">.</span><span class="n">target</span>     <span class="c1"># the right-hand side vector b</span>
-<span class="n">result</span><span class="o">.</span><span class="n">status</span>     <span class="c1"># &#39;unique&#39;, &#39;infinite&#39;, or &#39;inconsistent&#39;</span>
-<span class="n">result</span><span class="o">.</span><span class="n">solution</span>   <span class="c1"># the solution Vector, or None if not unique</span>
-<span class="n">result</span><span class="o">.</span><span class="n">steps</span>      <span class="c1"># row operations applied to the augmented matrix [A | b]</span>
+<div class="highlight"><pre><span></span><code><span class="n">result</span><span class="o">.</span><span class="n">original</span>    <span class="c1"># the coefficient matrix A</span>
+<span class="n">result</span><span class="o">.</span><span class="n">target</span>      <span class="c1"># the right-hand side vector b</span>
+<span class="n">result</span><span class="o">.</span><span class="n">status</span>      <span class="c1"># &#39;unique&#39;, &#39;infinite&#39;, or &#39;inconsistent&#39;</span>
+<span class="n">result</span><span class="o">.</span><span class="n">solution</span>    <span class="c1"># the solution Vector, or None if not unique</span>
+<span class="n">result</span><span class="o">.</span><span class="n">steps</span>       <span class="c1"># row operations applied to the augmented matrix [A | b]</span>
+<span class="n">result</span><span class="o">.</span><span class="n">particular</span>  <span class="c1"># particular solution Vector (infinite case only)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">null_space</span>  <span class="c1"># VectorSpace basis for the null space (infinite case only)</span>
 </code></pre></div>
 <h2 id="inconsistent-systems">Inconsistent systems</h2>
 <div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
@@ -1004,9 +1112,23 @@
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>    <span class="c1"># &#39;infinite&#39;</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">solution</span><span class="p">)</span>  <span class="c1"># None</span>
 </code></pre></div>
-<p>When the status is <code>'infinite'</code>, <code>solution</code> is <code>None</code>. A unique solution cannot be extracted without additional constraints. The <code>steps</code> attribute still records the full reduction of the augmented matrix, which shows the free variables.</p>
+<p>When the status is <code>'infinite'</code>, the general solution is expressed as a particular solution plus the null space of A:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">particular</span><span class="p">)</span>  <span class="c1"># a Vector satisfying A @ x == b</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">null_space</span><span class="p">)</span>  <span class="c1"># VectorSpace — basis for the null space of A</span>
+
+<span class="c1"># Verify</span>
+<span class="k">assert</span> <span class="n">A</span> <span class="o">@</span> <span class="n">result</span><span class="o">.</span><span class="n">particular</span> <span class="o">==</span> <span class="n">b</span>
+<span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">null_space</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">A</span> <span class="o">@</span> <span class="n">v</span> <span class="o">==</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</code></pre></div>
+<p>Printing the result shows the full parametric form:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="c1"># Solution to 2×3 system — infinite</span>
+<span class="c1">#</span>
+<span class="c1"># x = [-6.33..., 6.66..., 0] + t·[1.0, -2.0, 1]</span>
+</code></pre></div>
+<p>For homogeneous systems (b = 0), the particular solution is the zero vector and is omitted from the display. Systems with multiple free variables use <code>s, t</code> (for two) or <code>t1, t2, ...</code> (for three or more) as parameters.</p>
 <h2 id="how-it-works">How it works</h2>
 <p><code>solve()</code> reduces the augmented matrix [A | b] to RREF. The status is determined by inspecting the result:</p>
 <ul>
@@ -1014,6 +1136,20 @@
 <li>If there are fewer pivots than variables, there are free variables and infinite solutions.</li>
 <li>Otherwise, back-substitution yields the unique solution.</li>
 </ul>
+<h2 id="numerical-tolerance">Numerical tolerance</h2>
+<p>By default <code>solve()</code> uses <strong>exact</strong> comparisons: a pivot counts as zero only if it is exactly <code>0</code>. This is the right behaviour for integer and <code>Fraction</code> inputs, where the arithmetic is exact.</p>
+<p>Floating-point matrices are trickier. A matrix that is <em>mathematically</em> singular can end up with a tiny non-zero residual pivot (like <code>1e-15</code>) after elimination, so an exact solve would wrongly report it as full rank. The optional <code>tolerance</code> parameter treats any pivot at or below that magnitude as zero:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve</span>
+
+<span class="c1"># Only approximately singular — the second row is a hair off the first.</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span> <span class="o">+</span> <span class="mf">1e-12</span><span class="p">]])</span>
+
+<span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]))</span>                 <span class="c1"># status &#39;unique&#39;  (exact)</span>
+<span class="n">solve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]),</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span> <span class="c1"># status &#39;infinite&#39; → null space</span>
+</code></pre></div>
+<p>The default of <code>tolerance=0.0</code> reproduces the exact behaviour exactly, so existing code is unaffected. The same <code>tolerance</code> parameter is available on <code>ref()</code> and <code>rref()</code>.</p>
+<p>This is the mechanism <a href="../decompositions/#eigenvalues-and-eigenvectors"><code>eigen()</code></a> uses to recover eigenvectors as the null space of an approximately-singular <code>A - λI</code>.</p>
 
 
 

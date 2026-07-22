@@ -394,10 +394,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#exact-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact Arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#algorithms" class="md-nav__link">
     <span class="md-ellipsis">
       
         Algorithms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualizations
       
     </span>
   </a>
@@ -504,6 +526,34 @@
     
   
     Matrices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
   
 
     
@@ -685,6 +735,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -784,6 +862,34 @@
     
   
     panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
   
 
     
@@ -902,10 +1008,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#exact-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exact Arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#algorithms" class="md-nav__link">
     <span class="md-ellipsis">
       
         Algorithms
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualizations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualizations
       
     </span>
   </a>
@@ -966,6 +1094,14 @@
 <span class="n">D</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">diagonal</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
 <span class="n">R</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">rotation_matrix_2d</span><span class="p">(</span><span class="mf">3.14159</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
 </code></pre></div>
+<h2 id="exact-arithmetic">Exact Arithmetic</h2>
+<p>panchi supports exact fractions — write them as strings and they stay exact through every operation:</p>
+<div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="s2">&quot;1/3&quot;</span><span class="p">,</span> <span class="s2">&quot;2/3&quot;</span><span class="p">,</span> <span class="s2">&quot;1/2&quot;</span><span class="p">])</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">exact_matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">]])</span>
+<span class="n">inv</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">A</span><span class="p">)</span><span class="o">.</span><span class="n">inverse</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">inv</span><span class="p">)</span>  <span class="c1"># exact identity matrix, no floating-point drift</span>
+</code></pre></div>
+<p>See the <a href="../user-guide/exact-arithmetic/">Exact Arithmetic guide</a> for the full story.</p>
 <h2 id="algorithms">Algorithms</h2>
 <p>Algorithms return result objects that carry both the answer and the work behind it.</p>
 <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">rref</span>
@@ -978,6 +1114,23 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">reduction</span><span class="p">)</span>         <span class="c1"># full step-by-step walkthrough</span>
 </code></pre></div>
 <p>The step-by-step output is panchi's most distinctive feature — every algorithm lets you see exactly what happened, not just the final answer.</p>
+<h2 id="visualizations">Visualizations</h2>
+<p>panchi can visualize vectors, transformations, and spans right out of the box.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">panchi.visualizations</span><span class="w"> </span><span class="kn">import</span> <span class="n">Animator2D</span>
+
+<span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">()</span>
+
+<span class="c1"># Plot vectors</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">plot_vectors</span><span class="p">(</span><span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">]),</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">]),</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;v1&quot;</span><span class="p">,</span> <span class="s2">&quot;v2&quot;</span><span class="p">])</span>
+
+<span class="c1"># Animate a linear transformation (grid morph)</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]))</span>
+</code></pre></div>
+<p>For video output, use the manim backend (<code>pip install panchi[manim]</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="n">animator</span> <span class="o">=</span> <span class="n">Animator2D</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">&quot;manim&quot;</span><span class="p">,</span> <span class="n">save_path</span><span class="o">=</span><span class="s2">&quot;./videos&quot;</span><span class="p">)</span>
+<span class="n">animator</span><span class="o">.</span><span class="n">animate_transform</span><span class="p">(</span><span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]]))</span>
+</code></pre></div>
+<p>See the <a href="../user-guide/visualizations/">Visualizations guide</a> for the full feature set.</p>
 <hr />
 <p>From here, explore the <a href="../user-guide/vectors/">User Guide</a> for the concepts and math behind each part of the library.</p>
 

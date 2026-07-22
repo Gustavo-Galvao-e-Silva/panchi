@@ -422,6 +422,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../vector-spaces/" class="md-nav__link">
         
   
@@ -637,6 +665,62 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#qr-decomposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QR Decomposition
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QR Decomposition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-qrdecomposition-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The QRDecomposition object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eigenvalues-and-eigenvectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eigenvalues and eigenvectors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Eigenvalues and eigenvectors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-eigenresult-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The EigenResult object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -661,6 +745,34 @@
     
   
     Solving Systems
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
   
 
     
@@ -786,6 +898,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -890,6 +1030,62 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#qr-decomposition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QR Decomposition
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="QR Decomposition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-qrdecomposition-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The QRDecomposition object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#eigenvalues-and-eigenvectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eigenvalues and eigenvectors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Eigenvalues and eigenvectors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-eigenresult-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The EigenResult object
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -911,7 +1107,7 @@
 
 
 <h1 id="decompositions">Decompositions</h1>
-<p>A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi currently implements LU decomposition with partial pivoting.</p>
+<p>A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi implements <strong>LU</strong> decomposition with partial pivoting, <strong>QR</strong> decomposition via Gram-Schmidt, and eigenvalue/eigenvector computation via the <strong>QR algorithm</strong>.</p>
 <h2 id="lu-decomposition">LU Decomposition</h2>
 <p>LU decomposition factors a square matrix A into a lower triangular matrix L and an upper triangular matrix U. Because row swaps are often necessary for numerical stability, panchi uses <strong>partial pivoting</strong>, which introduces a permutation matrix P:</p>
 <div class="arithmatex">\[P A = L U\]</div>
@@ -958,6 +1154,83 @@
 <h2 id="what-l-and-u-encode">What L and U encode</h2>
 <p>U is the result of Gaussian elimination applied to P @ A — it is the REF of the permuted matrix. L encodes the elimination steps: each entry below the diagonal in column j of L is the scalar that was used to zero out that row's entry in column j.</p>
 <p>This means the steps recorded in <code>decomp.steps</code> and the entries of L are two ways of reading the same information.</p>
+<h2 id="qr-decomposition">QR Decomposition</h2>
+<p>QR decomposition factors a matrix A into a matrix Q with orthonormal columns and an upper triangular matrix R:</p>
+<div class="arithmatex">\[A = Q R\]</div>
+<p>panchi builds Q by applying the <strong>Gram-Schmidt process</strong> to the columns of A, then recovers R as <span class="arithmatex">\(R = Q^\top A\)</span>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">qr_decomposition</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
+
+<span class="n">decomp</span> <span class="o">=</span> <span class="n">qr_decomposition</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">decomp</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>  <span class="c1"># Q — orthonormal columns</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">decomp</span><span class="o">.</span><span class="n">r</span><span class="p">)</span>  <span class="c1"># R — upper triangular</span>
+</code></pre></div>
+<p>The decomposition satisfies the invariant <code>A == Q @ R</code> (up to floating-point rounding, since normalization introduces square roots).</p>
+<h3 id="the-qrdecomposition-object">The QRDecomposition object</h3>
+<p><code>qr_decomposition()</code> returns a <code>QRDecomposition</code> result object:</p>
+<div class="highlight"><pre><span></span><code><span class="n">decomp</span><span class="o">.</span><span class="n">original</span>  <span class="c1"># the original matrix A</span>
+<span class="n">decomp</span><span class="o">.</span><span class="n">q</span>         <span class="c1"># Q</span>
+<span class="n">decomp</span><span class="o">.</span><span class="n">r</span>         <span class="c1"># R</span>
+<span class="n">decomp</span><span class="o">.</span><span class="n">steps</span>     <span class="c1"># the per-column Gram-Schmidt steps used to build Q</span>
+</code></pre></div>
+<p>Printing it walks through the orthonormalization column by column, then shows the <code>A = Q @ R</code> relationship:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">decomp</span><span class="p">)</span>
+<span class="c1"># QR decomposition of 3×3 matrix — 3 steps</span>
+<span class="c1">#</span>
+<span class="c1"># Step 1: v0 = [1, 1, 0]</span>
+<span class="c1">#   orthogonal: [1, 1, 0]</span>
+<span class="c1">#   normalize -&gt; q0: [0.707..., 0.707..., 0.0]</span>
+<span class="c1"># ...</span>
+<span class="c1">#</span>
+<span class="c1"># A = Q @ R</span>
+<span class="c1"># ...</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>QR decomposition here is the reduced ("thin") form and assumes the columns of A are linearly independent. Dependent columns produce a zero vector during Gram-Schmidt, which cannot be normalized and raises <code>ZeroDivisionError</code>.</p>
+</div>
+<h2 id="eigenvalues-and-eigenvectors">Eigenvalues and eigenvectors</h2>
+<p><code>eigen()</code> computes the eigenvalues and eigenvectors of a square matrix using the <strong>QR algorithm</strong>: it repeatedly decomposes the matrix and reassembles it as <code>R @ Q</code>. For matrices with real eigenvalues this sequence converges to an upper triangular matrix whose diagonal entries are the eigenvalues.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">panchi</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">panchi.algorithms</span><span class="w"> </span><span class="kn">import</span> <span class="n">eigen</span>
+
+<span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+                <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]])</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">eigen</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">eigenvalues</span><span class="p">)</span>   <span class="c1"># ≈ [3.0, 1.0]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">eigenvectors</span><span class="p">)</span>  <span class="c1"># unit eigenvectors, paired by index</span>
+</code></pre></div>
+<p>Each eigenvector satisfies <code>A @ v ≈ λ * v</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">vector</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">pairs</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="nb">abs</span><span class="p">((</span><span class="n">A</span> <span class="o">@</span> <span class="n">vector</span><span class="p">)[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="p">(</span><span class="n">value</span> <span class="o">*</span> <span class="n">vector</span><span class="p">)[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">1e-6</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">vector</span><span class="o">.</span><span class="n">dims</span><span class="p">)</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>Eigenvectors are recovered as the null space of <span class="arithmatex">\(A - \lambda I\)</span>: since a computed eigenvalue is an approximation, panchi solves <code>(A - λI) x = 0</code> with a small numerical <a href="../solving-systems/#numerical-tolerance">tolerance</a> so the near-singular matrix is treated as singular.</p>
+<h3 id="the-eigenresult-object">The EigenResult object</h3>
+<div class="highlight"><pre><span></span><code><span class="n">result</span><span class="o">.</span><span class="n">original</span>      <span class="c1"># the original matrix A</span>
+<span class="n">result</span><span class="o">.</span><span class="n">eigenvalues</span>   <span class="c1"># list of eigenvalues (diagonal of the converged iterate)</span>
+<span class="n">result</span><span class="o">.</span><span class="n">eigenvectors</span>  <span class="c1"># list of eigenvectors, paired with eigenvalues</span>
+<span class="n">result</span><span class="o">.</span><span class="n">pairs</span>         <span class="c1"># list of (eigenvalue, eigenvector) tuples</span>
+<span class="n">result</span><span class="o">.</span><span class="n">iterations</span>    <span class="c1"># number of QR iterations performed</span>
+<span class="n">result</span><span class="o">.</span><span class="n">converged</span>     <span class="c1"># whether the iteration settled within the limit</span>
+<span class="n">result</span><span class="o">.</span><span class="n">triangular</span>    <span class="c1"># the final (near) upper-triangular matrix</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Real eigenvalues only</p>
+<p>The unshifted QR algorithm converges for matrices with <strong>real</strong> eigenvalues. Matrices with complex eigenvalues (for example a rotation matrix) or eigenvalues of equal magnitude may not converge. In that case <code>result.converged</code> is <code>False</code> and <code>result.eigenvectors</code> is empty — <code>eigen()</code> never raises for this, so you can still inspect the partial result.</p>
+<p>You can adjust <code>max_iterations</code> and <code>tolerance</code> if needed:</p>
+<div class="highlight"><pre><span></span><code><span class="n">eigen</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">max_iterations</span><span class="o">=</span><span class="mi">5000</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">1e-14</span><span class="p">)</span>
+</code></pre></div>
+</div>
 
 
 

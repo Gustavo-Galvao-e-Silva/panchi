@@ -16,7 +16,7 @@
         <link rel="prev" href="../vectors/">
       
       
-        <link rel="next" href="../vector-spaces/">
+        <link rel="next" href="../exact-arithmetic/">
       
       
         
@@ -579,6 +579,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../vector-spaces/" class="md-nav__link">
         
   
@@ -740,6 +768,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -839,6 +895,34 @@
     
   
     panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
   
 
     
@@ -1055,6 +1139,11 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="o">.</span><span class="n">cols</span><span class="p">)</span>   <span class="c1"># 3</span>
 </code></pre></div>
 <p>Every row must have the same number of columns. Inconsistent rows raise a <code>ValueError</code>.</p>
+<p>Matrices accept fractions as strings:</p>
+<div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="s2">&quot;1/2&quot;</span><span class="p">,</span> <span class="s2">&quot;1/3&quot;</span><span class="p">],</span>
+                <span class="p">[</span><span class="s2">&quot;1/4&quot;</span><span class="p">,</span> <span class="s2">&quot;1/5&quot;</span><span class="p">]])</span>
+</code></pre></div>
+<p>See <a href="../exact-arithmetic/">Exact Arithmetic</a> for more on working with rational numbers.</p>
 <h2 id="arithmetic">Arithmetic</h2>
 <div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]])</span>
 <span class="n">B</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span> <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">]])</span>
@@ -1062,13 +1151,14 @@
 <span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">+</span> <span class="n">B</span><span class="p">)</span>   <span class="c1"># element-wise addition</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">-</span> <span class="n">B</span><span class="p">)</span>   <span class="c1"># element-wise subtraction</span>
 <span class="nb">print</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">A</span><span class="p">)</span>   <span class="c1"># scalar multiplication</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>   <span class="c1"># same as above</span>
 <span class="nb">print</span><span class="p">(</span><span class="o">-</span><span class="n">A</span><span class="p">)</span>      <span class="c1"># negation</span>
 </code></pre></div>
 <h2 id="matrix-multiplication">Matrix multiplication</h2>
 <p>Matrix multiplication uses the <code>@</code> operator, following Python convention:</p>
 <div class="highlight"><pre><span></span><code><span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">B</span><span class="p">)</span>   <span class="c1"># [[19, 22], [43, 50]]</span>
 </code></pre></div>
-<p><code>*</code> is reserved for scalar multiplication. Using <code>*</code> between two matrices raises a <code>TypeError</code> — this is intentional, since it avoids a common source of confusion.</p>
+<p><code>@</code> is used for matrix–matrix and matrix–vector multiplication. <code>*</code> is reserved for scalar multiplication only.</p>
 <p>Multiplying a matrix by a vector also uses <code>@</code> and returns a <code>Vector</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="n">v</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Vector</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="n">v</span><span class="p">)</span>   <span class="c1"># [1, 3]</span>
@@ -1101,16 +1191,16 @@
 <span class="k">assert</span> <span class="n">A</span> <span class="o">@</span> <span class="n">A</span><span class="o">.</span><span class="n">right_identity</span> <span class="o">==</span> <span class="n">A</span>
 </code></pre></div>
 <h2 id="row-and-column-access">Row and column access</h2>
-<p><code>row()</code> and <code>col()</code> mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.</p>
+<p><code>row_vectors</code> and <code>col_vectors</code> mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.</p>
 <div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="o">=</span> <span class="n">pan</span><span class="o">.</span><span class="n">Matrix</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]])</span>
 
-<span class="n">A</span><span class="o">.</span><span class="n">row</span><span class="p">()</span>      <span class="c1"># [Vector([1, 2, 3]), Vector([4, 5, 6])]</span>
-<span class="n">A</span><span class="o">.</span><span class="n">col</span><span class="p">()</span>      <span class="c1"># [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]</span>
+<span class="n">A</span><span class="o">.</span><span class="n">row_vectors</span>      <span class="c1"># [Vector([1, 2, 3]), Vector([4, 5, 6])]</span>
+<span class="n">A</span><span class="o">.</span><span class="n">col_vectors</span>      <span class="c1"># [Vector([1, 4]), Vector([2, 5]), Vector([3, 6])]</span>
 
-<span class="n">A</span><span class="o">.</span><span class="n">row</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># Vector([1, 2, 3])</span>
-<span class="n">A</span><span class="o">.</span><span class="n">col</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>   <span class="c1"># Vector([2, 5])</span>
+<span class="n">A</span><span class="o">.</span><span class="n">row_vectors</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>   <span class="c1"># Vector([1, 2, 3])</span>
+<span class="n">A</span><span class="o">.</span><span class="n">col_vectors</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>   <span class="c1"># Vector([2, 5])</span>
 </code></pre></div>
-<p>Both methods return copies — modifying the result does not affect the original matrix.</p>
+<p>Both properties return copies — modifying the result does not affect the original matrix.</p>
 <h2 id="factory-functions">Factory functions</h2>
 <div class="highlight"><pre><span></span><code><span class="n">pan</span><span class="o">.</span><span class="n">identity</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>            <span class="c1"># 3×3 identity</span>
 <span class="n">pan</span><span class="o">.</span><span class="n">zero_matrix</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>      <span class="c1"># 2×3 matrix of zeros</span>

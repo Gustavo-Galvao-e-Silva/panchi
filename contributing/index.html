@@ -13,7 +13,7 @@
         <link rel="canonical" href="https://gustavo-galvao-e-silva.github.io/panchi/contributing/">
       
       
-        <link rel="prev" href="../api/algorithms/">
+        <link rel="prev" href="../api/visualizations/">
       
       
       
@@ -420,6 +420,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../user-guide/exact-arithmetic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exact Arithmetic
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../user-guide/vector-spaces/" class="md-nav__link">
         
   
@@ -581,6 +609,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-guide/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualizations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -680,6 +736,34 @@
     
   
     panchi.algorithms
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/visualizations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    panchi.visualizations
   
 
     
@@ -1328,10 +1412,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-visualization-tools" class="md-nav__link">
+  <a href="#2-visualization-enhancements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Visualization Tools
+        2. Visualization Enhancements
       
     </span>
   </a>
@@ -2099,10 +2183,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-visualization-tools" class="md-nav__link">
+  <a href="#2-visualization-enhancements" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Visualization Tools
+        2. Visualization Enhancements
       
     </span>
   </a>
@@ -2384,7 +2468,7 @@ pytest<span class="w"> </span>tests/<span class="w"> </span>-v
 <div class="highlight"><pre><span></span><code>panchi/
 ├── primitives/        # Core classes (Vector, Matrix) and factory functions
 ├── algorithms/        # Reductions, decompositions, and other complex algorithms
-└── visualizations/    # Plotting utilities
+└── visualizations/    # Animator2D and backends (matplotlib, manim)
 </code></pre></div>
 <h3 id="naming-conventions">Naming Conventions</h3>
 <ul>
@@ -2646,13 +2730,14 @@ git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </
 - Returns Q (orthogonal) and R (upper triangular)
 - Clear step-by-step implementation
 - Verification tests</p>
-<h4 id="2-visualization-tools">2. Visualization Tools</h4>
-<p>Create functions to visualize vectors and transformations.</p>
-<p><strong>Requirements:</strong>
-- Simple, clear visualizations
-- Works with existing Vector/Matrix classes
-- Matplotlib or Manim (optional dependency) 
-- Examples in documentation</p>
+<h4 id="2-visualization-enhancements">2. Visualization Enhancements</h4>
+<p>The <code>Animator2D</code> class (see <a href="../user-guide/visualizations/">Visualizations</a>) covers vectors, addition, scaling, linear transformations, and spans. Contributions welcome for:</p>
+<ul>
+<li>3D visualization support</li>
+<li>RREF step-by-step animation</li>
+<li>Projection visualization</li>
+<li>Additional animation styles or color themes</li>
+</ul>
 <h3 id="also-welcome">Also Welcome</h3>
 <ul>
 <li><strong>Bug fixes</strong> with test cases</li>
