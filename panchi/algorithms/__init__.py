@@ -18,8 +18,9 @@ from panchi.algorithms.results import (
     QRDecomposition,
     InverseResult,
     Solution,
+    EigenResult,
 )
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
+from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
 from panchi.algorithms.vector_operations import (
     dot,
     cross,
@@ -41,9 +42,11 @@ __all__ = [
     "QRDecomposition",
     "InverseResult",
     "Solution",
+    "EigenResult",
     "inverse",
     "solve",
     "determinant_lu",
+    "eigen",
     "dot",
     "cross",
     "orthogonal_complement",

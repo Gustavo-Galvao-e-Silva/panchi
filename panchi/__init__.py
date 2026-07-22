@@ -36,7 +36,7 @@ from panchi.algorithms.vector_operations import (
     vector_projection,
     gram_schmidt,
 )
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu
+from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
 from panchi.algorithms.decompositions import qr_decomposition
 
 __all__ = [
@@ -68,4 +68,5 @@ __all__ = [
     "solve",
     "determinant_lu",
     "qr_decomposition",
+    "eigen",
 ]

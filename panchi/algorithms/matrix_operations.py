@@ -1,11 +1,11 @@
 from panchi.types import Scalar
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.primitives.factories import identity
+from panchi.primitives.factories import identity, zero_vector
 from panchi.algorithms.row_operations import RowOperation, RowSwap
-from panchi.algorithms.results import InverseResult, Reduction, Solution
+from panchi.algorithms.results import InverseResult, Reduction, Solution, EigenResult
 from panchi.algorithms.reductions import rref
-from panchi.algorithms.decompositions import lu
+from panchi.algorithms.decompositions import lu, qr_decomposition
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
@@ -319,3 +319,102 @@ def solve(A: Matrix, b: Vector) -> Solution:
     pivot_row_indices = [row for row, _ in sorted(matrix_rref.pivots, key=lambda p: p[1])]
     solution = Vector([applied_b[row] for row in pivot_row_indices])
     return Solution(A, b, "unique", solution, steps)
+
+
+def _below_diagonal_mass(matrix: Matrix) -> float:
+    """
+    Sum the absolute values of the strictly-below-diagonal entries.
+
+    Used as the convergence measure for the QR algorithm: when this sum is
+    small, the iterate is (near) upper triangular and its diagonal holds the
+    eigenvalues.
+    """
+    n = matrix.rows
+    return sum(abs(matrix[i][j]) for i in range(n) for j in range(i))
+
+
+def eigen(
+    matrix: Matrix,
+    max_iterations: int = 1000,
+    tol: float = 1e-12,
+) -> EigenResult:
+    """
+    Compute the eigenvalues of a square matrix using the QR algorithm.
+
+    Starting from the original matrix, repeatedly computes a QR
+    decomposition and reassembles the matrix as R @ Q. For matrices with
+    real eigenvalues this sequence converges to an upper triangular matrix
+    whose diagonal entries are the eigenvalues.
+
+    The iteration stops once the strictly-below-diagonal entries sum to less
+    than ``tol`` (recorded as converged), or once ``max_iterations`` is
+    reached (recorded as not converged). Eigenvalues are the diagonal of the
+    final iterate. Eigenvectors are computed separately and are only
+    populated when the iteration converges.
+
+    Only real eigenvalues are supported. Matrices with complex eigenvalues
+    or eigenvalues of equal magnitude may fail to converge, in which case the
+    returned result has ``converged`` set to False and no eigenvectors.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix whose eigenvalues will be computed.
+    max_iterations : int, optional
+        The maximum number of QR iterations to perform. Defaults to 1000.
+    tol : float, optional
+        The convergence threshold on the below-diagonal mass. Defaults to
+        1e-12.
+
+    Returns
+    -------
+    EigenResult
+        A result object containing the eigenvalues, eigenvectors, the number
+        of iterations performed, whether the iteration converged, and the
+        final (near) upper-triangular matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> sorted(round(v, 6) for v in result.eigenvalues)
+    [1.0, 3.0]
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Eigenvalues are only defined for Matrix objects."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot compute the eigenvalues of a non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}. "
+            f"Eigenvalues are only defined for square matrices (n×n)."
+        )
+
+    n = matrix.rows
+    current = matrix
+    converged = False
+    iterations = 0
+    for iterations in range(1, max_iterations + 1):
+        if _below_diagonal_mass(current) < tol:
+            converged = True
+            iterations -= 1
+            break
+        try:
+            decomposition = qr_decomposition(current)
+        except ZeroDivisionError:
+            # A singular iterate cannot be orthonormalized by Gram-Schmidt;
+            # treat this as failure to converge rather than crashing.
+            break
+        current = decomposition.r @ decomposition.q
+
+    eigenvalues = [current[i][i] for i in range(n)]
+    eigenvectors: list[Vector] = []
+    return EigenResult(matrix, eigenvalues, eigenvectors, iterations, converged, current)

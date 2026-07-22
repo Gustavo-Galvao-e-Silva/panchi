@@ -605,3 +605,124 @@ class Solution:
             f"status={self.status}, "
             f"solution={self.solution})"
         )
+
+
+class EigenResult:
+    """
+    The result of an eigenvalue computation via the QR algorithm.
+
+    Stores the original matrix, the computed eigenvalues, the corresponding
+    eigenvectors, and metadata about the iterative process: how many
+    iterations were run, whether the iteration converged, and the final
+    (near) upper-triangular matrix the QR algorithm produced.
+
+    Eigenvalues are read off the diagonal of the QR iterate, and each
+    eigenvector is paired with the eigenvalue at the same index. The values
+    are numerical approximations, not exact or symbolic results.
+
+    Only real eigenvalues are supported. Matrices with complex eigenvalues
+    (or eigenvalues of equal magnitude) may not converge; in that case
+    ``converged`` is False and ``eigenvectors`` is empty.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square matrix whose spectrum was computed.
+    eigenvalues : list[float]
+        The computed eigenvalues, in the order they appear on the diagonal
+        of the final iterate.
+    eigenvectors : list[Vector]
+        The eigenvectors, paired by index with eigenvalues. Empty when the
+        iteration did not converge.
+    iterations : int
+        The number of QR iterations performed.
+    converged : bool
+        Whether the below-diagonal mass fell below the tolerance before the
+        iteration limit was reached.
+    triangular : Matrix
+        The final (near) upper-triangular matrix produced by the iteration.
+
+    Examples
+    --------
+    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> sorted(round(v, 6) for v in result.eigenvalues)
+    [1.0, 3.0]
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        eigenvalues: list[float],
+        eigenvectors: list[Vector],
+        iterations: int,
+        converged: bool,
+        triangular: Matrix,
+    ) -> None:
+        self.original = original
+        self.eigenvalues = eigenvalues
+        self.eigenvectors = eigenvectors
+        self.iterations = iterations
+        self.converged = converged
+        self.triangular = triangular
+
+    @property
+    def pairs(self) -> list[tuple[float, Vector]]:
+        """
+        The eigenvalue/eigenvector pairs, zipped by index.
+
+        Returns
+        -------
+        list[tuple[float, Vector]]
+            One (eigenvalue, eigenvector) tuple per computed eigenvector.
+            Empty when no eigenvectors were computed.
+        """
+        return list(zip(self.eigenvalues, self.eigenvectors))
+
+    def __str__(self) -> str:
+        """
+        Return a readable summary of the eigenvalue computation.
+
+        Shows the iteration count and convergence status, then each
+        eigenvalue together with its eigenvector when available.
+
+        Returns
+        -------
+        str
+            Human-readable eigendecomposition summary.
+        """
+        header: str = (
+            f"Eigendecomposition of "
+            f"{self.original.rows}×{self.original.cols} matrix"
+            f" — {self.iterations} iterations (converged: {self.converged})\n"
+        )
+
+        if self.eigenvectors:
+            body = "\n" + "\n".join(
+                f"λ = {value}\n  v = {vector}" for value, vector in self.pairs
+            )
+        else:
+            body = "\nEigenvalues: " + ", ".join(str(v) for v in self.eigenvalues)
+
+        return header + body
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this EigenResult.
+
+        Returns
+        -------
+        str
+            Compact representation showing shape, iteration count, and
+            convergence status.
+
+        Examples
+        --------
+        >>> eigen(Matrix([[2, 1], [1, 2]]))
+        EigenResult(shape=2×2, iterations=..., converged=True)
+        """
+        return (
+            f"EigenResult("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"iterations={self.iterations}, "
+            f"converged={self.converged})"
+        )
