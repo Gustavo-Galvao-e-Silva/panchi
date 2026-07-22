@@ -30,8 +30,9 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 - Factory functions: identity, zero and ones matrices, diagonal, rotation matrices, and more
 - Elementary row operations as first-class objects
 - Row reduction to REF and RREF
-- LU decomposition with partial pivoting
-- Matrix inverse and linear system solving
+- LU and QR decomposition (QR via Gram-Schmidt)
+- Eigenvalues and eigenvectors via the QR algorithm
+- Matrix inverse and linear system solving (with an optional numerical tolerance)
 - Rich result formats for algorithms, allowing for step-by-step inspection
 - [2D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend
 
