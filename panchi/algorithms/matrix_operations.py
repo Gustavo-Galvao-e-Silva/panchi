@@ -79,7 +79,7 @@ def _swap_parity(steps: list[RowOperation]) -> int:
 
 
 def _inconsistent_rows(
-    matrix_rref: Reduction, applied_b: Vector, tol: float = 0.0
+    matrix_rref: Reduction, applied_b: Vector, tolerance: float = 0.0
 ) -> list[int]:
     """
     Find row indices that make the system inconsistent.
@@ -95,7 +95,7 @@ def _inconsistent_rows(
     applied_b : Vector
         The right-hand side vector b after the same row operations from
         matrix_rref have been applied to it.
-    tol : float, optional
+    tolerance : float, optional
         Entries of the transformed b with magnitude at or below this value
         are treated as zero. The default of 0.0 means exact comparison.
 
@@ -109,7 +109,7 @@ def _inconsistent_rows(
     zero_row_indices = set(range(matrix_rref.result.rows)) - pivot_row_indices
     inconsistent_indices = []
     for i in zero_row_indices:
-        if abs(applied_b[i]) > tol:
+        if abs(applied_b[i]) > tolerance:
             inconsistent_indices.append(i)
 
     return inconsistent_indices
@@ -229,7 +229,7 @@ def determinant_lu(matrix: Matrix) -> float:
     return parity * upper_diagonal_product
 
 
-def solve(A: Matrix, b: Vector, tol: float = 0.0) -> Solution:
+def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
     """
     Solve the linear system Ax = b.
 
@@ -246,7 +246,7 @@ def solve(A: Matrix, b: Vector, tol: float = 0.0) -> Solution:
         The coefficient matrix in the system Ax = b.
     b : Vector
         The right-hand side vector in the system Ax = b.
-    tol : float, optional
+    tolerance : float, optional
         Pivot and right-hand-side magnitudes at or below this value are
         treated as zero during reduction. The default of 0.0 performs an
         exact solve. A small positive tolerance lets the solver treat a
@@ -294,14 +294,14 @@ def solve(A: Matrix, b: Vector, tol: float = 0.0) -> Solution:
             f"A has {A.rows} rows but b has {b.dims} entries."
         )
 
-    matrix_rref = rref(A, tol)
+    matrix_rref = rref(A, tolerance)
     steps = matrix_rref.steps
 
     applied_b = b
     for step in steps:
         applied_b = step.apply(applied_b)
 
-    if _inconsistent_rows(matrix_rref, applied_b, tol):
+    if _inconsistent_rows(matrix_rref, applied_b, tolerance):
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
@@ -358,7 +358,7 @@ def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
     """
     shifted = matrix - eigenvalue * identity(n)
     scale = max(1.0, max(abs(shifted[i][j]) for i in range(n) for j in range(n)))
-    solution = solve(shifted, zero_vector(n), tol=1e-6 * scale)
+    solution = solve(shifted, zero_vector(n), tolerance=1e-6 * scale)
 
     if solution.null_space is None:
         return None
@@ -368,7 +368,7 @@ def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
 def eigen(
     matrix: Matrix,
     max_iterations: int = 1000,
-    tol: float = 1e-12,
+    tolerance: float = 1e-12,
 ) -> EigenResult:
     """
     Compute the eigenvalues of a square matrix using the QR algorithm.
@@ -379,7 +379,7 @@ def eigen(
     whose diagonal entries are the eigenvalues.
 
     The iteration stops once the strictly-below-diagonal entries sum to less
-    than ``tol`` (recorded as converged), or once ``max_iterations`` is
+    than ``tolerance`` (recorded as converged), or once ``max_iterations`` is
     reached (recorded as not converged). Eigenvalues are the diagonal of the
     final iterate. Eigenvectors are computed separately and are only
     populated when the iteration converges.
@@ -394,7 +394,7 @@ def eigen(
         The square matrix whose eigenvalues will be computed.
     max_iterations : int, optional
         The maximum number of QR iterations to perform. Defaults to 1000.
-    tol : float, optional
+    tolerance : float, optional
         The convergence threshold on the below-diagonal mass. Defaults to
         1e-12.
 
@@ -435,7 +435,7 @@ def eigen(
     converged = False
     iterations = 0
     for iterations in range(1, max_iterations + 1):
-        if _below_diagonal_mass(current) < tol:
+        if _below_diagonal_mass(current) < tolerance:
             converged = True
             iterations -= 1
             break

@@ -412,7 +412,7 @@ class TestSolveTolerance:
     def test_tolerance_detects_near_singular(self):
         # With a tolerance, the tiny pivot is treated as zero → infinite solutions.
         A = Matrix([[1.0, 1.0], [1.0, 1.0 + 1e-12]])
-        result = solve(A, Vector([0.0, 0.0]), tol=1e-6)
+        result = solve(A, Vector([0.0, 0.0]), tolerance=1e-6)
         assert result.status == "infinite"
         assert result.null_space is not None
         assert result.null_space.dims == 1
@@ -422,7 +422,7 @@ class TestSolveTolerance:
         A = Matrix([[2, 1], [5, 3]])
         b = Vector([1, 2])
         exact = solve(A, b)
-        toleranced = solve(A, b, tol=1e-9)
+        toleranced = solve(A, b, tolerance=1e-9)
         assert toleranced.status == exact.status == "unique"
         for i in range(b.dims):
             assert toleranced.solution[i] == pytest.approx(exact.solution[i], abs=1e-12)

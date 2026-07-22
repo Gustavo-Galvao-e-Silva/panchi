@@ -11,7 +11,7 @@ from panchi.algorithms.row_operations import (
 
 
 def _find_first_non_zero_row(
-    starting_row_num: int, col_num: int, matrix: Matrix, tol: float = 0.0
+    starting_row_num: int, col_num: int, matrix: Matrix, tolerance: float = 0.0
 ) -> int | None:
     """
     Find the first row at or below starting_row_num with a non-zero entry in col_num.
@@ -24,7 +24,7 @@ def _find_first_non_zero_row(
         The column index to inspect in each row.
     matrix : Matrix
         The matrix to search.
-    tol : float, optional
+    tolerance : float, optional
         Entries with magnitude at or below this value are treated as zero.
         The default of 0.0 means exact comparison (only true zeros count).
 
@@ -35,14 +35,14 @@ def _find_first_non_zero_row(
         or None if no such row exists.
     """
     for i in range(starting_row_num, matrix.rows):
-        if abs(matrix[i][col_num]) > tol:
+        if abs(matrix[i][col_num]) > tolerance:
             return i
 
     return None
 
 
 def _swap_pivot(
-    pivot_row: int, pivot_col: int, matrix: Matrix, tol: float = 0.0
+    pivot_row: int, pivot_col: int, matrix: Matrix, tolerance: float = 0.0
 ) -> tuple[Matrix, list[RowOperation]]:
     """
     Swap the pivot row with the first row below it that has a non-zero entry in pivot_col.
@@ -58,7 +58,7 @@ def _swap_pivot(
         The column index of the current pivot position.
     matrix : Matrix
         The matrix to operate on.
-    tol : float, optional
+    tolerance : float, optional
         Entries with magnitude at or below this value are treated as zero.
         The default of 0.0 means exact comparison.
 
@@ -70,8 +70,8 @@ def _swap_pivot(
     """
     result = matrix.copy()
     new_operations = []
-    if abs(result[pivot_row][pivot_col]) <= tol:
-        target_row = _find_first_non_zero_row(pivot_row + 1, pivot_col, result, tol)
+    if abs(result[pivot_row][pivot_col]) <= tolerance:
+        target_row = _find_first_non_zero_row(pivot_row + 1, pivot_col, result, tolerance)
         if target_row is not None:
             op = RowSwap(pivot_row, target_row)
             result = op.apply(result)
@@ -81,7 +81,7 @@ def _swap_pivot(
 
 
 def _add_below_pivot(
-    pivot_row: int, pivot_col: int, matrix: Matrix, tol: float = 0.0
+    pivot_row: int, pivot_col: int, matrix: Matrix, tolerance: float = 0.0
 ) -> tuple[Matrix, list[RowOperation]]:
     """
     Eliminate all non-zero entries below the pivot using row addition.
@@ -99,7 +99,7 @@ def _add_below_pivot(
     matrix : Matrix
         The matrix to operate on. The entry at [pivot_row][pivot_col] must
         be non-zero.
-    tol : float, optional
+    tolerance : float, optional
         Entries with magnitude at or below this value are treated as already
         zero and skipped. The default of 0.0 means exact comparison.
 
@@ -113,7 +113,7 @@ def _add_below_pivot(
     new_operations = []
     for i in range(pivot_row + 1, result.rows):
         val = result[i][pivot_col]
-        if abs(val) <= tol:
+        if abs(val) <= tolerance:
             continue
         op = RowAdd(i, pivot_row, -(val / pivot))
         result = op.apply(result)
@@ -123,7 +123,7 @@ def _add_below_pivot(
 
 
 def _add_above_pivot(
-    pivot_row: int, pivot_col: int, matrix: Matrix, tol: float = 0.0
+    pivot_row: int, pivot_col: int, matrix: Matrix, tolerance: float = 0.0
 ) -> tuple[Matrix, list[RowOperation]]:
     """
     Eliminate all non-zero entries above the pivot using row addition.
@@ -143,7 +143,7 @@ def _add_above_pivot(
     matrix : Matrix
         The matrix to operate on. The entry at [pivot_row][pivot_col] must
         equal 1.
-    tol : float, optional
+    tolerance : float, optional
         Entries with magnitude at or below this value are treated as already
         zero and skipped. The default of 0.0 means exact comparison.
 
@@ -157,7 +157,7 @@ def _add_above_pivot(
     new_operations = []
     for i in range(pivot_row - 1, -1, -1):
         val = result[i][pivot_col]
-        if abs(val) <= tol:
+        if abs(val) <= tolerance:
             continue
         op = RowAdd(i, pivot_row, -val)
         result = op.apply(result)
@@ -202,7 +202,7 @@ def _scale_pivot(
     return result, new_operations
 
 
-def ref(matrix: Matrix, tol: float = 0.0) -> Reduction:
+def ref(matrix: Matrix, tolerance: float = 0.0) -> Reduction:
     """
     Reduce a matrix to row echelon form using Gaussian elimination.
 
@@ -215,7 +215,7 @@ def ref(matrix: Matrix, tol: float = 0.0) -> Reduction:
     ----------
     matrix : Matrix
         The matrix to reduce. Not modified by this function.
-    tol : float, optional
+    tolerance : float, optional
         Column entries with magnitude at or below this value are treated as
         zero when selecting pivots, so a column with only near-zero entries
         becomes a free (non-pivot) column. The default of 0.0 means exact
@@ -250,12 +250,12 @@ def ref(matrix: Matrix, tol: float = 0.0) -> Reduction:
     for j in range(matrix.cols):
         if i >= matrix.rows:
             break
-        result, swap_operations = _swap_pivot(i, j, result, tol)
+        result, swap_operations = _swap_pivot(i, j, result, tolerance)
         operations += swap_operations
-        if abs(result[i][j]) <= tol:
+        if abs(result[i][j]) <= tolerance:
             continue
 
-        result, addition_operations = _add_below_pivot(i, j, result, tol)
+        result, addition_operations = _add_below_pivot(i, j, result, tolerance)
         operations += addition_operations
         pivots.append((i, j))
         i += 1
@@ -263,7 +263,7 @@ def ref(matrix: Matrix, tol: float = 0.0) -> Reduction:
     return Reduction(matrix, result, operations, pivots, "REF")
 
 
-def rref(matrix: Matrix, tol: float = 0.0) -> Reduction:
+def rref(matrix: Matrix, tolerance: float = 0.0) -> Reduction:
     """
     Reduce a matrix to reduced row echelon form using Gauss-Jordan elimination.
 
@@ -275,7 +275,7 @@ def rref(matrix: Matrix, tol: float = 0.0) -> Reduction:
     ----------
     matrix : Matrix
         The matrix to reduce. Not modified by this function.
-    tol : float, optional
+    tolerance : float, optional
         Entries with magnitude at or below this value are treated as zero when
         selecting pivots. The default of 0.0 means exact comparison. See ref()
         for when a positive tolerance is useful.
@@ -301,14 +301,14 @@ def rref(matrix: Matrix, tol: float = 0.0) -> Reduction:
     >>> reduction.nullity
     0
     """
-    gaussian_step = ref(matrix, tol)
+    gaussian_step = ref(matrix, tolerance)
     result = gaussian_step.result
     operations = gaussian_step.steps
     pivots = gaussian_step.pivots
     for i, j in pivots:
         result, scale_operations = _scale_pivot(i, j, result)
         operations += scale_operations
-        result, addition_operations = _add_above_pivot(i, j, result, tol)
+        result, addition_operations = _add_above_pivot(i, j, result, tolerance)
         operations += addition_operations
 
     return Reduction(matrix, result, operations, pivots, "RREF")
