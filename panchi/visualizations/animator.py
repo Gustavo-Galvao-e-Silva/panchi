@@ -104,6 +104,7 @@ class Animator2D:
         frames: int = 60,
         interval: int = 30,
         name: str | None = None,
+        colors: list[str] | None = None,
     ) -> None:
         """Animate the addition of two 2D vectors.
 
@@ -119,10 +120,18 @@ class Animator2D:
             Milliseconds between frames. Default ``30``.
         name : str, optional
             Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to three colors for ``[v1, v2, v1 + v2]``. Any omitted role
+            keeps its default. ``None`` uses the default palette.
         """
         self._validate_2d(v1, v2)
         self._backend.animate_addition(
-            v1, v2, frames=frames, interval=interval, name=name or "animate_addition"
+            v1,
+            v2,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_addition",
+            colors=colors,
         )
 
     def animate_scaling(
@@ -132,6 +141,7 @@ class Animator2D:
         frames: int = 60,
         interval: int = 30,
         name: str | None = None,
+        colors: list[str] | None = None,
     ) -> None:
         """Animate scalar multiplication of a 2D vector.
 
@@ -147,6 +157,9 @@ class Animator2D:
             Milliseconds between frames. Default ``30``.
         name : str, optional
             Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to two colors for ``[original, scaled]``. Any omitted role
+            keeps its default. ``None`` uses the default palette.
         """
         self._validate_2d(vector)
         self._backend.animate_scaling(
@@ -155,6 +168,7 @@ class Animator2D:
             frames=frames,
             interval=interval,
             name=name or "animate_scaling",
+            colors=colors,
         )
 
     def animate_transform(
@@ -163,6 +177,7 @@ class Animator2D:
         frames: int = 60,
         interval: int = 30,
         name: str | None = None,
+        colors: list[str] | None = None,
     ) -> None:
         """Animate a 2x2 linear transformation with full grid deformation.
 
@@ -179,6 +194,9 @@ class Animator2D:
             Milliseconds between frames. Default ``30``.
         name : str, optional
             Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to two colors for the basis arrows ``[e1, e2]``. Any omitted
+            role keeps its default. ``None`` uses the default palette.
         """
         self._validate_2x2(matrix)
         self._backend.animate_transform(
@@ -186,6 +204,7 @@ class Animator2D:
             frames=frames,
             interval=interval,
             name=name or "animate_transform",
+            colors=colors,
         )
 
     def plot_span(
@@ -195,6 +214,7 @@ class Animator2D:
         labels: list[str] | None = None,
         grid: bool = True,
         name: str | None = None,
+        span_color: str | None = None,
     ) -> None:
         """Visualize the span of vectors with a shaded region and basis arrows.
 
@@ -214,6 +234,8 @@ class Animator2D:
             Whether to show grid lines. Default ``True``.
         name : str, optional
             Output filename (without extension) when saving.
+        span_color : str, optional
+            Color of the shaded span region. ``None`` uses the default.
         """
         vectors, space = self._resolve_span_input(vectors_or_space)
         self._validate_2d(*vectors)
@@ -224,6 +246,7 @@ class Animator2D:
             labels=labels,
             grid=grid,
             name=name or "plot_span",
+            span_color=span_color,
         )
 
     @staticmethod

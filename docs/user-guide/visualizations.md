@@ -58,6 +58,11 @@ Pass any number of 2D vectors as positional arguments. Optional parameters:
 - `grid` — show coordinate grid (default `True`)
 - `name` — output filename when saving (default `"plot_vectors"`)
 
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/vectors.png" alt="Example output: three vectors as arrows from the origin">
+  <figcaption>Example output.</figcaption>
+</figure>
+
 ---
 
 ## Animating vector addition
@@ -71,7 +76,12 @@ animator.animate_addition(v1, v2)
 
 The animation shows v1 drawn first, then v2 growing from the origin and from v1's tip simultaneously, and finally the result vector appearing. The manim backend also draws the parallelogram with dashed lines.
 
-Optional parameters: `frames`, `interval` (milliseconds between frames), `name`.
+Optional parameters: `frames`, `interval` (milliseconds between frames), `name`, and `colors` (up to three, for `[v1, v2, v1 + v2]`).
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/addition.gif" alt="Example output: two vectors added tip-to-tail">
+  <figcaption>Example output.</figcaption>
+</figure>
 
 ---
 
@@ -85,7 +95,12 @@ animator.animate_scaling(v, scale_factor=2.5)
 
 The vector smoothly stretches (or shrinks, or flips for negative factors) from its original length to the scaled length.
 
-Optional parameters: `frames`, `interval`, `name`.
+Optional parameters: `frames`, `interval`, `name`, and `colors` (up to two, for `[original, scaled]`).
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/scaling.gif" alt="Example output: a vector stretching to twice its length">
+  <figcaption>Example output.</figcaption>
+</figure>
 
 ---
 
@@ -112,7 +127,12 @@ The animation shows:
 
 Only 2x2 matrices are supported — a `ValueError` is raised for other shapes.
 
-Optional parameters: `frames`, `interval`, `name`.
+Optional parameters: `frames`, `interval`, `name`, and `colors` (up to two, for the basis arrows `[e1, e2]`).
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/transform_shear.gif" alt="Example output: a coordinate grid shearing">
+  <figcaption>Example output — a horizontal shear.</figcaption>
+</figure>
 
 ---
 
@@ -142,7 +162,12 @@ If you pass linearly dependent vectors, panchi computes the actual basis automat
 animator.plot_span(Vector([1, 2]), Vector([2, 4]))
 ```
 
-Optional parameters: `colors`, `labels`, `grid`, `name`.
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/span_plane.png" alt="Example output: two vectors shading the plane they span">
+  <figcaption>Example output — two independent vectors spanning R².</figcaption>
+</figure>
+
+Optional parameters: `colors`, `labels`, `grid`, `name`, and `span_color` (the shade of the span region).
 
 ---
 

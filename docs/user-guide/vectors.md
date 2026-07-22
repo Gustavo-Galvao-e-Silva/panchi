@@ -21,6 +21,13 @@ print(v)  # [1/3, 2/3, 1/2]
 
 For full details on exact arithmetic, see [Exact Arithmetic](exact-arithmetic.md).
 
+In two dimensions, a `Vector` is an arrow from the origin. panchi can draw them for you:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/vectors.png" alt="Three 2D vectors drawn as arrows from the origin on a coordinate plane">
+  <figcaption>Three vectors plotted with <code>Animator2D.plot_vectors</code>. See <a href="../visualizations/">Visualizations</a>.</figcaption>
+</figure>
+
 ## Arithmetic
 
 Vectors support standard arithmetic with natural syntax:
@@ -38,6 +45,18 @@ print(-a)      # [-1, -2, -3]
 ```
 
 All operations return a new `Vector` and leave the original unchanged.
+
+Addition places the two arrows tip-to-tail; scalar multiplication stretches an arrow along its own direction:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/addition.gif" alt="Animation of adding two vectors tip-to-tail to produce their sum">
+  <figcaption><code>animate_addition(Vector([3, 1]), Vector([1, 3]))</code></figcaption>
+</figure>
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/scaling.gif" alt="Animation of a vector stretching to twice its length under scalar multiplication">
+  <figcaption><code>animate_scaling(Vector([2, 1]), scale_factor=2.0)</code></figcaption>
+</figure>
 
 ## Magnitude and normalization
 

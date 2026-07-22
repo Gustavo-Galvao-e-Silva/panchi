@@ -33,6 +33,7 @@ class _BaseBackend(ABC):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None: ...
 
     @abstractmethod
@@ -43,6 +44,7 @@ class _BaseBackend(ABC):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None: ...
 
     @abstractmethod
@@ -52,6 +54,7 @@ class _BaseBackend(ABC):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None: ...
 
     @abstractmethod
@@ -63,4 +66,5 @@ class _BaseBackend(ABC):
         labels: list[str] | None,
         grid: bool,
         name: str,
+        span_color: str | None = None,
     ) -> None: ...
