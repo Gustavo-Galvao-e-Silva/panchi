@@ -101,3 +101,24 @@ For homogeneous systems (b = 0), the particular solution is the zero vector and 
 - If a pivot appears in the last (b) column, the system is inconsistent.
 - If there are fewer pivots than variables, there are free variables and infinite solutions.
 - Otherwise, back-substitution yields the unique solution.
+
+## Numerical tolerance
+
+By default `solve()` uses **exact** comparisons: a pivot counts as zero only if it is exactly `0`. This is the right behaviour for integer and `Fraction` inputs, where the arithmetic is exact.
+
+Floating-point matrices are trickier. A matrix that is *mathematically* singular can end up with a tiny non-zero residual pivot (like `1e-15`) after elimination, so an exact solve would wrongly report it as full rank. The optional `tolerance` parameter treats any pivot at or below that magnitude as zero:
+
+```python
+from panchi.algorithms import solve
+
+# Only approximately singular — the second row is a hair off the first.
+A = pan.Matrix([[1.0, 1.0],
+                [1.0, 1.0 + 1e-12]])
+
+solve(A, pan.Vector([0.0, 0.0]))                 # status 'unique'  (exact)
+solve(A, pan.Vector([0.0, 0.0]), tolerance=1e-6) # status 'infinite' → null space
+```
+
+The default of `tolerance=0.0` reproduces the exact behaviour exactly, so existing code is unaffected. The same `tolerance` parameter is available on `ref()` and `rref()`.
+
+This is the mechanism [`eigen()`](decompositions.md#eigenvalues-and-eigenvectors) uses to recover eigenvectors as the null space of an approximately-singular `A - λI`.

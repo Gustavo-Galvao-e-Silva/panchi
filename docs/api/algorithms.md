@@ -1,11 +1,13 @@
 # panchi.algorithms
 
 ```python
-from panchi.algorithms import ref, rref, lu
+from panchi.algorithms import ref, rref, lu, qr_decomposition
 from panchi.algorithms import RowSwap, RowScale, RowAdd
-from panchi.algorithms import Reduction, LUDecomposition, InverseResult, Solution
-from panchi.algorithms import inverse, solve, determinant_lu
+from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
+from panchi.algorithms import InverseResult, Solution, EigenResult
+from panchi.algorithms import inverse, solve, determinant_lu, eigen
 from panchi.algorithms import dot, cross, orthogonal_complement
+from panchi.algorithms import gram_schmidt, vector_projection
 ```
 
 ## Row operations
@@ -26,6 +28,12 @@ from panchi.algorithms import dot, cross, orthogonal_complement
 
 ::: panchi.algorithms.lu
 
+::: panchi.algorithms.qr_decomposition
+
+## Eigenvalues
+
+::: panchi.algorithms.eigen
+
 ## Solvers
 
 ::: panchi.algorithms.inverse
@@ -38,12 +46,20 @@ from panchi.algorithms import dot, cross, orthogonal_complement
 
 ::: panchi.algorithms.orthogonal_complement
 
+::: panchi.algorithms.gram_schmidt
+
+::: panchi.algorithms.vector_projection
+
 ## Result types
 
 ::: panchi.algorithms.Reduction
 
 ::: panchi.algorithms.LUDecomposition
 
+::: panchi.algorithms.QRDecomposition
+
 ::: panchi.algorithms.InverseResult
 
 ::: panchi.algorithms.Solution
+
+::: panchi.algorithms.EigenResult
