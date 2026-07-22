@@ -68,6 +68,42 @@ class TestEigenvalueCorrectness:
         )
 
 
+class TestEigenvectorCorrectness:
+    """Test that computed eigenvectors satisfy A @ v == λ * v."""
+
+    def _assert_eigenpairs(self, matrix):
+        result = eigen(matrix)
+        assert len(result.eigenvectors) == matrix.rows
+        for value, vector in result.pairs:
+            av = matrix @ vector
+            lv = value * vector
+            for i in range(vector.dims):
+                assert av[i] == pytest.approx(lv[i], abs=1e-6)
+
+    def test_symmetric_2x2_eigenpairs(self):
+        self._assert_eigenpairs(Matrix([[2, 1], [1, 2]]))
+
+    def test_symmetric_3x3_eigenpairs(self):
+        self._assert_eigenpairs(Matrix([[2, 0, 0], [0, 3, 4], [0, 4, 9]]))
+
+    def test_non_symmetric_eigenpairs(self):
+        self._assert_eigenpairs(Matrix([[2, 1], [0, 3]]))
+
+    def test_eigenvectors_are_unit_length(self):
+        result = eigen(Matrix([[2, 1], [1, 2]]))
+        for vector in result.eigenvectors:
+            assert vector.magnitude == pytest.approx(1.0, abs=1e-9)
+
+    def test_pairs_align_values_and_vectors(self):
+        result = eigen(Matrix([[2, 1], [1, 2]]))
+        assert result.pairs == list(zip(result.eigenvalues, result.eigenvectors))
+
+    def test_str_lists_eigenvectors_when_present(self):
+        text = str(eigen(Matrix([[2, 1], [1, 2]])))
+        assert "λ =" in text
+        assert "v =" in text
+
+
 class TestEigenConvergence:
     """Test convergence reporting for non-convergent matrices."""
 

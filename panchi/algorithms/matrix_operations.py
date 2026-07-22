@@ -78,7 +78,9 @@ def _swap_parity(steps: list[RowOperation]) -> int:
     return (-1) ** swap_count
 
 
-def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
+def _inconsistent_rows(
+    matrix_rref: Reduction, applied_b: Vector, tol: float = 0.0
+) -> list[int]:
     """
     Find row indices that make the system inconsistent.
 
@@ -93,6 +95,9 @@ def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
     applied_b : Vector
         The right-hand side vector b after the same row operations from
         matrix_rref have been applied to it.
+    tol : float, optional
+        Entries of the transformed b with magnitude at or below this value
+        are treated as zero. The default of 0.0 means exact comparison.
 
     Returns
     -------
@@ -104,7 +109,7 @@ def _inconsistent_rows(matrix_rref: Reduction, applied_b: Vector) -> list[int]:
     zero_row_indices = set(range(matrix_rref.result.rows)) - pivot_row_indices
     inconsistent_indices = []
     for i in zero_row_indices:
-        if applied_b[i] != 0:
+        if abs(applied_b[i]) > tol:
             inconsistent_indices.append(i)
 
     return inconsistent_indices
@@ -224,7 +229,7 @@ def determinant_lu(matrix: Matrix) -> float:
     return parity * upper_diagonal_product
 
 
-def solve(A: Matrix, b: Vector) -> Solution:
+def solve(A: Matrix, b: Vector, tol: float = 0.0) -> Solution:
     """
     Solve the linear system Ax = b.
 
@@ -241,6 +246,13 @@ def solve(A: Matrix, b: Vector) -> Solution:
         The coefficient matrix in the system Ax = b.
     b : Vector
         The right-hand side vector in the system Ax = b.
+    tol : float, optional
+        Pivot and right-hand-side magnitudes at or below this value are
+        treated as zero during reduction. The default of 0.0 performs an
+        exact solve. A small positive tolerance lets the solver treat a
+        matrix that is only approximately rank-deficient as singular, which
+        is how eigenvectors are recovered as the null space of A - λI for a
+        floating-point eigenvalue estimate λ.
 
     Returns
     -------
@@ -282,14 +294,14 @@ def solve(A: Matrix, b: Vector) -> Solution:
             f"A has {A.rows} rows but b has {b.dims} entries."
         )
 
-    matrix_rref = rref(A)
+    matrix_rref = rref(A, tol)
     steps = matrix_rref.steps
 
     applied_b = b
     for step in steps:
         applied_b = step.apply(applied_b)
 
-    if _inconsistent_rows(matrix_rref, applied_b):
+    if _inconsistent_rows(matrix_rref, applied_b, tol):
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
@@ -331,6 +343,26 @@ def _below_diagonal_mass(matrix: Matrix) -> float:
     """
     n = matrix.rows
     return sum(abs(matrix[i][j]) for i in range(n) for j in range(i))
+
+
+def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
+    """
+    Find an eigenvector for a known eigenvalue as the null space of A - λI.
+
+    Solves the homogeneous system ``(A - λI) x = 0`` with a scale-relative
+    tolerance, reusing solve(). Because a floating-point λ makes ``A - λI``
+    only approximately singular, the tolerance is what lets solve() report an
+    infinite solution set and expose the null space. Returns the first
+    null-space basis vector, normalized, or None if the system is not
+    detected as rank-deficient (e.g. for tightly clustered eigenvalues).
+    """
+    shifted = matrix - eigenvalue * identity(n)
+    scale = max(1.0, max(abs(shifted[i][j]) for i in range(n) for j in range(n)))
+    solution = solve(shifted, zero_vector(n), tol=1e-6 * scale)
+
+    if solution.null_space is None:
+        return None
+    return solution.null_space.basis[0].normalize()
 
 
 def eigen(
@@ -417,4 +449,9 @@ def eigen(
 
     eigenvalues = [current[i][i] for i in range(n)]
     eigenvectors: list[Vector] = []
+    if converged:
+        for eigenvalue in eigenvalues:
+            vector = _eigenvector(matrix, eigenvalue, n)
+            if vector is not None:
+                eigenvectors.append(vector)
     return EigenResult(matrix, eigenvalues, eigenvectors, iterations, converged, current)
