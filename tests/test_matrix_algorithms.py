@@ -685,3 +685,43 @@ class TestRref:
     def test_rref_original_is_preserved(self):
         m = Matrix([[1, 2], [3, 4]])
         assert rref(m).original == m
+
+
+class TestReductionTolerance:
+    """Test the optional tolerance parameter on ref() and rref()."""
+
+    # Only approximately rank 1: forward elimination leaves a ~1e-12 residual
+    # pivot, so exact reduction reports rank 2 but a tolerance collapses it.
+    NEAR_DEPENDENT = Matrix([[1.0, 1.0], [1.0, 1.0 + 1e-12]])
+
+    def test_ref_default_is_exact(self):
+        # Under exact comparison the tiny residual counts as a pivot.
+        assert ref(self.NEAR_DEPENDENT).rank == 2
+
+    def test_ref_tolerance_treats_near_zero_pivot_as_free(self):
+        assert ref(self.NEAR_DEPENDENT, tolerance=1e-6).rank == 1
+
+    def test_rref_default_is_exact(self):
+        assert rref(self.NEAR_DEPENDENT).rank == 2
+
+    def test_rref_tolerance_treats_near_zero_pivot_as_free(self):
+        reduction = rref(self.NEAR_DEPENDENT, tolerance=1e-6)
+        assert reduction.rank == 1
+        assert reduction.nullity == 1
+
+    def test_zero_tolerance_matches_default(self):
+        # Passing tolerance=0.0 explicitly must equal the default exact call.
+        m = Matrix([[2, 4, 1], [0, 0, 5], [1, 2, 3]])
+        assert rref(m, tolerance=0.0).result == rref(m).result
+        assert ref(m, tolerance=0.0).pivots == ref(m).pivots
+
+    def test_tolerance_does_not_disturb_genuine_pivots(self):
+        # A well-conditioned full-rank matrix keeps all pivots under a small
+        # tolerance — real pivots are far larger than the tolerance.
+        m = Matrix([[3.0, 1.0], [1.0, 3.0]])
+        assert ref(m, tolerance=1e-6).rank == 2
+
+    def test_tolerance_detects_exactly_singular_matrix(self):
+        # Genuinely rank-deficient matrices reduce identically with tolerance.
+        m = Matrix([[1.0, 2.0], [2.0, 4.0]])
+        assert rref(m, tolerance=1e-9).rank == 1
