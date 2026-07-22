@@ -82,6 +82,18 @@
   height: 64px;
 }
 
+/* Home-page centered logo (light/dark aware via .logo-light / .logo-dark) */
+figure.home-logo {
+  text-align: center;
+  margin: 0.5rem 0 1.5rem;
+}
+
+figure.home-logo img {
+  width: 280px;
+  max-width: 70%;
+  height: auto;
+}
+
 /* Documentation visualizations (panchi Animator2D output) */
 figure.viz {
   text-align: center;

@@ -56,6 +56,13 @@ v = pan.Vector([1, 0])
 print(A @ v)   # [1, 3]
 ```
 
+Geometrically, multiplying by a matrix *is* a transformation of space. The matrix below stretches the plane by 2 along x and 3 along y — every point moves, and the basis vectors land on the matrix's columns:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/matrix_scale.gif" alt="A coordinate grid stretching by 2 horizontally and 3 vertically under a diagonal matrix">
+  <figcaption><code>Matrix([[2, 0], [0, 3]])</code> acting on the plane. See <a href="../transformations/">Linear Transformations</a> for more.</figcaption>
+</figure>
+
 ## Matrix powers
 
 ```python
@@ -112,6 +119,13 @@ A.col_vectors[1]   # Vector([2, 5])
 ```
 
 Both properties return copies — modifying the result does not affect the original matrix.
+
+The columns of a matrix are vectors in their own right. Here are the two columns of `A = [[1, 2], [3, 4]]` — `col 1 = (1, 3)` and `col 2 = (2, 4)` — drawn as arrows:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/matrix_columns.png" alt="The two column vectors of a 2x2 matrix drawn as arrows from the origin">
+  <figcaption>The column vectors of <code>A = [[1, 2], [3, 4]]</code>, plotted with <code>Animator2D.plot_vectors</code>.</figcaption>
+</figure>
 
 ## Factory functions
 
