@@ -4,6 +4,11 @@
 
 The goal is not performance. The goal is **clarity**.
 
+<figure class="viz" markdown="span">
+  <img src="assets/viz/transform_shear.gif" alt="A coordinate grid shearing under a 2x2 matrix, with the basis vectors following along">
+  <figcaption>A shear, drawn by panchi — the whole plane morphing under <code>Matrix([[1, 1], [0, 1]])</code>. Every visual on this site is generated with panchi's own <code>Animator2D</code>.</figcaption>
+</figure>
+
 If you have ever used NumPy or SciPy and wondered *what the library is actually doing*, panchi is for you. Every algorithm is implemented directly in readable Python, every operation returns something you can inspect, and error messages are written to teach rather than just report.
 
 panchi's central philosophy can be summed up in the following points:

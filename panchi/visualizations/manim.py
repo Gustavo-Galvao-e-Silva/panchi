@@ -33,6 +33,18 @@ from panchi.visualizations.base import _BaseBackend
 
 DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE]
 
+# Per-method default color roles, overridable via ``colors=`` / ``span_color=``.
+ADDITION_COLORS = (manim.RED, manim.ORANGE, manim.GREEN)  # v1, v2, result
+SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
+TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
+SPAN_COLOR = manim.PURPLE
+
+
+def _resolve_colors(colors: list[str] | None, defaults: tuple) -> list:
+    """Fill in per-role colors positionally, keeping defaults for omitted roles."""
+    colors = colors or []
+    return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
+
 
 def _label_direction(vx: float, vy: float) -> manim.Vector:
     ax, ay = abs(vx), abs(vy)
@@ -162,7 +174,10 @@ class _ManimBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
+
         class _AdditionScene(_VectorScene):
             def construct(inner_self) -> None:
                 v1_coords = (v1[0], v1[1])
@@ -183,11 +198,11 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(0, 0),
                     inner_self.axes.c2p(*v1_coords),
                     buff=0,
-                    color=manim.RED,
+                    color=color_v1,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.15,
                 )
-                label_v1 = MathTex(r"v_1", color=manim.RED).scale(0.9)
+                label_v1 = MathTex(r"v_1", color=color_v1).scale(0.9)
                 label_v1.next_to(
                     arrow_v1.get_end(),
                     _label_direction(v1_coords[0], v1_coords[1]),
@@ -201,12 +216,12 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(0, 0),
                     inner_self.axes.c2p(*v2_coords),
                     buff=0,
-                    color=manim.ORANGE,
+                    color=color_v2,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.15,
                 ).set_opacity(0.3)
 
-                label_v2_origin = MathTex(r"v_2", color=manim.ORANGE).scale(0.9)
+                label_v2_origin = MathTex(r"v_2", color=color_v2).scale(0.9)
                 label_v2_origin.next_to(
                     arrow_v2_origin.get_end(),
                     _label_direction(v2_coords[0], v2_coords[1]),
@@ -225,12 +240,12 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(*v1_coords),
                     inner_self.axes.c2p(*result_coords),
                     buff=0,
-                    color=manim.ORANGE,
+                    color=color_v2,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.15,
                 )
 
-                label_v2_shifted = MathTex(r"v_2", color=manim.ORANGE).scale(0.9)
+                label_v2_shifted = MathTex(r"v_2", color=color_v2).scale(0.9)
                 label_v2_shifted.next_to(
                     arrow_v2_shifted.get_end(),
                     _label_direction(v2_coords[0], v2_coords[1]),
@@ -281,11 +296,11 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(0, 0),
                     inner_self.axes.c2p(*result_coords),
                     buff=0,
-                    color=manim.GREEN,
+                    color=color_result,
                     stroke_width=8,
                     max_tip_length_to_length_ratio=0.15,
                 )
-                label_result = MathTex(r"v_1 + v_2", color=manim.GREEN).scale(1.0)
+                label_result = MathTex(r"v_1 + v_2", color=color_result).scale(1.0)
                 label_result.next_to(
                     arrow_result.get_end(),
                     _label_direction(result_coords[0], result_coords[1]),
@@ -307,7 +322,10 @@ class _ManimBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+
         class _ScalingScene(_VectorScene):
             def construct(inner_self) -> None:
                 v_coords = (vector[0], vector[1])
@@ -328,13 +346,15 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(0, 0),
                     inner_self.axes.c2p(*v_coords),
                     buff=0,
-                    color=manim.RED,
+                    color=color_start,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.15,
                 )
-                label = MathTex(r"v", color=manim.RED).scale(0.9)
+                label = MathTex(r"v", color=color_start).scale(0.9)
                 label.next_to(
-                    arrow.get_end(), _label_direction(v_coords[0], v_coords[1]), buff=0.2
+                    arrow.get_end(),
+                    _label_direction(v_coords[0], v_coords[1]),
+                    buff=0.2,
                 )
 
                 inner_self.play(GrowArrow(arrow), Write(label), run_time=1)
@@ -344,13 +364,13 @@ class _ManimBackend(_BaseBackend):
                     inner_self.axes.c2p(0, 0),
                     inner_self.axes.c2p(*scaled_coords),
                     buff=0,
-                    color=manim.BLUE,
+                    color=color_end,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.15,
                 )
 
                 scale_text = MathTex(
-                    f"{scale_factor}", r"\cdot", r"v", color=manim.BLUE
+                    f"{scale_factor}", r"\cdot", r"v", color=color_end
                 ).scale(0.9)
                 scale_text.next_to(
                     scaled_arrow.get_end(),
@@ -374,7 +394,10 @@ class _ManimBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_e1, color_e2 = _resolve_colors(colors, TRANSFORM_COLORS)
+
         mat = [
             [float(matrix[0][0]), float(matrix[0][1])],
             [float(matrix[1][0]), float(matrix[1][1])],
@@ -408,7 +431,7 @@ class _ManimBackend(_BaseBackend):
                     plane.c2p(0, 0),
                     plane.c2p(1, 0),
                     buff=0,
-                    color=manim.RED,
+                    color=color_e1,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.2,
                 )
@@ -416,15 +439,15 @@ class _ManimBackend(_BaseBackend):
                     plane.c2p(0, 0),
                     plane.c2p(0, 1),
                     buff=0,
-                    color=manim.BLUE,
+                    color=color_e2,
                     stroke_width=7,
                     max_tip_length_to_length_ratio=0.2,
                 )
 
-                label_e1 = MathTex(r"\hat{e}_1", color=manim.RED).scale(0.8)
+                label_e1 = MathTex(r"\hat{e}_1", color=color_e1).scale(0.8)
                 label_e1.next_to(arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2)
 
-                label_e2 = MathTex(r"\hat{e}_2", color=manim.BLUE).scale(0.8)
+                label_e2 = MathTex(r"\hat{e}_2", color=color_e2).scale(0.8)
                 label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
 
                 inner_self.play(
@@ -475,12 +498,13 @@ class _ManimBackend(_BaseBackend):
         labels: list[str] | None,
         grid: bool,
         name: str,
+        span_color: str | None = None,
     ) -> None:
         basis = space.basis
         dim = space.dims
         color_list = colors or DEFAULT_COLORS[: len(basis)]
         label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
-        span_color = manim.PURPLE
+        span_color = span_color or SPAN_COLOR
 
         class _SpanScene(_VectorScene):
             def construct(inner_self) -> None:

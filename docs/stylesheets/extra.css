@@ -81,3 +81,21 @@
 .md-header__button.md-logo img {
   height: 64px;
 }
+
+/* Documentation visualizations (panchi Animator2D output) */
+figure.viz {
+  text-align: center;
+  margin: 1.6rem auto;
+}
+
+figure.viz img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+figure.viz figcaption {
+  font-size: 0.78rem;
+  opacity: 0.75;
+  margin-top: 0.45rem;
+}

@@ -2,7 +2,12 @@
 
 A matrix is not just a grid of numbers — it is a function. When you multiply a matrix by a vector, you are applying a linear transformation: stretching, rotating, reflecting, or projecting the vector into a new position.
 
-panchi makes this concrete.
+panchi makes this concrete. Here is a 90° rotation applied to the whole plane — watch the basis vectors carry the grid with them:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/transform_rotation.gif" alt="A coordinate grid rotating 90 degrees, with the basis vectors following the rotation">
+  <figcaption><code>animate_transform(Matrix([[0, -1], [1, 0]]))</code> — a quarter-turn. The columns of the matrix are exactly where the basis vectors land.</figcaption>
+</figure>
 
 ## Applying a transformation
 

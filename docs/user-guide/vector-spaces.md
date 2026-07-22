@@ -57,6 +57,18 @@ len(vs)   # 3 — number of generators
 vs.dims   # 2 — dimension of the span
 ```
 
+Dimension has a geometric meaning: a 1-dimensional span is a line through the origin, while a 2-dimensional span fills the whole plane. `Animator2D.plot_span` shades the region a set of vectors covers:
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/span_line.png" alt="A single vector and the line through the origin it spans">
+  <figcaption>A single vector spans a line — <code>plot_span(Vector([2, 1]))</code>.</figcaption>
+</figure>
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/span_plane.png" alt="Two independent vectors shading the entire plane they span">
+  <figcaption>Two independent vectors span all of R² — <code>plot_span(VectorSpace([Vector([1, 1]), Vector([1, -1])]))</code>.</figcaption>
+</figure>
+
 ## Indexing and iteration
 
 The generating set is indexable and iterable, just like `Vector` and `Matrix`:

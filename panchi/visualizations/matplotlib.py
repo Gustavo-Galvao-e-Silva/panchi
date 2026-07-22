@@ -14,11 +14,28 @@ from panchi.visualizations.base import _BaseBackend
 
 DEFAULT_COLORS = ["#E63946", "#F77F00", "#06FFA5", "#118AB2", "#073B4C"]
 
+# Per-method default color roles. Any of these can be overridden by passing
+# ``colors=`` (animations) or ``span_color=`` (spans) to the matching method.
+ADDITION_COLORS = ("#E63946", "#F77F00", "#06FFA5")  # v1, v2, result
+SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
+TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2
+SPAN_COLOR = "#7C3AED"
+
 _QUALITY_DPI = {
     "low": 72,
     "medium": 100,
     "high": 150,
 }
+
+
+def _resolve_colors(colors: list[str] | None, defaults: tuple[str, ...]) -> list[str]:
+    """Fill in per-role colors, keeping defaults for any not supplied.
+
+    A partial list is honored positionally; missing trailing roles fall back
+    to ``defaults``. ``None`` reproduces the default palette exactly.
+    """
+    colors = colors or []
+    return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
 
 
 def _setup_coordinate_plane(
@@ -170,7 +187,10 @@ class _MatplotlibBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
+
         fig, ax = plt.subplots(figsize=self.figsize)
 
         result = v1 + v2
@@ -191,13 +211,13 @@ class _MatplotlibBackend(_BaseBackend):
             ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
         )
 
-        arrow_v1 = _create_vector_arrow((0, 0), (v1[0], v1[1]), "#E63946")
-        arrow_v2_from_origin = _create_vector_arrow((0, 0), (0, 0), "#F77F00")
+        arrow_v1 = _create_vector_arrow((0, 0), (v1[0], v1[1]), color_v1)
+        arrow_v2_from_origin = _create_vector_arrow((0, 0), (0, 0), color_v2)
         arrow_v2_from_origin.set_alpha(0.4)
         arrow_v2_from_v1 = _create_vector_arrow(
-            (v1[0], v1[1]), (v1[0], v1[1]), "#F77F00"
+            (v1[0], v1[1]), (v1[0], v1[1]), color_v2
         )
-        arrow_result = _create_vector_arrow((0, 0), (0, 0), "#06FFA5", linewidth=3.5)
+        arrow_result = _create_vector_arrow((0, 0), (0, 0), color_result, linewidth=3.5)
         arrow_result.set_alpha(0)
 
         ax.add_patch(arrow_v1)
@@ -211,10 +231,10 @@ class _MatplotlibBackend(_BaseBackend):
             "v₁",
             fontsize=14,
             fontweight="bold",
-            color="#E63946",
+            color=color_v1,
         )
         text_v2 = ax.text(
-            0, 0, "v₂", fontsize=14, fontweight="bold", color="#F77F00", alpha=0
+            0, 0, "v₂", fontsize=14, fontweight="bold", color=color_v2, alpha=0
         )
         text_result = ax.text(
             0,
@@ -222,7 +242,7 @@ class _MatplotlibBackend(_BaseBackend):
             "v₁ + v₂",
             fontsize=14,
             fontweight="bold",
-            color="#06FFA5",
+            color=color_result,
             alpha=0,
         )
 
@@ -284,7 +304,10 @@ class _MatplotlibBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+
         fig, ax = plt.subplots(figsize=self.figsize)
 
         scaled = scale_factor * vector
@@ -297,7 +320,7 @@ class _MatplotlibBackend(_BaseBackend):
             ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
         )
 
-        arrow = _create_vector_arrow((0, 0), (vector[0], vector[1]), "#E63946")
+        arrow = _create_vector_arrow((0, 0), (vector[0], vector[1]), color_start)
         ax.add_patch(arrow)
 
         text = ax.text(
@@ -306,7 +329,7 @@ class _MatplotlibBackend(_BaseBackend):
             "v",
             fontsize=14,
             fontweight="bold",
-            color="#E63946",
+            color=color_start,
         )
 
         def animate_frame(frame: int) -> tuple:
@@ -318,9 +341,9 @@ class _MatplotlibBackend(_BaseBackend):
             arrow.set_positions((0, 0), (current_x, current_y))
 
             if t > 0.5:
-                arrow.set_color("#118AB2")
+                arrow.set_color(color_end)
                 text.set_text(f"{scale_factor}v")
-                text.set_color("#118AB2")
+                text.set_color(color_end)
                 text.set_alpha((t - 0.5) * 2)
 
             text.set_position((current_x + 0.2, current_y + 0.2))
@@ -344,7 +367,10 @@ class _MatplotlibBackend(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        colors: list[str] | None = None,
     ) -> None:
+        color_e1, color_e2 = _resolve_colors(colors, TRANSFORM_COLORS)
+
         fig, ax = plt.subplots(figsize=self.figsize)
 
         a, b = float(matrix[0][0]), float(matrix[0][1])
@@ -382,16 +408,16 @@ class _MatplotlibBackend(_BaseBackend):
         )
         ax.add_collection(grid_collection)
 
-        arrow_e1 = _create_vector_arrow((0, 0), (1, 0), "#E63946", linewidth=3.5)
-        arrow_e2 = _create_vector_arrow((0, 0), (0, 1), "#118AB2", linewidth=3.5)
+        arrow_e1 = _create_vector_arrow((0, 0), (1, 0), color_e1, linewidth=3.5)
+        arrow_e2 = _create_vector_arrow((0, 0), (0, 1), color_e2, linewidth=3.5)
         ax.add_patch(arrow_e1)
         ax.add_patch(arrow_e2)
 
         label_e1 = ax.text(
-            1.15, 0.15, "e₁", fontsize=13, fontweight="bold", color="#E63946"
+            1.15, 0.15, "e₁", fontsize=13, fontweight="bold", color=color_e1
         )
         label_e2 = ax.text(
-            0.15, 1.15, "e₂", fontsize=13, fontweight="bold", color="#118AB2"
+            0.15, 1.15, "e₂", fontsize=13, fontweight="bold", color=color_e2
         )
 
         def animate_frame(frame: int) -> tuple:
@@ -447,6 +473,7 @@ class _MatplotlibBackend(_BaseBackend):
         labels: list[str] | None,
         grid: bool,
         name: str,
+        span_color: str | None = None,
     ) -> None:
         basis = space.basis
         dim = space.dims
@@ -462,7 +489,7 @@ class _MatplotlibBackend(_BaseBackend):
         axis_range = _calculate_axis_range(basis)
         _setup_coordinate_plane(ax, axis_range, axis_range, grid)
 
-        span_color = "#7C3AED"
+        span_color = span_color or SPAN_COLOR
 
         if dim == 1:
             bx, by = float(basis[0][0]), float(basis[0][1])

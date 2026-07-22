@@ -287,3 +287,74 @@ class TestPlotSpan:
         print("\n✓ No arguments → raises ValueError")
         with pytest.raises(ValueError, match="At least one"):
             animator.plot_span()
+
+    def test_custom_span_color(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.plot_span(Vector([1, 0]), Vector([0, 1]), span_color="#805B49")
+        print("\n✓ Custom span_color accepted")
+        assert (tmp_path / "plot_span.png").exists()
+
+
+# ==================== CUSTOM ANIMATION COLORS ====================
+
+
+class TestAnimationColors:
+    """The animate_* methods accept an optional per-role ``colors`` list."""
+
+    def test_addition_custom_colors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_addition(
+            Vector([2, 1]),
+            Vector([1, 2]),
+            frames=5,
+            interval=100,
+            colors=["#805B49", "#FFB592", "#45423F"],
+        )
+        print("\n✓ animate_addition custom colors saved")
+        assert (tmp_path / "animate_addition.gif").exists()
+
+    def test_scaling_custom_colors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_scaling(
+            Vector([2, 1]),
+            scale_factor=2.0,
+            frames=5,
+            interval=100,
+            colors=["#805B49", "#FFB592"],
+        )
+        print("\n✓ animate_scaling custom colors saved")
+        assert (tmp_path / "animate_scaling.gif").exists()
+
+    def test_transform_custom_colors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[1, 1], [0, 1]]),
+            frames=5,
+            interval=100,
+            colors=["#805B49", "#FFB592"],
+        )
+        print("\n✓ animate_transform custom colors saved")
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    def test_partial_colors_keep_defaults(self):
+        from panchi.visualizations.matplotlib import (
+            ADDITION_COLORS,
+            _resolve_colors,
+        )
+
+        # A partial list fills only the roles supplied; the rest fall back.
+        resolved = _resolve_colors(["#805B49"], ADDITION_COLORS)
+        print(f"\n✓ Partial colors → {resolved}")
+        assert resolved[0] == "#805B49"
+        assert resolved[1] == ADDITION_COLORS[1]
+        assert resolved[2] == ADDITION_COLORS[2]
+
+    def test_none_colors_reproduce_defaults(self):
+        from panchi.visualizations.matplotlib import (
+            TRANSFORM_COLORS,
+            _resolve_colors,
+        )
+
+        resolved = _resolve_colors(None, TRANSFORM_COLORS)
+        print(f"\n✓ None colors → default palette {resolved}")
+        assert resolved == list(TRANSFORM_COLORS)
