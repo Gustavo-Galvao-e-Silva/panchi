@@ -18,7 +18,7 @@ class _BaseBackend(ABC):
     @abstractmethod
     def plot_vectors(
         self,
-        *vectors: Vector,
+        vectors: list[Vector],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
@@ -60,7 +60,6 @@ class _BaseBackend(ABC):
     @abstractmethod
     def plot_span(
         self,
-        vectors: list[Vector],
         space: VectorSpace,
         colors: list[str] | None,
         labels: list[str] | None,

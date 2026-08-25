@@ -5,7 +5,6 @@ from pathlib import Path
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
-from panchi.visualizations.base import _BaseBackend
 
 
 class Animator2D:
@@ -40,13 +39,14 @@ class Animator2D:
         save_path: str | Path | None = None,
         quality: str = "medium",
         figsize: tuple[int, int] = (8, 8),
+        include_extra_files: bool = False,
     ) -> None:
         resolved_path = Path(save_path) if save_path else None
 
         if backend == "matplotlib":
             from panchi.visualizations.matplotlib import _MatplotlibBackend
 
-            self._backend: _BaseBackend = _MatplotlibBackend(
+            self._backend = _MatplotlibBackend(
                 save_path=resolved_path,
                 quality=quality,
                 figsize=figsize,
@@ -57,6 +57,7 @@ class Animator2D:
             self._backend = _ManimBackend(
                 save_path=resolved_path or Path("./media"),
                 quality=quality,
+                include_extra_files=include_extra_files,
             )
         else:
             raise ValueError(
@@ -90,7 +91,7 @@ class Animator2D:
         """
         self._validate_2d(*vectors)
         self._backend.plot_vectors(
-            *vectors,
+            list(vectors),
             colors=colors,
             labels=labels,
             grid=grid,
@@ -240,7 +241,6 @@ class Animator2D:
         vectors, space = self._resolve_span_input(vectors_or_space)
         self._validate_2d(*vectors)
         self._backend.plot_span(
-            vectors,
             space,
             colors=colors,
             labels=labels,
