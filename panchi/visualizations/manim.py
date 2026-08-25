@@ -41,6 +41,9 @@ SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
 TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
 SPAN_COLOR = manim.PURPLE
 
+_USABLE_WIDTH = 12.0
+_USABLE_HEIGHT = 6.8
+
 _QUALITY_MAP = {
     "low": "low_quality",
     "medium": "medium_quality",
@@ -121,9 +124,15 @@ class _VectorScene(Scene):
         x_range: tuple[int, int] = (-5, 5),
         y_range: tuple[int, int] = (-5, 5),
     ) -> None:
+        x_span = x_range[1] - x_range[0]
+        y_span = y_range[1] - y_range[0]
+        unit = min(_USABLE_WIDTH / x_span, _USABLE_HEIGHT / y_span)
+
         self.axes = Axes(
             x_range=[*x_range, 1],
             y_range=[*y_range, 1],
+            x_length=unit * x_span,
+            y_length=unit * y_span,
             axis_config={
                 "color": manim.GREY_B,
                 "stroke_width": 2,
