@@ -41,6 +41,14 @@ SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
 TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
 SPAN_COLOR = manim.PURPLE
 
+AXIS_COLOR = manim.GREY_B
+GUIDE_COLOR = manim.GREY
+PARALLELOGRAM_COLOR = manim.BLUE_E
+MATRIX_HUD_COLOR = manim.YELLOW
+
+AXIS_PADDING = 1.4
+_EPSILON = 1e-12
+
 _USABLE_WIDTH = 12.0
 _USABLE_HEIGHT = 6.8
 
@@ -77,6 +85,11 @@ def _label_direction(vx: float, vy: float) -> manim.Vector:
     if vx < 0 and vy < 0:
         return manim.DOWN + manim.RIGHT
     return manim.DOWN + manim.LEFT
+
+
+def _axis_range(coords, padding: float = AXIS_PADDING) -> int:
+    """Symmetric axis half-extent covering ``coords`` with padding."""
+    return int(max(abs(c) for c in coords) * padding) + 1
 
 
 def _arrow(
@@ -134,7 +147,7 @@ class _VectorScene(Scene):
             x_length=unit * x_span,
             y_length=unit * y_span,
             axis_config={
-                "color": manim.GREY_B,
+                "color": AXIS_COLOR,
                 "stroke_width": 2,
                 "include_tip": True,
                 "tip_width": 0.2,
@@ -262,8 +275,7 @@ class _ManimBackend(_BaseBackend):
         label_list = labels or [f"v_{{{i + 1}}}" for i in range(len(vec_data))]
 
         def build(scene: _VectorScene) -> None:
-            max_coord = max(abs(c) for v in vec_data for c in (v[0], v[1]))
-            range_val = int(max_coord * 1.3) + 1
+            range_val = _axis_range(c for v in vec_data for c in (v[0], v[1]))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
             for vec, color, label in zip(
@@ -291,7 +303,7 @@ class _ManimBackend(_BaseBackend):
         result = (v1[0] + v2[0], v1[1] + v2[1])
 
         def build(scene: _VectorScene) -> None:
-            range_val = int(max(abs(c) for c in (*v1c, *v2c, *result)) * 1.4) + 1
+            range_val = _axis_range((*v1c, *v2c, *result))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
             scene.add_vector(v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5)
@@ -312,14 +324,14 @@ class _ManimBackend(_BaseBackend):
             dashed_line_1 = DashedLine(
                 scene.axes.c2p(*v2c),
                 scene.axes.c2p(*result),
-                color=manim.GREY,
+                color=GUIDE_COLOR,
                 stroke_width=2,
                 dash_length=0.1,
             )
             dashed_line_2 = DashedLine(
                 scene.axes.c2p(0, 0),
                 scene.axes.c2p(*v2c),
-                color=manim.GREY,
+                color=GUIDE_COLOR,
                 stroke_width=2,
                 dash_length=0.1,
             )
@@ -328,7 +340,7 @@ class _ManimBackend(_BaseBackend):
                 scene.axes.c2p(*v1c),
                 scene.axes.c2p(*result),
                 scene.axes.c2p(*v2c),
-                color=manim.BLUE_E,
+                color=PARALLELOGRAM_COLOR,
                 fill_opacity=0.15,
                 stroke_width=0,
             )
@@ -367,8 +379,7 @@ class _ManimBackend(_BaseBackend):
         scaled_coords = (vector[0] * scale_factor, vector[1] * scale_factor)
 
         def build(scene: _VectorScene) -> None:
-            max_coord = max(abs(c) for c in (*v_coords, *scaled_coords))
-            range_val = int(max_coord * 1.4) + 1
+            range_val = _axis_range((*v_coords, *scaled_coords))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
             arrow, label = scene.add_vector(
@@ -410,7 +421,7 @@ class _ManimBackend(_BaseBackend):
                 x_range=[-5, 5, 1],
                 y_range=[-5, 5, 1],
                 background_line_style={
-                    "stroke_color": manim.GREY,
+                    "stroke_color": GUIDE_COLOR,
                     "stroke_width": 1,
                     "stroke_opacity": 0.6,
                 },
@@ -423,7 +434,7 @@ class _ManimBackend(_BaseBackend):
                 r"\\"
                 f" {mat[1][0]:.3g} & {mat[1][1]:.3g} "
                 r"\end{bmatrix}",
-                color=manim.YELLOW,
+                color=MATRIX_HUD_COLOR,
             ).scale(0.9)
             matrix_tex.to_corner(manim.UR, buff=0.5)
             scene.play(Write(matrix_tex), run_time=0.8)
@@ -499,8 +510,7 @@ class _ManimBackend(_BaseBackend):
                 scene.wait(1)
                 return
 
-            max_coord = max(abs(c) for v in basis for c in (v[0], v[1]))
-            range_val = int(max_coord * 1.5) + 1
+            range_val = _axis_range(c for v in basis for c in (v[0], v[1]))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
             if dim == 1:
@@ -508,7 +518,7 @@ class _ManimBackend(_BaseBackend):
                 extent = range_val * 2
                 scale = (
                     extent / max(abs(bx), abs(by))
-                    if max(abs(bx), abs(by)) > 1e-12
+                    if max(abs(bx), abs(by)) > _EPSILON
                     else 1
                 )
                 span_line = Line(

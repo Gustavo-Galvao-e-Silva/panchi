@@ -21,6 +21,12 @@ SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
 TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2
 SPAN_COLOR = "#7C3AED"
 
+GRID_COLOR = "#CCCCCC"
+
+AXIS_PADDING = 1.3
+MIN_AXIS_RANGE = 0.5
+_EPSILON = 1e-12
+
 _QUALITY_DPI = {
     "low": 72,
     "medium": 100,
@@ -65,8 +71,8 @@ def _setup_coordinate_plane(
 def _calculate_axis_range(vectors: list[Vector]) -> tuple[float, float]:
     all_x = [v[0] for v in vectors]
     all_y = [v[1] for v in vectors]
-    max_coord = max(abs(min(all_x + all_y)), abs(max(all_x + all_y))) * 1.2
-    max_coord = max(max_coord, 0.5)
+    max_coord = max(abs(min(all_x + all_y)), abs(max(all_x + all_y))) * AXIS_PADDING
+    max_coord = max(max_coord, MIN_AXIS_RANGE)
     return (-max_coord, max_coord)
 
 
@@ -213,22 +219,8 @@ class _MatplotlibBackend(_BaseBackend):
         fig, ax = plt.subplots(figsize=self.figsize)
 
         result = v1 + v2
-        max_coord = (
-            max(
-                abs(v1[0]),
-                abs(v1[1]),
-                abs(v2[0]),
-                abs(v2[1]),
-                abs(result[0]),
-                abs(result[1]),
-            )
-            * 1.3
-        )
-        max_coord = max(max_coord, 0.5)
-
-        _setup_coordinate_plane(
-            ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
-        )
+        axis_range = _calculate_axis_range([v1, v2, result])
+        _setup_coordinate_plane(ax, axis_range, axis_range, grid=True)
 
         arrow_v1 = _create_vector_arrow((0, 0), (v1[0], v1[1]), color_v1)
         arrow_v2_from_origin = _create_vector_arrow((0, 0), (0, 0), color_v2)
@@ -321,14 +313,8 @@ class _MatplotlibBackend(_BaseBackend):
         fig, ax = plt.subplots(figsize=self.figsize)
 
         scaled = scale_factor * vector
-        max_coord = (
-            max(abs(vector[0]), abs(vector[1]), abs(scaled[0]), abs(scaled[1])) * 1.3
-        )
-        max_coord = max(max_coord, 0.5)
-
-        _setup_coordinate_plane(
-            ax, (-max_coord, max_coord), (-max_coord, max_coord), grid=True
-        )
+        axis_range = _calculate_axis_range([vector, scaled])
+        _setup_coordinate_plane(ax, axis_range, axis_range, grid=True)
 
         arrow = _create_vector_arrow((0, 0), (vector[0], vector[1]), color_start)
         ax.add_patch(arrow)
@@ -402,7 +388,7 @@ class _MatplotlibBackend(_BaseBackend):
 
         grid_collection = LineCollection(
             grid_lines_init,
-            colors="#CCCCCC",
+            colors=GRID_COLOR,
             linewidths=0.8,
             alpha=0.6,
             zorder=1,
@@ -486,7 +472,7 @@ class _MatplotlibBackend(_BaseBackend):
         if dim == 1:
             bx, by = float(basis[0][0]), float(basis[0][1])
             extent = max(abs(axis_range[0]), abs(axis_range[1])) * 2
-            if abs(bx) > 1e-12 or abs(by) > 1e-12:
+            if abs(bx) > _EPSILON or abs(by) > _EPSILON:
                 scale = extent / max(abs(bx), abs(by))
                 ax.plot(
                     [-bx * scale, bx * scale],
