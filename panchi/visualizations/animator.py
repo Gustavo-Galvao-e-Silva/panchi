@@ -91,7 +91,7 @@ class Animator2D:
         """
         self._validate_2d(*vectors)
         self._backend.plot_vectors(
-            *vectors,
+            list(vectors),
             colors=colors,
             labels=labels,
             grid=grid,
@@ -241,7 +241,6 @@ class Animator2D:
         vectors, space = self._resolve_span_input(vectors_or_space)
         self._validate_2d(*vectors)
         self._backend.plot_span(
-            vectors,
             space,
             colors=colors,
             labels=labels,

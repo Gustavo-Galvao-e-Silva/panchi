@@ -177,7 +177,7 @@ class _MatplotlibBackend(_BaseBackend):
 
     def plot_vectors(
         self,
-        *vectors: Vector,
+        vectors: list[Vector],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
@@ -189,7 +189,7 @@ class _MatplotlibBackend(_BaseBackend):
             labels = [None] * len(vectors)
 
         fig, ax = plt.subplots(figsize=self.figsize)
-        axis_range = _calculate_axis_range(list(vectors))
+        axis_range = _calculate_axis_range(vectors)
         _setup_coordinate_plane(ax, axis_range, axis_range, grid)
 
         for vec, color, label in zip(vectors, colors, labels, strict=False):
@@ -445,7 +445,6 @@ class _MatplotlibBackend(_BaseBackend):
 
     def plot_span(
         self,
-        vectors: list[Vector],
         space: VectorSpace,
         colors: list[str] | None,
         labels: list[str] | None,

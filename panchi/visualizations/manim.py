@@ -264,13 +264,13 @@ class _ManimBackend(_BaseBackend):
 
     def plot_vectors(
         self,
-        *vectors: Vector,
+        vectors: list[Vector],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
         name: str,
     ) -> None:
-        vec_data = list(vectors)
+        vec_data = vectors
         color_list = colors or DEFAULT_COLORS[: len(vec_data)]
         label_list = labels or [f"v_{{{i + 1}}}" for i in range(len(vec_data))]
 
@@ -488,7 +488,6 @@ class _ManimBackend(_BaseBackend):
 
     def plot_span(
         self,
-        vectors: list[Vector],
         space: VectorSpace,
         colors: list[str] | None,
         labels: list[str] | None,
