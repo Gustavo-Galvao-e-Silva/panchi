@@ -132,6 +132,25 @@ class _MatplotlibBackend(_BaseBackend):
         else:
             plt.show()
 
+    def _run_animation(
+        self,
+        fig: plt.Figure,
+        frame_fn,
+        frames: int,
+        interval: int,
+        name: str,
+    ) -> None:
+        """Build a blitting ``FuncAnimation`` from ``frame_fn`` and finalize it."""
+        anim = animation.FuncAnimation(
+            fig,
+            frame_fn,
+            frames=frames,
+            interval=interval,
+            blit=True,
+            repeat=True,
+        )
+        self._finalize_animation(anim, name, interval)
+
     def _finalize_animation(
         self,
         anim: animation.FuncAnimation,
@@ -286,16 +305,7 @@ class _MatplotlibBackend(_BaseBackend):
                 text_result,
             )
 
-        anim = animation.FuncAnimation(
-            fig,
-            animate_frame,
-            frames=frames,
-            interval=interval,
-            blit=True,
-            repeat=True,
-        )
-
-        self._finalize_animation(anim, name, interval)
+        self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_scaling(
         self,
@@ -350,16 +360,7 @@ class _MatplotlibBackend(_BaseBackend):
 
             return arrow, text
 
-        anim = animation.FuncAnimation(
-            fig,
-            animate_frame,
-            frames=frames,
-            interval=interval,
-            blit=True,
-            repeat=True,
-        )
-
-        self._finalize_animation(anim, name, interval)
+        self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_transform(
         self,
@@ -454,16 +455,7 @@ class _MatplotlibBackend(_BaseBackend):
 
             return grid_collection, arrow_e1, arrow_e2, label_e1, label_e2
 
-        anim = animation.FuncAnimation(
-            fig,
-            animate_frame,
-            frames=frames,
-            interval=interval,
-            blit=True,
-            repeat=True,
-        )
-
-        self._finalize_animation(anim, name, interval)
+        self._run_animation(fig, animate_frame, frames, interval, name)
 
     def plot_span(
         self,

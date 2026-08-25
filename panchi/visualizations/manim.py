@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
+from typing import Callable
 
 try:
     import manim
@@ -39,6 +41,17 @@ SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
 TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
 SPAN_COLOR = manim.PURPLE
 
+_QUALITY_MAP = {
+    "low": "low_quality",
+    "medium": "medium_quality",
+    "high": "high_quality",
+    "production": "production_quality",
+}
+
+# Scratch/cache subdirectories manim writes alongside the final ``<name>.mp4``.
+# Removed after rendering unless ``include_extra_files`` is set.
+_INTERMEDIATE_DIRS = ("partial_movie_files", "Tex", "texts", "images")
+
 
 def _resolve_colors(colors: list[str] | None, defaults: tuple) -> list:
     """Fill in per-role colors positionally, keeping defaults for omitted roles."""
@@ -63,16 +76,45 @@ def _label_direction(vx: float, vy: float) -> manim.Vector:
     return manim.DOWN + manim.LEFT
 
 
-_QUALITY_MAP = {
-    "low": "low_quality",
-    "medium": "medium_quality",
-    "high": "high_quality",
-    "production": "production_quality",
-}
+def _arrow(
+    coords,
+    start,
+    end,
+    color,
+    stroke_width: float = 6,
+    tip_ratio: float = 0.15,
+) -> Arrow:
+    """Build an arrow between two data-space points on ``coords`` (Axes/NumberPlane)."""
+    return Arrow(
+        coords.c2p(*start),
+        coords.c2p(*end),
+        buff=0,
+        color=color,
+        stroke_width=stroke_width,
+        max_tip_length_to_length_ratio=tip_ratio,
+    )
+
+
+def _label(
+    text: str,
+    color,
+    arrow: Arrow,
+    direction_coords,
+    scale: float = 0.9,
+    buff: float = 0.2,
+) -> MathTex:
+    """Build a ``MathTex`` label placed just past an arrow's tip."""
+    mob = MathTex(text, color=color).scale(scale)
+    mob.next_to(
+        arrow.get_end(),
+        _label_direction(direction_coords[0], direction_coords[1]),
+        buff=buff,
+    )
+    return mob
 
 
 class _VectorScene(Scene):
-    """Shared base scene with coordinate plane setup."""
+    """Shared base scene with coordinate-plane setup and a vector-drawing helper."""
 
     def setup_axes(
         self,
@@ -106,12 +148,70 @@ class _VectorScene(Scene):
         self.play(Create(self.axes), Write(x_label), Write(y_label))
         self.wait(0.3)
 
+    def add_vector(
+        self,
+        coords,
+        color,
+        label: str | None = None,
+        *,
+        start=(0, 0),
+        label_dir=None,
+        stroke_width: float = 6,
+        label_scale: float = 0.9,
+        run_time: float = 0.8,
+        opacity: float = 1.0,
+        wait: float = 0.0,
+    ) -> tuple[Arrow, MathTex | None]:
+        """Grow an arrow (optionally from a non-origin ``start``) with a label.
+
+        ``label_dir`` chooses the quadrant the label is nudged toward; it
+        defaults to ``coords`` but can differ when an arrow is drawn shifted
+        (e.g. the tip-to-tail second vector in an addition).
+        """
+        arrow = _arrow(self.axes, start, coords, color, stroke_width)
+        label_mob = None
+        if label is not None:
+            label_mob = _label(
+                label, color, arrow, label_dir or coords, label_scale
+            )
+
+        if opacity != 1.0:
+            arrow.set_opacity(opacity)
+            if label_mob is not None:
+                label_mob.set_opacity(opacity)
+
+        anims = [GrowArrow(arrow)]
+        if label_mob is not None:
+            anims.append(Write(label_mob))
+        self.play(*anims, run_time=run_time)
+        if wait:
+            self.wait(wait)
+        return arrow, label_mob
+
+
+class _FunctionScene(_VectorScene):
+    """A scene whose ``construct`` delegates to a supplied builder callable.
+
+    Lets each backend method describe its animation as a plain function of the
+    scene, instead of declaring a bespoke ``Scene`` subclass inline.
+    """
+
+    def __init__(self, builder: Callable[[_VectorScene], None]) -> None:
+        super().__init__()
+        self._builder = builder
+
+    def construct(self) -> None:
+        self._builder(self)
+
 
 class _ManimBackend(_BaseBackend):
     """Manim-based 2D visualization backend."""
 
-    def __init__(self, save_path: Path | None, quality: str) -> None:
+    def __init__(
+        self, save_path: Path | None, quality: str, include_extra_files: bool
+    ) -> None:
         super().__init__(save_path=save_path, quality=quality)
+        self.include_extra_files = include_extra_files
 
     def _configure(self, name: str) -> None:
         manim.config.quality = _QUALITY_MAP.get(self.quality, "medium_quality")
@@ -121,6 +221,24 @@ class _ManimBackend(_BaseBackend):
             manim.config.media_dir = str(self.save_path)
             manim.config.video_dir = "{media_dir}"
             manim.config.output_file = name
+
+    def _cleanup(self) -> None:
+        """Remove manim's intermediary scratch dirs, keeping the final ``.mp4``.
+
+        The rendered video lands directly in ``save_path``; manim also leaves
+        ``Tex/``, ``images/`` and ``partial_movie_files/`` behind. Those are
+        deleted unless the user opted into ``include_extra_files``.
+        """
+        if self.include_extra_files or not self.save_path:
+            return
+        for sub in _INTERMEDIATE_DIRS:
+            shutil.rmtree(self.save_path / sub, ignore_errors=True)
+
+    def _render(self, name: str, builder: Callable[[_VectorScene], None]) -> None:
+        """Configure output, render the builder as a scene, then clean up."""
+        self._configure(name)
+        _FunctionScene(builder).render()
+        self._cleanup()
 
     def plot_vectors(
         self,
@@ -134,38 +252,19 @@ class _ManimBackend(_BaseBackend):
         color_list = colors or DEFAULT_COLORS[: len(vec_data)]
         label_list = labels or [f"v_{{{i + 1}}}" for i in range(len(vec_data))]
 
-        class _PlotScene(_VectorScene):
-            def construct(inner_self) -> None:
-                all_coords = [(v[0], v[1]) for v in vec_data]
-                max_coord = max(abs(c) for vec in all_coords for c in vec)
-                range_val = int(max_coord * 1.3) + 1
+        def build(scene: _VectorScene) -> None:
+            max_coord = max(abs(c) for v in vec_data for c in (v[0], v[1]))
+            range_val = int(max_coord * 1.3) + 1
+            scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-                inner_self.setup_axes(
-                    x_range=(-range_val, range_val),
-                    y_range=(-range_val, range_val),
-                )
+            for vec, color, label in zip(
+                vec_data, color_list, label_list, strict=False
+            ):
+                scene.add_vector((vec[0], vec[1]), color, label)
 
-                for vec, color, label in zip(
-                    vec_data, color_list, label_list, strict=False
-                ):
-                    arrow = Arrow(
-                        inner_self.axes.c2p(0, 0),
-                        inner_self.axes.c2p(vec[0], vec[1]),
-                        buff=0,
-                        color=color,
-                        stroke_width=6,
-                        max_tip_length_to_length_ratio=0.15,
-                    )
-                    label_mob = MathTex(label, color=color).scale(0.9)
-                    label_mob.next_to(
-                        arrow.get_end(), _label_direction(vec[0], vec[1]), buff=0.2
-                    )
-                    inner_self.play(GrowArrow(arrow), Write(label_mob), run_time=0.8)
+            scene.wait(1.5)
 
-                inner_self.wait(1.5)
-
-        self._configure(name)
-        _PlotScene().render()
+        self._render(name, build)
 
     def animate_addition(
         self,
@@ -178,142 +277,71 @@ class _ManimBackend(_BaseBackend):
     ) -> None:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
-        class _AdditionScene(_VectorScene):
-            def construct(inner_self) -> None:
-                v1_coords = (v1[0], v1[1])
-                v2_coords = (v2[0], v2[1])
-                result_coords = (v1[0] + v2[0], v1[1] + v2[1])
+        v1c = (v1[0], v1[1])
+        v2c = (v2[0], v2[1])
+        result = (v1[0] + v2[0], v1[1] + v2[1])
 
-                max_coord = max(
-                    abs(c) for c in (*v1_coords, *v2_coords, *result_coords)
-                )
-                range_val = int(max_coord * 1.4) + 1
+        def build(scene: _VectorScene) -> None:
+            range_val = int(max(abs(c) for c in (*v1c, *v2c, *result)) * 1.4) + 1
+            scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-                inner_self.setup_axes(
-                    x_range=(-range_val, range_val),
-                    y_range=(-range_val, range_val),
-                )
+            scene.add_vector(v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5)
+            scene.add_vector(
+                v2c, color_v2, r"v_2", stroke_width=7, run_time=1, opacity=0.3, wait=0.5
+            )
+            scene.add_vector(
+                result,
+                color_v2,
+                r"v_2",
+                start=v1c,
+                label_dir=v2c,
+                stroke_width=7,
+                run_time=1.2,
+                wait=0.5,
+            )
 
-                arrow_v1 = Arrow(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*v1_coords),
-                    buff=0,
-                    color=color_v1,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.15,
-                )
-                label_v1 = MathTex(r"v_1", color=color_v1).scale(0.9)
-                label_v1.next_to(
-                    arrow_v1.get_end(),
-                    _label_direction(v1_coords[0], v1_coords[1]),
-                    buff=0.2,
-                )
+            dashed_line_1 = DashedLine(
+                scene.axes.c2p(*v2c),
+                scene.axes.c2p(*result),
+                color=manim.GREY,
+                stroke_width=2,
+                dash_length=0.1,
+            )
+            dashed_line_2 = DashedLine(
+                scene.axes.c2p(0, 0),
+                scene.axes.c2p(*v2c),
+                color=manim.GREY,
+                stroke_width=2,
+                dash_length=0.1,
+            )
+            parallelogram = Polygon(
+                scene.axes.c2p(0, 0),
+                scene.axes.c2p(*v1c),
+                scene.axes.c2p(*result),
+                scene.axes.c2p(*v2c),
+                color=manim.BLUE_E,
+                fill_opacity=0.15,
+                stroke_width=0,
+            )
+            scene.play(
+                Create(dashed_line_1),
+                Create(dashed_line_2),
+                FadeIn(parallelogram),
+                run_time=1,
+            )
+            scene.wait(0.5)
 
-                inner_self.play(GrowArrow(arrow_v1), Write(label_v1), run_time=1)
-                inner_self.wait(0.5)
+            scene.add_vector(
+                result,
+                color_result,
+                r"v_1 + v_2",
+                stroke_width=8,
+                label_scale=1.0,
+                run_time=1.5,
+                wait=2,
+            )
 
-                arrow_v2_origin = Arrow(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*v2_coords),
-                    buff=0,
-                    color=color_v2,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.15,
-                ).set_opacity(0.3)
-
-                label_v2_origin = MathTex(r"v_2", color=color_v2).scale(0.9)
-                label_v2_origin.next_to(
-                    arrow_v2_origin.get_end(),
-                    _label_direction(v2_coords[0], v2_coords[1]),
-                    buff=0.2,
-                )
-                label_v2_origin.set_opacity(0.3)
-
-                inner_self.play(
-                    GrowArrow(arrow_v2_origin),
-                    Write(label_v2_origin),
-                    run_time=1,
-                )
-                inner_self.wait(0.5)
-
-                arrow_v2_shifted = Arrow(
-                    inner_self.axes.c2p(*v1_coords),
-                    inner_self.axes.c2p(*result_coords),
-                    buff=0,
-                    color=color_v2,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.15,
-                )
-
-                label_v2_shifted = MathTex(r"v_2", color=color_v2).scale(0.9)
-                label_v2_shifted.next_to(
-                    arrow_v2_shifted.get_end(),
-                    _label_direction(v2_coords[0], v2_coords[1]),
-                    buff=0.2,
-                )
-
-                inner_self.play(
-                    GrowArrow(arrow_v2_shifted),
-                    Write(label_v2_shifted),
-                    run_time=1.2,
-                )
-                inner_self.wait(0.5)
-
-                dashed_line_1 = DashedLine(
-                    inner_self.axes.c2p(*v2_coords),
-                    inner_self.axes.c2p(*result_coords),
-                    color=manim.GREY,
-                    stroke_width=2,
-                    dash_length=0.1,
-                )
-                dashed_line_2 = DashedLine(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*v2_coords),
-                    color=manim.GREY,
-                    stroke_width=2,
-                    dash_length=0.1,
-                )
-
-                parallelogram = Polygon(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*v1_coords),
-                    inner_self.axes.c2p(*result_coords),
-                    inner_self.axes.c2p(*v2_coords),
-                    color=manim.BLUE_E,
-                    fill_opacity=0.15,
-                    stroke_width=0,
-                )
-
-                inner_self.play(
-                    Create(dashed_line_1),
-                    Create(dashed_line_2),
-                    FadeIn(parallelogram),
-                    run_time=1,
-                )
-                inner_self.wait(0.5)
-
-                arrow_result = Arrow(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*result_coords),
-                    buff=0,
-                    color=color_result,
-                    stroke_width=8,
-                    max_tip_length_to_length_ratio=0.15,
-                )
-                label_result = MathTex(r"v_1 + v_2", color=color_result).scale(1.0)
-                label_result.next_to(
-                    arrow_result.get_end(),
-                    _label_direction(result_coords[0], result_coords[1]),
-                    buff=0.2,
-                )
-
-                inner_self.play(
-                    GrowArrow(arrow_result), Write(label_result), run_time=1.5
-                )
-                inner_self.wait(2)
-
-        self._configure(name)
-        _AdditionScene().render()
+        self._render(name, build)
 
     def animate_scaling(
         self,
@@ -326,67 +354,32 @@ class _ManimBackend(_BaseBackend):
     ) -> None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
 
-        class _ScalingScene(_VectorScene):
-            def construct(inner_self) -> None:
-                v_coords = (vector[0], vector[1])
-                scaled_coords = (
-                    vector[0] * scale_factor,
-                    vector[1] * scale_factor,
-                )
+        v_coords = (vector[0], vector[1])
+        scaled_coords = (vector[0] * scale_factor, vector[1] * scale_factor)
 
-                max_coord = max(abs(c) for c in (*v_coords, *scaled_coords))
-                range_val = int(max_coord * 1.4) + 1
+        def build(scene: _VectorScene) -> None:
+            max_coord = max(abs(c) for c in (*v_coords, *scaled_coords))
+            range_val = int(max_coord * 1.4) + 1
+            scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-                inner_self.setup_axes(
-                    x_range=(-range_val, range_val),
-                    y_range=(-range_val, range_val),
-                )
+            arrow, label = scene.add_vector(
+                v_coords, color_start, r"v", stroke_width=7, run_time=1, wait=0.5
+            )
 
-                arrow = Arrow(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*v_coords),
-                    buff=0,
-                    color=color_start,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.15,
-                )
-                label = MathTex(r"v", color=color_start).scale(0.9)
-                label.next_to(
-                    arrow.get_end(),
-                    _label_direction(v_coords[0], v_coords[1]),
-                    buff=0.2,
-                )
+            scaled_arrow = _arrow(
+                scene.axes, (0, 0), scaled_coords, color_end, stroke_width=7
+            )
+            scale_text = _label(
+                f"{scale_factor} \\cdot v", color_end, scaled_arrow, scaled_coords
+            )
+            scene.play(
+                Transform(arrow, scaled_arrow),
+                Transform(label, scale_text),
+                run_time=2,
+            )
+            scene.wait(1.5)
 
-                inner_self.play(GrowArrow(arrow), Write(label), run_time=1)
-                inner_self.wait(0.5)
-
-                scaled_arrow = Arrow(
-                    inner_self.axes.c2p(0, 0),
-                    inner_self.axes.c2p(*scaled_coords),
-                    buff=0,
-                    color=color_end,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.15,
-                )
-
-                scale_text = MathTex(
-                    f"{scale_factor}", r"\cdot", r"v", color=color_end
-                ).scale(0.9)
-                scale_text.next_to(
-                    scaled_arrow.get_end(),
-                    _label_direction(scaled_coords[0], scaled_coords[1]),
-                    buff=0.2,
-                )
-
-                inner_self.play(
-                    Transform(arrow, scaled_arrow),
-                    Transform(label, scale_text),
-                    run_time=2,
-                )
-                inner_self.wait(1.5)
-
-        self._configure(name)
-        _ScalingScene().render()
+        self._render(name, build)
 
     def animate_transform(
         self,
@@ -403,92 +396,75 @@ class _ManimBackend(_BaseBackend):
             [float(matrix[1][0]), float(matrix[1][1])],
         ]
 
-        class _TransformScene(Scene):
-            def construct(inner_self) -> None:
-                plane = NumberPlane(
-                    x_range=[-5, 5, 1],
-                    y_range=[-5, 5, 1],
-                    background_line_style={
-                        "stroke_color": manim.GREY,
-                        "stroke_width": 1,
-                        "stroke_opacity": 0.6,
-                    },
+        def build(scene: _VectorScene) -> None:
+            plane = NumberPlane(
+                x_range=[-5, 5, 1],
+                y_range=[-5, 5, 1],
+                background_line_style={
+                    "stroke_color": manim.GREY,
+                    "stroke_width": 1,
+                    "stroke_opacity": 0.6,
+                },
+            )
+            scene.play(Create(plane), run_time=1)
+
+            matrix_tex = MathTex(
+                r"\begin{bmatrix}"
+                f" {mat[0][0]:.3g} & {mat[0][1]:.3g} "
+                r"\\"
+                f" {mat[1][0]:.3g} & {mat[1][1]:.3g} "
+                r"\end{bmatrix}",
+                color=manim.YELLOW,
+            ).scale(0.9)
+            matrix_tex.to_corner(manim.UR, buff=0.5)
+            scene.play(Write(matrix_tex), run_time=0.8)
+
+            arrow_e1 = _arrow(plane, (0, 0), (1, 0), color_e1, 7, tip_ratio=0.2)
+            arrow_e2 = _arrow(plane, (0, 0), (0, 1), color_e2, 7, tip_ratio=0.2)
+
+            label_e1 = MathTex(r"\hat{e}_1", color=color_e1).scale(0.8)
+            label_e1.next_to(arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2)
+            label_e2 = MathTex(r"\hat{e}_2", color=color_e2).scale(0.8)
+            label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
+
+            scene.play(
+                GrowArrow(arrow_e1),
+                GrowArrow(arrow_e2),
+                Write(label_e1),
+                Write(label_e2),
+                run_time=1,
+            )
+            scene.wait(0.5)
+
+            label_e1.add_updater(
+                lambda m: m.next_to(
+                    arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2
                 )
-                inner_self.play(Create(plane), run_time=1)
+            )
+            label_e2.add_updater(
+                lambda m: m.next_to(
+                    arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2
+                )
+            )
 
-                matrix_tex = MathTex(
-                    r"\begin{bmatrix}"
-                    f" {mat[0][0]:.3g} & {mat[0][1]:.3g} "
-                    r"\\"
-                    f" {mat[1][0]:.3g} & {mat[1][1]:.3g} "
-                    r"\end{bmatrix}",
-                    color=manim.YELLOW,
-                ).scale(0.9)
-                matrix_tex.to_corner(manim.UR, buff=0.5)
-                inner_self.play(Write(matrix_tex), run_time=0.8)
-
-                arrow_e1 = Arrow(
+            scene.play(
+                plane.animate.apply_matrix(mat),
+                arrow_e1.animate.put_start_and_end_on(
                     plane.c2p(0, 0),
-                    plane.c2p(1, 0),
-                    buff=0,
-                    color=color_e1,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.2,
-                )
-                arrow_e2 = Arrow(
+                    plane.c2p(mat[0][0], mat[1][0]),
+                ),
+                arrow_e2.animate.put_start_and_end_on(
                     plane.c2p(0, 0),
-                    plane.c2p(0, 1),
-                    buff=0,
-                    color=color_e2,
-                    stroke_width=7,
-                    max_tip_length_to_length_ratio=0.2,
-                )
+                    plane.c2p(mat[0][1], mat[1][1]),
+                ),
+                run_time=3,
+            )
 
-                label_e1 = MathTex(r"\hat{e}_1", color=color_e1).scale(0.8)
-                label_e1.next_to(arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2)
+            label_e1.clear_updaters()
+            label_e2.clear_updaters()
+            scene.wait(2)
 
-                label_e2 = MathTex(r"\hat{e}_2", color=color_e2).scale(0.8)
-                label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
-
-                inner_self.play(
-                    GrowArrow(arrow_e1),
-                    GrowArrow(arrow_e2),
-                    Write(label_e1),
-                    Write(label_e2),
-                    run_time=1,
-                )
-                inner_self.wait(0.5)
-
-                label_e1.add_updater(
-                    lambda m: m.next_to(
-                        arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2
-                    )
-                )
-                label_e2.add_updater(
-                    lambda m: m.next_to(
-                        arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2
-                    )
-                )
-
-                inner_self.play(
-                    plane.animate.apply_matrix(mat),
-                    arrow_e1.animate.put_start_and_end_on(
-                        plane.c2p(0, 0),
-                        plane.c2p(mat[0][0], mat[1][0]),
-                    ),
-                    arrow_e2.animate.put_start_and_end_on(
-                        plane.c2p(0, 0),
-                        plane.c2p(mat[0][1], mat[1][1]),
-                    ),
-                    run_time=3,
-                )
-
-                label_e1.clear_updaters()
-                label_e2.clear_updaters()
-                inner_self.wait(2)
-
-        self._configure(name)
-        _TransformScene().render()
+        self._render(name, build)
 
     def plot_span(
         self,
@@ -506,73 +482,51 @@ class _ManimBackend(_BaseBackend):
         label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
         span_color = span_color or SPAN_COLOR
 
-        class _SpanScene(_VectorScene):
-            def construct(inner_self) -> None:
-                if dim == 0:
-                    inner_self.setup_axes(x_range=(-3, 3), y_range=(-3, 3))
-                    dot = manim.Dot(
-                        inner_self.axes.c2p(0, 0), color=manim.WHITE, radius=0.08
-                    )
-                    inner_self.play(Create(dot))
-                    inner_self.wait(1)
-                    return
+        def build(scene: _VectorScene) -> None:
+            if dim == 0:
+                scene.setup_axes((-3, 3), (-3, 3))
+                dot = manim.Dot(scene.axes.c2p(0, 0), color=manim.WHITE, radius=0.08)
+                scene.play(Create(dot))
+                scene.wait(1)
+                return
 
-                max_coord = max(abs(c) for v in basis for c in (v[0], v[1]))
-                range_val = int(max_coord * 1.5) + 1
+            max_coord = max(abs(c) for v in basis for c in (v[0], v[1]))
+            range_val = int(max_coord * 1.5) + 1
+            scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-                inner_self.setup_axes(
-                    x_range=(-range_val, range_val),
-                    y_range=(-range_val, range_val),
+            if dim == 1:
+                bx, by = float(basis[0][0]), float(basis[0][1])
+                extent = range_val * 2
+                scale = (
+                    extent / max(abs(bx), abs(by))
+                    if max(abs(bx), abs(by)) > 1e-12
+                    else 1
                 )
+                span_line = Line(
+                    scene.axes.c2p(-bx * scale, -by * scale),
+                    scene.axes.c2p(bx * scale, by * scale),
+                    color=span_color,
+                    stroke_width=3,
+                    stroke_opacity=0.5,
+                )
+                scene.play(Create(span_line), run_time=0.8)
 
-                if dim == 1:
-                    bx, by = float(basis[0][0]), float(basis[0][1])
-                    extent = range_val * 2
-                    scale = (
-                        extent / max(abs(bx), abs(by))
-                        if max(abs(bx), abs(by)) > 1e-12
-                        else 1
-                    )
-                    span_line = Line(
-                        inner_self.axes.c2p(-bx * scale, -by * scale),
-                        inner_self.axes.c2p(bx * scale, by * scale),
-                        color=span_color,
-                        stroke_width=3,
-                        stroke_opacity=0.5,
-                    )
-                    inner_self.play(Create(span_line), run_time=0.8)
+            elif dim == 2:
+                rect = Rectangle(
+                    width=range_val * 2 * scene.axes.x_axis.get_unit_size(),
+                    height=range_val * 2 * scene.axes.y_axis.get_unit_size(),
+                    color=span_color,
+                    fill_opacity=0.1,
+                    stroke_width=0,
+                )
+                rect.move_to(scene.axes.c2p(0, 0))
+                scene.play(FadeIn(rect), run_time=0.8)
 
-                elif dim == 2:
-                    rect = Rectangle(
-                        width=range_val * 2 * inner_self.axes.x_axis.get_unit_size(),
-                        height=range_val * 2 * inner_self.axes.y_axis.get_unit_size(),
-                        color=span_color,
-                        fill_opacity=0.1,
-                        stroke_width=0,
-                    )
-                    rect.move_to(inner_self.axes.c2p(0, 0))
-                    inner_self.play(FadeIn(rect), run_time=0.8)
+            for vec, color, label in zip(
+                basis, color_list, label_list, strict=False
+            ):
+                scene.add_vector((vec[0], vec[1]), color, label)
 
-                for vec, color, label in zip(
-                    basis, color_list, label_list, strict=False
-                ):
-                    arrow = Arrow(
-                        inner_self.axes.c2p(0, 0),
-                        inner_self.axes.c2p(vec[0], vec[1]),
-                        buff=0,
-                        color=color,
-                        stroke_width=6,
-                        max_tip_length_to_length_ratio=0.15,
-                    )
-                    label_mob = MathTex(label, color=color).scale(0.9)
-                    label_mob.next_to(
-                        arrow.get_end(),
-                        _label_direction(vec[0], vec[1]),
-                        buff=0.2,
-                    )
-                    inner_self.play(GrowArrow(arrow), Write(label_mob), run_time=0.8)
+            scene.wait(1.5)
 
-                inner_self.wait(1.5)
-
-        self._configure(name)
-        _SpanScene().render()
+        self._render(name, build)
