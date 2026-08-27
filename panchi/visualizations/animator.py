@@ -7,6 +7,33 @@ from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 
 
+def _build_backend(
+    backend: str,
+    save_path: Path | None,
+    quality: str,
+    figsize: tuple[int, int],
+    include_extra_files: bool,
+):
+    """Construct a 2D backend from the facade's constructor arguments."""
+    if backend == "matplotlib":
+        from panchi.visualizations.backends.matplotlib_2d import _MatplotlibBackend2D
+
+        return _MatplotlibBackend2D(
+            save_path=save_path,
+            quality=quality,
+            figsize=figsize,
+        )
+    if backend == "manim":
+        from panchi.visualizations.backends.manim_2d import _ManimBackend2D
+
+        return _ManimBackend2D(
+            save_path=save_path or Path("./media"),
+            quality=quality,
+            include_extra_files=include_extra_files,
+        )
+    raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'.")
+
+
 class Animator2D:
     """2D visualization of vectors, matrices, and linear transformations.
 
@@ -42,28 +69,9 @@ class Animator2D:
         include_extra_files: bool = False,
     ) -> None:
         resolved_path = Path(save_path) if save_path else None
-
-        if backend == "matplotlib":
-            from panchi.visualizations.matplotlib import _MatplotlibBackend
-
-            self._backend = _MatplotlibBackend(
-                save_path=resolved_path,
-                quality=quality,
-                figsize=figsize,
-            )
-        elif backend == "manim":
-            from panchi.visualizations.manim import _ManimBackend
-
-            self._backend = _ManimBackend(
-                save_path=resolved_path or Path("./media"),
-                quality=quality,
-                include_extra_files=include_extra_files,
-            )
-        else:
-            raise ValueError(
-                f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'."
-            )
-
+        self._backend = _build_backend(
+            backend, resolved_path, quality, figsize, include_extra_files
+        )
         self.backend = backend
 
     def plot_vectors(
@@ -286,3 +294,98 @@ class Animator2D:
             raise ValueError("At least one Vector or VectorSpace is required.")
 
         return vectors, VectorSpace(vectors)
+
+
+class Animator3D:
+    """3D visualization of vectors in R³.
+
+    Mirrors :class:`Animator2D` for three-dimensional vectors. Currently only
+    the matplotlib backend is available; ``backend="manim"`` is reserved for a
+    future release.
+
+    Parameters
+    ----------
+    backend : str
+        Visualization backend: ``"matplotlib"`` (default). ``"manim"`` is not
+        yet implemented for 3D.
+    save_path : str or Path, optional
+        Directory for saving output. If ``None``, matplotlib displays
+        interactively.
+    quality : str
+        Render quality: ``"low"``, ``"medium"`` (default), or ``"high"``.
+    figsize : tuple[int, int]
+        Figure size in inches. Default ``(8, 8)``.
+
+    Examples
+    --------
+    >>> from panchi import Vector
+    >>> from panchi.visualizations import Animator3D
+    >>>
+    >>> animator = Animator3D()
+    >>> animator.plot_vectors(Vector([3, 2, 1]), Vector([1, 3, 2]))
+    """
+
+    def __init__(
+        self,
+        backend: str = "matplotlib",
+        save_path: str | Path | None = None,
+        quality: str = "medium",
+        figsize: tuple[int, int] = (8, 8),
+        include_extra_files: bool = False,
+    ) -> None:
+        if backend == "manim":
+            raise NotImplementedError(
+                "3D manim backend is not yet implemented; use backend='matplotlib'."
+            )
+        if backend != "matplotlib":
+            raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib'.")
+
+        from panchi.visualizations.backends.matplotlib_3d import _MatplotlibBackend3D
+
+        self._backend = _MatplotlibBackend3D(
+            save_path=Path(save_path) if save_path else None,
+            quality=quality,
+            figsize=figsize,
+        )
+        self.backend = backend
+
+    def plot_vectors(
+        self,
+        *vectors: Vector,
+        colors: list[str] | None = None,
+        labels: list[str] | None = None,
+        grid: bool = True,
+        name: str | None = None,
+    ) -> None:
+        """Plot one or more 3D vectors.
+
+        Parameters
+        ----------
+        *vectors : Vector
+            3D vectors to plot.
+        colors : list[str], optional
+            Colors for each vector.
+        labels : list[str], optional
+            Labels for each vector.
+        grid : bool
+            Whether to show grid lines. Default ``True``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        """
+        self._validate_3d(*vectors)
+        self._backend.plot_vectors(
+            list(vectors),
+            colors=colors,
+            labels=labels,
+            grid=grid,
+            name=name or "plot_vectors",
+        )
+
+    @staticmethod
+    def _validate_3d(*vectors: Vector) -> None:
+        for v in vectors:
+            if v.dims != 3:
+                raise ValueError(
+                    f"Only 3D vectors are supported for Animator3D. "
+                    f"Got {v.dims}D vector: {v}"
+                )

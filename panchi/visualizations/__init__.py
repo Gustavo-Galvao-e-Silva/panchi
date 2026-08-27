@@ -29,6 +29,6 @@ Animate a linear transformation:
 >>> animator.animate_transform(Matrix([[0, -1], [1, 0]]))
 """
 
-from panchi.visualizations.animator import Animator2D
+from panchi.visualizations.animator import Animator2D, Animator3D
 
-__all__ = ["Animator2D"]
+__all__ = ["Animator2D", "Animator3D"]

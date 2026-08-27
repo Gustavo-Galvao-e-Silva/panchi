@@ -31,7 +31,7 @@ except ImportError:
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
-from panchi.visualizations.base import _BaseBackend
+from panchi.visualizations.backends.base import _BaseBackend
 
 DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE]
 
@@ -193,9 +193,7 @@ class _VectorScene(Scene):
         arrow = _arrow(self.axes, start, coords, color, stroke_width)
         label_mob = None
         if label is not None:
-            label_mob = _label(
-                label, color, arrow, label_dir or coords, label_scale
-            )
+            label_mob = _label(label, color, arrow, label_dir or coords, label_scale)
 
         if opacity != 1.0:
             arrow.set_opacity(opacity)
@@ -226,7 +224,7 @@ class _FunctionScene(_VectorScene):
         self._builder(self)
 
 
-class _ManimBackend(_BaseBackend):
+class _ManimBackend2D(_BaseBackend):
     """Manim-based 2D visualization backend."""
 
     def __init__(
@@ -306,7 +304,9 @@ class _ManimBackend(_BaseBackend):
             range_val = _axis_range((*v1c, *v2c, *result))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-            scene.add_vector(v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5)
+            scene.add_vector(
+                v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5
+            )
             scene.add_vector(
                 v2c, color_v2, r"v_2", stroke_width=7, run_time=1, opacity=0.3, wait=0.5
             )
@@ -462,9 +462,7 @@ class _ManimBackend(_BaseBackend):
                 )
             )
             label_e2.add_updater(
-                lambda m: m.next_to(
-                    arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2
-                )
+                lambda m: m.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
             )
 
             scene.play(
@@ -540,9 +538,7 @@ class _ManimBackend(_BaseBackend):
                 rect.move_to(scene.axes.c2p(0, 0))
                 scene.play(FadeIn(rect), run_time=0.8)
 
-            for vec, color, label in zip(
-                basis, color_list, label_list, strict=False
-            ):
+            for vec, color, label in zip(basis, color_list, label_list, strict=False):
                 scene.add_vector((vec[0], vec[1]), color, label)
 
             scene.wait(1.5)
