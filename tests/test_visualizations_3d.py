@@ -18,10 +18,11 @@ class TestAnimator3DInit:
         print(f"\n✓ Default backend → {animator.backend}")
         assert animator.backend == "matplotlib"
 
-    def test_manim_backend_not_implemented(self):
-        print("\n✓ manim backend → raises NotImplementedError")
-        with pytest.raises(NotImplementedError, match="not yet implemented"):
-            Animator3D(backend="manim")
+    def test_manim_backend_constructs(self):
+        pytest.importorskip("manim")
+        animator = Animator3D(backend="manim")
+        print(f"\n✓ manim backend → {animator.backend}")
+        assert animator.backend == "manim"
 
     def test_invalid_backend_raises_value_error(self):
         print("\n✓ Invalid backend → raises ValueError")

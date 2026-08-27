@@ -11,7 +11,7 @@ REQUIREMENTS:
 from pathlib import Path
 
 from panchi import Matrix, Vector, VectorSpace
-from panchi.visualizations import Animator2D
+from panchi.visualizations import Animator2D, Animator3D
 
 
 def check_manim():
@@ -95,6 +95,21 @@ def run_tests():
         space = VectorSpace([Vector([1, 0]), Vector([0, 1])])
         animator.plot_span(space, labels=[r"e_1", r"e_2"], name="span_r2")
         print("  OK: span rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Vector plotting (Animator3D)")
+    try:
+        animator_3d = Animator3D(backend="manim", save_path=output_dir)
+        animator_3d.plot_vectors(
+            Vector([3, 2, 1]),
+            Vector([-2, 3, 2]),
+            Vector([1, -1, 3]),
+            labels=[r"a", r"b", r"c"],
+            name="vectors_3d",
+        )
+        print("  OK: 3D vectors rendered")
     except Exception as e:
         print(f"  FAIL: {e}")
         return False

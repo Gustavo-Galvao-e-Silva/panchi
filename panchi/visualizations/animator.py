@@ -299,18 +299,15 @@ class Animator2D:
 class Animator3D:
     """3D visualization of vectors in R³.
 
-    Mirrors :class:`Animator2D` for three-dimensional vectors. Currently only
-    the matplotlib backend is available; ``backend="manim"`` is reserved for a
-    future release.
+    Mirrors :class:`Animator2D` for three-dimensional vectors.
 
     Parameters
     ----------
     backend : str
-        Visualization backend: ``"matplotlib"`` (default). ``"manim"`` is not
-        yet implemented for 3D.
+        Visualization backend: ``"matplotlib"`` (default) or ``"manim"``.
     save_path : str or Path, optional
         Directory for saving output. If ``None``, matplotlib displays
-        interactively.
+        interactively and manim saves to ``./media``.
     quality : str
         Render quality: ``"low"``, ``"medium"`` (default), or ``"high"``.
     figsize : tuple[int, int]
@@ -333,20 +330,31 @@ class Animator3D:
         figsize: tuple[int, int] = (8, 8),
         include_extra_files: bool = False,
     ) -> None:
-        if backend == "manim":
-            raise NotImplementedError(
-                "3D manim backend is not yet implemented; use backend='matplotlib'."
+        resolved_path = Path(save_path) if save_path else None
+
+        if backend == "matplotlib":
+            from panchi.visualizations.backends.matplotlib_3d import (
+                _MatplotlibBackend3D,
             )
-        if backend != "matplotlib":
-            raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib'.")
 
-        from panchi.visualizations.backends.matplotlib_3d import _MatplotlibBackend3D
+            self._backend = _MatplotlibBackend3D(
+                save_path=resolved_path,
+                quality=quality,
+                figsize=figsize,
+            )
+        elif backend == "manim":
+            from panchi.visualizations.backends.manim_3d import _ManimBackend3D
 
-        self._backend = _MatplotlibBackend3D(
-            save_path=Path(save_path) if save_path else None,
-            quality=quality,
-            figsize=figsize,
-        )
+            self._backend = _ManimBackend3D(
+                save_path=resolved_path or Path("./media"),
+                quality=quality,
+                include_extra_files=include_extra_files,
+            )
+        else:
+            raise ValueError(
+                f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'."
+            )
+
         self.backend = backend
 
     def plot_vectors(
