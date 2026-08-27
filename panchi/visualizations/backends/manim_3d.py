@@ -4,20 +4,27 @@ from manim import (
     DEGREES,
     Arrow3D,
     Create,
+    FadeIn,
     MathTex,
+    Polygon,
     ThreeDAxes,
     ThreeDScene,
+    Transform,
 )
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.manim_base import (
+    ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
+    PARALLELOGRAM_COLOR,
+    SCALING_COLORS,
     _axis_range,
     _BuilderSceneMixin,
     _ManimBackendBase,
+    _resolve_colors,
 )
 
 CAMERA_PHI = 70 * DEGREES
@@ -63,23 +70,29 @@ class _VectorScene3D(ThreeDScene):
         color,
         label: str | None = None,
         *,
+        start=(0, 0, 0),
+        opacity: float = 1.0,
         run_time: float = 0.8,
         wait: float = 0.0,
     ) -> tuple[Arrow3D, MathTex | None]:
-        """Draw a 3D arrow from the origin with an optional label near its tip.
+        """Draw a 3D arrow (optionally from a non-origin ``start``) with a label.
 
         The label is a fixed-orientation mobject: it sits just past the arrow
         tip in space but always faces the camera, so it stays legible under the
         tilted 3D view instead of lying flat in the world plane.
         """
         tip = self.axes.c2p(*coords)
-        arrow = Arrow3D(self.axes.c2p(0, 0, 0), tip, color=color)
+        arrow = Arrow3D(self.axes.c2p(*start), tip, color=color)
+        if opacity != 1.0:
+            arrow.set_opacity(opacity)
         self.play(Create(arrow), run_time=run_time)
 
         label_mob = None
         if label is not None:
             label_mob = MathTex(label, color=color).scale(0.9)
             label_mob.move_to(tip * 1.15)
+            if opacity != 1.0:
+                label_mob.set_opacity(opacity)
             self.add_fixed_orientation_mobjects(label_mob)
 
         if wait:
@@ -128,7 +141,36 @@ class _ManimBackend3D(_ManimBackendBase):
         name: str,
         colors: list[str] | None = None,
     ) -> None:
-        raise NotImplementedError("animate_addition is not yet implemented for 3D.")
+        color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
+
+        v1c = (v1[0], v1[1], v1[2])
+        v2c = (v2[0], v2[1], v2[2])
+        result = (v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2])
+
+        def build(scene: _VectorScene3D) -> None:
+            range_val = _axis_range((*v1c, *v2c, *result))
+            axis_range = (-range_val, range_val)
+            scene.setup_axes(axis_range, axis_range, axis_range)
+
+            scene.add_vector(v1c, color_v1, r"v_1", run_time=1, wait=0.4)
+            scene.add_vector(v2c, color_v2, r"v_2", opacity=0.35, run_time=1, wait=0.4)
+            scene.add_vector(result, color_v2, start=v1c, run_time=1.2, wait=0.4)
+
+            parallelogram = Polygon(
+                scene.axes.c2p(0, 0, 0),
+                scene.axes.c2p(*v1c),
+                scene.axes.c2p(*result),
+                scene.axes.c2p(*v2c),
+                color=PARALLELOGRAM_COLOR,
+                fill_opacity=0.15,
+                stroke_width=0,
+            )
+            scene.play(FadeIn(parallelogram), run_time=1)
+            scene.wait(0.3)
+
+            scene.add_vector(result, color_result, r"v_1 + v_2", run_time=1.5, wait=2)
+
+        self._render(name, build)
 
     def animate_scaling(
         self,
@@ -139,7 +181,41 @@ class _ManimBackend3D(_ManimBackendBase):
         name: str,
         colors: list[str] | None = None,
     ) -> None:
-        raise NotImplementedError("animate_scaling is not yet implemented for 3D.")
+        color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+
+        v_coords = (vector[0], vector[1], vector[2])
+        scaled_coords = (
+            vector[0] * scale_factor,
+            vector[1] * scale_factor,
+            vector[2] * scale_factor,
+        )
+
+        def build(scene: _VectorScene3D) -> None:
+            range_val = _axis_range((*v_coords, *scaled_coords))
+            axis_range = (-range_val, range_val)
+            scene.setup_axes(axis_range, axis_range, axis_range)
+
+            arrow, label = scene.add_vector(
+                v_coords, color_start, r"v", run_time=1, wait=0.5
+            )
+
+            scaled_arrow = Arrow3D(
+                scene.axes.c2p(0, 0, 0),
+                scene.axes.c2p(*scaled_coords),
+                color=color_end,
+            )
+            scaled_label = MathTex(f"{scale_factor} \\cdot v", color=color_end).scale(
+                0.9
+            )
+            scaled_label.move_to(scene.axes.c2p(*scaled_coords) * 1.15)
+
+            scene.play(Transform(arrow, scaled_arrow), run_time=2)
+            if label is not None:
+                scene.remove(label)
+            scene.add_fixed_orientation_mobjects(scaled_label)
+            scene.wait(1.5)
+
+        self._render(name, build)
 
     def animate_transform(
         self,

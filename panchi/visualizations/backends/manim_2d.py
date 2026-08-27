@@ -22,23 +22,20 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.manim_base import (
+    ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
+    GUIDE_COLOR,
+    MATRIX_HUD_COLOR,
+    PARALLELOGRAM_COLOR,
+    SCALING_COLORS,
+    SPAN_COLOR,
+    TRANSFORM_COLORS,
     _axis_range,
     _BuilderSceneMixin,
     _ManimBackendBase,
     _resolve_colors,
 )
-
-# Per-method default color roles, overridable via ``colors=`` / ``span_color=``.
-ADDITION_COLORS = (manim.RED, manim.ORANGE, manim.GREEN)  # v1, v2, result
-SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
-TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
-SPAN_COLOR = manim.PURPLE
-
-GUIDE_COLOR = manim.GREY
-PARALLELOGRAM_COLOR = manim.BLUE_E
-MATRIX_HUD_COLOR = manim.YELLOW
 
 _EPSILON = 1e-12
 

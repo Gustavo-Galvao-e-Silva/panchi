@@ -114,6 +114,26 @@ def run_tests():
         print(f"  FAIL: {e}")
         return False
 
+    print("\n[3D] Vector addition (Animator3D)")
+    try:
+        animator_3d.animate_addition(
+            Vector([2, 1, 0]), Vector([1, 2, 2]), name="addition_3d"
+        )
+        print("  OK: 3D addition rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Vector scaling (Animator3D)")
+    try:
+        animator_3d.animate_scaling(
+            Vector([1, 2, 1]), scale_factor=2.0, name="scaling_3d"
+        )
+        print("  OK: 3D scaling rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
     return True
 
 
@@ -126,8 +146,8 @@ def main():
     if not check_manim():
         return
 
-    print("\nThis will render 7 videos to ./manim_test_output/")
-    print("Estimated time: ~5-10 minutes\n")
+    print("\nThis will render 10 videos to ./manim_test_output/")
+    print("Estimated time: ~7-15 minutes\n")
 
     response = input("Continue? [y/N]: ").strip().lower()
     if response not in ("y", "yes"):

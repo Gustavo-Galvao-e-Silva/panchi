@@ -16,7 +16,17 @@ from panchi.visualizations.backends.base import _BaseBackend
 
 DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE]
 
+# Per-method default color roles, shared across dimensions. Overridable via
+# ``colors=`` / ``span_color=``.
+ADDITION_COLORS = (manim.RED, manim.ORANGE, manim.GREEN)  # v1, v2, result
+SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
+TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
+SPAN_COLOR = manim.PURPLE
+
 AXIS_COLOR = manim.GREY_B
+GUIDE_COLOR = manim.GREY
+PARALLELOGRAM_COLOR = manim.BLUE_E
+MATRIX_HUD_COLOR = manim.YELLOW
 
 AXIS_PADDING = 1.4
 
