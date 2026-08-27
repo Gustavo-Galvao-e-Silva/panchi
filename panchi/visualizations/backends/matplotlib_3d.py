@@ -17,7 +17,9 @@ from panchi.visualizations.backends.matplotlib_base import (
     DEFAULT_COLORS,
     GRID_COLOR,
     SCALING_COLORS,
+    SPAN_COLOR,
     TRANSFORM_COLORS_3D,
+    _EPSILON,
     _MatplotlibBackendBase,
     _calculate_axis_range,
     _resolve_colors,
@@ -48,6 +50,19 @@ def _setup_coordinate_space_3d(
     ax.plot([0, 0], [0, 0], [lo, hi], color=AXIS_LINE_COLOR, linewidth=1, alpha=0.7)
 
     ax.grid(grid)
+
+
+def _span_annotation(ax, text: str) -> None:
+    """Label the span dimension as a fixed 2D overlay (doesn't tumble with the view)."""
+    ax.text2D(
+        0.02,
+        0.98,
+        text,
+        transform=ax.transAxes,
+        va="top",
+        fontsize=11,
+        color=HUD_COLOR,
+    )
 
 
 def _draw_arrow_3d(ax, start, disp, color, linewidth: float = 2.5):
@@ -334,4 +349,75 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         name: str,
         span_color: str | None = None,
     ) -> None:
-        raise NotImplementedError("plot_span is not yet implemented for 3D.")
+        basis = space.basis
+        dim = space.dims
+        span_color = span_color or SPAN_COLOR
+
+        fig = plt.figure(figsize=self.figsize)
+        ax = fig.add_subplot(projection="3d")
+
+        if dim == 0:
+            _setup_coordinate_space_3d(ax, (-3, 3), grid)
+            ax.scatter([0], [0], [0], color="black", s=40, zorder=5)
+            _span_annotation(ax, "span = {0}")
+            self._finalize_figure(fig, name)
+            return
+
+        axis_range = _calculate_axis_range(basis)
+        _setup_coordinate_space_3d(ax, axis_range, grid)
+        hi = axis_range[1]
+
+        if dim == 1:
+            b = basis[0]
+            scale = hi / max(abs(b[0]), abs(b[1]), abs(b[2]), _EPSILON) * 1.4
+            ax.plot(
+                [-b[0] * scale, b[0] * scale],
+                [-b[1] * scale, b[1] * scale],
+                [-b[2] * scale, b[2] * scale],
+                color=span_color,
+                linewidth=3,
+                alpha=0.55,
+            )
+            span_label = "span = line"
+        elif dim == 2:
+            b1, b2 = basis[0], basis[1]
+            max_comp = max(abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2]))
+            f = hi / max(max_comp, _EPSILON) * 1.3
+
+            def corner(sa, sb):
+                return tuple(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
+
+            patch = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)]
+            ax.add_collection3d(
+                Poly3DCollection([patch], facecolor=span_color, alpha=0.22)
+            )
+            span_label = "span = plane"
+        else:  # dim == 3
+            h = hi * 0.7
+            verts = [tuple((2 * c - 1) * h for c in v) for v in CUBE_VERTS]
+            segments = [[verts[i], verts[j]] for i, j in CUBE_EDGES]
+            ax.add_collection3d(
+                Line3DCollection(segments, colors=span_color, alpha=0.4, linewidths=1.2)
+            )
+            span_label = "span = R³"
+
+        _span_annotation(ax, span_label)
+
+        if colors is None:
+            colors = DEFAULT_COLORS[: len(basis)]
+        if labels is None:
+            labels = [f"b{i + 1}" for i in range(len(basis))]
+
+        for vec, color, label in zip(basis, colors, labels, strict=False):
+            _draw_arrow_3d(ax, (0, 0, 0), (vec[0], vec[1], vec[2]), color, linewidth=3)
+            ax.text(
+                vec[0] * 1.05,
+                vec[1] * 1.05,
+                vec[2] * 1.05,
+                label,
+                color=color,
+                fontsize=12,
+                fontweight="bold",
+            )
+
+        self._finalize_figure(fig, name)

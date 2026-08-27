@@ -5,6 +5,7 @@ from manim import (
     DEGREES,
     Arrow3D,
     Create,
+    Dot3D,
     FadeIn,
     Line3D,
     MathTex,
@@ -32,9 +33,11 @@ from panchi.visualizations.backends.manim_base import (
     MATRIX_HUD_COLOR,
     PARALLELOGRAM_COLOR,
     SCALING_COLORS,
+    SPAN_COLOR,
     TRANSFORM_COLORS_3D,
     _axis_range,
     _BuilderSceneMixin,
+    _EPSILON,
     _ManimBackendBase,
     _resolve_colors,
 )
@@ -312,4 +315,74 @@ class _ManimBackend3D(_ManimBackendBase):
         name: str,
         span_color: str | None = None,
     ) -> None:
-        raise NotImplementedError("plot_span is not yet implemented for 3D.")
+        basis = space.basis
+        dim = space.dims
+        color_list = colors or DEFAULT_COLORS[: len(basis)]
+        label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
+        span_color = span_color or SPAN_COLOR
+
+        def build(scene: _VectorScene3D) -> None:
+            if dim == 0:
+                scene.setup_axes((-3, 3), (-3, 3), (-3, 3))
+                dot = Dot3D(scene.axes.c2p(0, 0, 0), color=manim.WHITE)
+                scene.play(Create(dot))
+                scene.wait(1)
+                return
+
+            range_val = _axis_range(c for v in basis for c in (v[0], v[1], v[2]))
+            axis_range = (-range_val, range_val)
+            scene.setup_axes(axis_range, axis_range, axis_range)
+
+            if dim == 1:
+                b = basis[0]
+                scale = range_val / max(abs(b[0]), abs(b[1]), abs(b[2]), _EPSILON) * 1.4
+                line = Line3D(
+                    scene.axes.c2p(-b[0] * scale, -b[1] * scale, -b[2] * scale),
+                    scene.axes.c2p(b[0] * scale, b[1] * scale, b[2] * scale),
+                    color=span_color,
+                )
+                scene.play(Create(line))
+            elif dim == 2:
+                b1, b2 = basis[0], basis[1]
+                max_comp = max(
+                    abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2])
+                )
+                f = range_val / max(max_comp, _EPSILON) * 1.3
+
+                def corner(sa, sb):
+                    return scene.axes.c2p(
+                        *(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
+                    )
+
+                plane = Polygon(
+                    corner(-1, -1),
+                    corner(1, -1),
+                    corner(1, 1),
+                    corner(-1, 1),
+                    color=span_color,
+                    fill_opacity=0.25,
+                    stroke_opacity=0.4,
+                )
+                scene.play(FadeIn(plane))
+            else:  # dim == 3
+                h = range_val * 0.7
+                verts = [tuple((2 * c - 1) * h for c in v) for v in CUBE_VERTS]
+                edges = VGroup(
+                    *[
+                        Line3D(
+                            scene.axes.c2p(*verts[i]),
+                            scene.axes.c2p(*verts[j]),
+                            color=span_color,
+                            thickness=0.01,
+                        )
+                        for i, j in CUBE_EDGES
+                    ]
+                )
+                scene.play(Create(edges))
+
+            for vec, color, label in zip(basis, color_list, label_list, strict=False):
+                scene.add_vector((vec[0], vec[1], vec[2]), color, label)
+
+            scene.wait(1.5)
+
+        self._render(name, build)

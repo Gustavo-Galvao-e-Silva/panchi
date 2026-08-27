@@ -144,6 +144,19 @@ def run_tests():
         print(f"  FAIL: {e}")
         return False
 
+    print("\n[3D] Span visualization (Animator3D)")
+    try:
+        animator_3d.plot_span(
+            Vector([1, 0, 0]),
+            Vector([0, 1, 1]),
+            labels=[r"b_1", r"b_2"],
+            name="span_3d",
+        )
+        print("  OK: 3D span rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
     return True
 
 
@@ -156,7 +169,7 @@ def main():
     if not check_manim():
         return
 
-    print("\nThis will render 11 videos to ./manim_test_output/")
+    print("\nThis will render 12 videos to ./manim_test_output/")
     print("Estimated time: ~7-15 minutes\n")
 
     response = input("Continue? [y/N]: ").strip().lower()

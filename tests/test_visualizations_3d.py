@@ -4,7 +4,7 @@ matplotlib.use("Agg")
 
 import pytest
 
-from panchi import Matrix, Vector
+from panchi import Matrix, Vector, VectorSpace
 from panchi.visualizations import Animator3D
 
 # ==================== ANIMATOR3D INITIALIZATION ====================
@@ -156,6 +156,55 @@ class TestAnimations3D:
         print("\n✓ Non-3x3 matrix → animate_transform raises ValueError")
         with pytest.raises(ValueError, match="Only 3x3 matrices"):
             animator.animate_transform(Matrix([[1, 0], [0, 1]]), frames=6)
+
+
+class TestPlotSpan3D:
+    """Test cases for Animator3D.plot_span (matplotlib backend)."""
+
+    def test_span_line(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span(Vector([1, 1, 1]))
+        print("\n✓ 3D span (line) saved")
+        assert (tmp_path / "plot_span.png").exists()
+
+    def test_span_plane(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span(Vector([1, 0, 0]), Vector([0, 1, 1]), name="plane")
+        print("\n✓ 3D span (plane) saved")
+        assert (tmp_path / "plane.png").exists()
+
+    def test_span_full_space(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span(
+            Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1]), name="r3"
+        )
+        print("\n✓ 3D span (R³) saved")
+        assert (tmp_path / "r3.png").exists()
+
+    def test_span_origin(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span(VectorSpace([Vector([0, 0, 0])]), name="origin")
+        print("\n✓ 3D span (origin) saved")
+        assert (tmp_path / "origin.png").exists()
+
+    def test_span_vectorspace_input(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        space = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        animator.plot_span(space, labels=["u", "w"], span_color="#805B49")
+        print("\n✓ 3D span (VectorSpace input) saved")
+        assert (tmp_path / "plot_span.png").exists()
+
+    def test_span_rejects_2d(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        print("\n✓ 2D vector → plot_span raises ValueError")
+        with pytest.raises(ValueError, match="Only 3D vectors"):
+            animator.plot_span(Vector([1, 2]))
+
+    def test_span_type_error(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        print("\n✓ non-Vector → plot_span raises TypeError")
+        with pytest.raises(TypeError, match="Expected Vector or VectorSpace"):
+            animator.plot_span("not a vector")
 
 
 class TestValidate3D:

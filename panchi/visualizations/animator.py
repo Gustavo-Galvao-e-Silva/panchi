@@ -34,6 +34,31 @@ def _build_backend(
     raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'.")
 
 
+def _resolve_span_input(
+    args: tuple[Vector | VectorSpace, ...],
+) -> tuple[list[Vector], VectorSpace]:
+    """Resolve ``plot_span`` varargs into ``(vectors, VectorSpace)``.
+
+    Accepts either a single ``VectorSpace`` or one or more ``Vector`` objects.
+    """
+    if len(args) == 1 and isinstance(args[0], VectorSpace):
+        space = args[0]
+        return list(space.data), space
+
+    vectors = []
+    for arg in args:
+        if not isinstance(arg, Vector):
+            raise TypeError(
+                f"Expected Vector or VectorSpace, got {type(arg).__name__}."
+            )
+        vectors.append(arg)
+
+    if not vectors:
+        raise ValueError("At least one Vector or VectorSpace is required.")
+
+    return vectors, VectorSpace(vectors)
+
+
 class Animator2D:
     """2D visualization of vectors, matrices, and linear transformations.
 
@@ -246,7 +271,7 @@ class Animator2D:
         span_color : str, optional
             Color of the shaded span region. ``None`` uses the default.
         """
-        vectors, space = self._resolve_span_input(vectors_or_space)
+        vectors, space = _resolve_span_input(vectors_or_space)
         self._validate_2d(*vectors)
         self._backend.plot_span(
             space,
@@ -273,27 +298,6 @@ class Animator2D:
                 f"Only 2x2 matrices are supported for transformation "
                 f"visualization. Got shape {matrix.rows}x{matrix.cols}."
             )
-
-    @staticmethod
-    def _resolve_span_input(
-        args: tuple[Vector | VectorSpace, ...],
-    ) -> tuple[list[Vector], VectorSpace]:
-        if len(args) == 1 and isinstance(args[0], VectorSpace):
-            space = args[0]
-            return list(space.data), space
-
-        vectors = []
-        for arg in args:
-            if not isinstance(arg, Vector):
-                raise TypeError(
-                    f"Expected Vector or VectorSpace, got {type(arg).__name__}."
-                )
-            vectors.append(arg)
-
-        if not vectors:
-            raise ValueError("At least one Vector or VectorSpace is required.")
-
-        return vectors, VectorSpace(vectors)
 
 
 class Animator3D:
@@ -498,6 +502,47 @@ class Animator3D:
             interval=interval,
             name=name or "animate_transform",
             colors=colors,
+        )
+
+    def plot_span(
+        self,
+        *vectors_or_space: Vector | VectorSpace,
+        colors: list[str] | None = None,
+        labels: list[str] | None = None,
+        grid: bool = True,
+        name: str | None = None,
+        span_color: str | None = None,
+    ) -> None:
+        """Visualize the span of 3D vectors with a shaded region and basis arrows.
+
+        Accepts either a ``VectorSpace`` or one or more ``Vector`` objects.
+        A 1D subspace is drawn as a line through the origin, a 2D subspace as a
+        plane patch, and a 3D subspace as a translucent volume (all of R³).
+
+        Parameters
+        ----------
+        *vectors_or_space : Vector or VectorSpace
+            A single ``VectorSpace``, or one or more 3D ``Vector`` objects.
+        colors : list[str], optional
+            Colors for the basis vectors.
+        labels : list[str], optional
+            Labels for the basis vectors.
+        grid : bool
+            Whether to show grid lines. Default ``True``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        span_color : str, optional
+            Color of the shaded span region. ``None`` uses the default.
+        """
+        vectors, space = _resolve_span_input(vectors_or_space)
+        self._validate_3d(*vectors)
+        self._backend.plot_span(
+            space,
+            colors=colors,
+            labels=labels,
+            grid=grid,
+            name=name or "plot_span",
+            span_color=span_color,
         )
 
     @staticmethod

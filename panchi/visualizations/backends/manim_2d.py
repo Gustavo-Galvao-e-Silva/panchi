@@ -33,11 +33,10 @@ from panchi.visualizations.backends.manim_base import (
     TRANSFORM_COLORS,
     _axis_range,
     _BuilderSceneMixin,
+    _EPSILON,
     _ManimBackendBase,
     _resolve_colors,
 )
-
-_EPSILON = 1e-12
 
 _USABLE_WIDTH = 12.0
 _USABLE_HEIGHT = 6.8

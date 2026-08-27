@@ -30,6 +30,7 @@ PARALLELOGRAM_COLOR = manim.BLUE_E
 MATRIX_HUD_COLOR = manim.YELLOW
 
 AXIS_PADDING = 1.4
+_EPSILON = 1e-12
 
 _QUALITY_MAP = {
     "low": "low_quality",
