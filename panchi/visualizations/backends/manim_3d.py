@@ -1,26 +1,38 @@
 from __future__ import annotations
 
+import manim
 from manim import (
     DEGREES,
     Arrow3D,
     Create,
     FadeIn,
+    Line3D,
     MathTex,
     Polygon,
     ThreeDAxes,
     ThreeDScene,
     Transform,
+    VGroup,
+    Write,
 )
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.backends.geometry import (
+    CUBE_EDGES,
+    CUBE_VERTS,
+    apply_3x3,
+)
 from panchi.visualizations.backends.manim_base import (
     ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
+    GUIDE_COLOR,
+    MATRIX_HUD_COLOR,
     PARALLELOGRAM_COLOR,
     SCALING_COLORS,
+    TRANSFORM_COLORS_3D,
     _axis_range,
     _BuilderSceneMixin,
     _ManimBackendBase,
@@ -225,7 +237,71 @@ class _ManimBackend3D(_ManimBackendBase):
         name: str,
         colors: list[str] | None = None,
     ) -> None:
-        raise NotImplementedError("animate_transform is not yet implemented for 3D.")
+        basis_colors = _resolve_colors(colors, TRANSFORM_COLORS_3D)
+        target = [[float(matrix[i][j]) for j in range(3)] for i in range(3)]
+        basis = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+
+        def build(scene: _VectorScene3D) -> None:
+            image = [apply_3x3(target, v) for v in CUBE_VERTS]
+            coords = [c for corner in image for c in corner]
+            range_val = max(_axis_range(coords) if coords else 2, 2)
+            axis_range = (-range_val, range_val)
+            scene.setup_axes(axis_range, axis_range, axis_range)
+
+            matrix_tex = MathTex(
+                r"\begin{bmatrix}"
+                + r"\\".join(
+                    " & ".join(f"{target[i][j]:.2g}" for j in range(3))
+                    for i in range(3)
+                )
+                + r"\end{bmatrix}",
+                color=MATRIX_HUD_COLOR,
+            ).scale(0.7)
+            matrix_tex.to_corner(manim.UR, buff=0.4)
+            scene.add_fixed_in_frame_mobjects(matrix_tex)
+            scene.play(Write(matrix_tex), run_time=0.6)
+
+            def cube_group(m):
+                group = VGroup()
+                for i, j in CUBE_EDGES:
+                    p1 = apply_3x3(m, CUBE_VERTS[i])
+                    p2 = apply_3x3(m, CUBE_VERTS[j])
+                    group.add(
+                        Line3D(
+                            scene.axes.c2p(*p1),
+                            scene.axes.c2p(*p2),
+                            color=GUIDE_COLOR,
+                            thickness=0.015,
+                        )
+                    )
+                return group
+
+            identity = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+            cube = cube_group(identity)
+            arrows = [
+                Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*b), color=color)
+                for b, color in zip(basis, basis_colors)
+            ]
+            scene.play(Create(cube), *[Create(a) for a in arrows], run_time=1.2)
+            scene.wait(0.4)
+
+            cube_target = cube_group(target)
+            arrow_targets = [
+                Arrow3D(
+                    scene.axes.c2p(0, 0, 0),
+                    scene.axes.c2p(*apply_3x3(target, b)),
+                    color=color,
+                )
+                for b, color in zip(basis, basis_colors)
+            ]
+            scene.play(
+                Transform(cube, cube_target),
+                *[Transform(a, at) for a, at in zip(arrows, arrow_targets)],
+                run_time=3,
+            )
+            scene.wait(2)
+
+        self._render(name, build)
 
     def plot_span(
         self,

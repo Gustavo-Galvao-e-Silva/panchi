@@ -4,7 +4,7 @@ matplotlib.use("Agg")
 
 import pytest
 
-from panchi import Vector
+from panchi import Matrix, Vector
 from panchi.visualizations import Animator3D
 
 # ==================== ANIMATOR3D INITIALIZATION ====================
@@ -130,6 +130,32 @@ class TestAnimations3D:
         print("\n✓ 2D vector → animate_scaling raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
             animator.animate_scaling(Vector([1, 2]), 2.0, frames=6)
+
+    def test_animate_transform(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[1, 0.5, 0], [0, 1, 0.5], [0.3, 0, 1]]), frames=6, interval=50
+        )
+        print("\n✓ 3D transform gif saved")
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    def test_animate_transform_custom_colors_and_name(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[2, 0, 0], [0, 1, 0], [0, 0, 1]]),
+            frames=6,
+            interval=50,
+            colors=["#805B49", "#FFB592", "#45423F"],
+            name="my_xf",
+        )
+        print("\n✓ 3D transform custom colors/name saved")
+        assert (tmp_path / "my_xf.gif").exists()
+
+    def test_animate_transform_rejects_non_3x3(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        print("\n✓ Non-3x3 matrix → animate_transform raises ValueError")
+        with pytest.raises(ValueError, match="Only 3x3 matrices"):
+            animator.animate_transform(Matrix([[1, 0], [0, 1]]), frames=6)
 
 
 class TestValidate3D:

@@ -134,6 +134,16 @@ def run_tests():
         print(f"  FAIL: {e}")
         return False
 
+    print("\n[3D] Linear transformation (Animator3D)")
+    try:
+        animator_3d.animate_transform(
+            Matrix([[1, 0.5, 0], [0, 1, 0.5], [0.3, 0, 1]]), name="transform_3d"
+        )
+        print("  OK: 3D transform rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
     return True
 
 
@@ -146,7 +156,7 @@ def main():
     if not check_manim():
         return
 
-    print("\nThis will render 10 videos to ./manim_test_output/")
+    print("\nThis will render 11 videos to ./manim_test_output/")
     print("Estimated time: ~7-15 minutes\n")
 
     response = input("Continue? [y/N]: ").strip().lower()

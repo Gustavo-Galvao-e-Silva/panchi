@@ -463,6 +463,43 @@ class Animator3D:
             colors=colors,
         )
 
+    def animate_transform(
+        self,
+        matrix: Matrix,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+        colors: list[str] | None = None,
+    ) -> None:
+        """Animate a 3x3 linear transformation of R³.
+
+        Shows the standard basis vectors and the unit cube morphing smoothly
+        from the identity to the given matrix; the cube's image is the
+        parallelepiped spanned by the matrix columns.
+
+        Parameters
+        ----------
+        matrix : Matrix
+            A 3x3 transformation matrix.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to three colors for the basis arrows ``[e1, e2, e3]``. Any
+            omitted role keeps its default. ``None`` uses the default palette.
+        """
+        self._validate_3x3(matrix)
+        self._backend.animate_transform(
+            matrix,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_transform",
+            colors=colors,
+        )
+
     @staticmethod
     def _validate_3d(*vectors: Vector) -> None:
         for v in vectors:
@@ -471,3 +508,11 @@ class Animator3D:
                     f"Only 3D vectors are supported for Animator3D. "
                     f"Got {v.dims}D vector: {v}"
                 )
+
+    @staticmethod
+    def _validate_3x3(matrix: Matrix) -> None:
+        if matrix.shape != (3, 3):
+            raise ValueError(
+                f"Only 3x3 matrices are supported for transformation "
+                f"visualization. Got shape {matrix.rows}x{matrix.cols}."
+            )

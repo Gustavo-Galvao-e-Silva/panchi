@@ -20,7 +20,8 @@ DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE
 # ``colors=`` / ``span_color=``.
 ADDITION_COLORS = (manim.RED, manim.ORANGE, manim.GREEN)  # v1, v2, result
 SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
-TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
+TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2 (2D)
+TRANSFORM_COLORS_3D = (manim.RED, manim.BLUE, manim.GREEN)  # e1, e2, e3 (3D)
 SPAN_COLOR = manim.PURPLE
 
 AXIS_COLOR = manim.GREY_B

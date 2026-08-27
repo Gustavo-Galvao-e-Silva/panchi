@@ -2,21 +2,30 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d  # noqa: F401  (registers the "3d" projection)
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.backends.geometry import (
+    CUBE_EDGES,
+    CUBE_VERTS,
+    apply_3x3,
+)
 from panchi.visualizations.backends.matplotlib_base import (
     ADDITION_COLORS,
     DEFAULT_COLORS,
+    GRID_COLOR,
     SCALING_COLORS,
+    TRANSFORM_COLORS_3D,
     _MatplotlibBackendBase,
     _calculate_axis_range,
     _resolve_colors,
+    _smooth_step,
 )
 
 AXIS_LINE_COLOR = "#666666"
+HUD_COLOR = "#333333"
 
 
 def _setup_coordinate_space_3d(
@@ -251,7 +260,70 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         name: str,
         colors: list[str] | None = None,
     ) -> None:
-        raise NotImplementedError("animate_transform is not yet implemented for 3D.")
+        basis_colors = _resolve_colors(colors, TRANSFORM_COLORS_3D)
+        target = [[float(matrix[i][j]) for j in range(3)] for i in range(3)]
+
+        fig = plt.figure(figsize=self.figsize)
+        ax = fig.add_subplot(projection="3d")
+
+        image = [apply_3x3(target, v) for v in CUBE_VERTS]
+        coords = [c for corner in image for c in corner]
+        rng = max(max((abs(c) for c in coords), default=1.0) * 1.3, 1.5)
+        _setup_coordinate_space_3d(ax, (-rng, rng), grid=False)
+
+        def cube_segments(m):
+            pts = [apply_3x3(m, v) for v in CUBE_VERTS]
+            return [[pts[i], pts[j]] for i, j in CUBE_EDGES]
+
+        identity = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        cube = Line3DCollection(
+            cube_segments(identity),
+            colors=GRID_COLOR,
+            linewidths=1.4,
+            alpha=0.8,
+        )
+        ax.add_collection3d(cube)
+
+        matrix_text = "\n".join(
+            "[" + "  ".join(f"{target[i][j]:+.2g}" for j in range(3)) + "]"
+            for i in range(3)
+        )
+        ax.text2D(
+            0.02,
+            0.98,
+            matrix_text,
+            transform=ax.transAxes,
+            va="top",
+            family="monospace",
+            fontsize=11,
+            color=HUD_COLOR,
+        )
+
+        basis = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+        state = {"arrows": []}
+
+        def animate_frame(frame: int) -> tuple:
+            t = _smooth_step(frame / frames)
+            current = [
+                [
+                    (1.0 if i == j else 0.0) * (1 - t) + target[i][j] * t
+                    for j in range(3)
+                ]
+                for i in range(3)
+            ]
+
+            cube.set_segments(cube_segments(current))
+
+            for arrow in state["arrows"]:
+                arrow.remove()
+            state["arrows"] = [
+                _draw_arrow_3d(ax, (0, 0, 0), apply_3x3(current, b), color, linewidth=3)
+                for b, color in zip(basis, basis_colors)
+            ]
+
+            return ()
+
+        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
 
     def plot_span(
         self,

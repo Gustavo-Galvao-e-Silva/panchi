@@ -18,6 +18,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _MatplotlibBackendBase,
     _calculate_axis_range,
     _resolve_colors,
+    _smooth_step,
 )
 
 
@@ -79,10 +80,6 @@ def _add_vector_label(
         ha="center",
         va="center",
     )
-
-
-def _smooth_step(t: float) -> float:
-    return t * t * (3 - 2 * t)
 
 
 class _MatplotlibBackend2D(_MatplotlibBackendBase):

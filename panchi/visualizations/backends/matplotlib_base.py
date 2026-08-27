@@ -14,7 +14,8 @@ DEFAULT_COLORS = ["#E63946", "#F77F00", "#06FFA5", "#118AB2", "#073B4C"]
 # passing ``colors=`` (animations) or ``span_color=`` (spans) to the method.
 ADDITION_COLORS = ("#E63946", "#F77F00", "#06FFA5")  # v1, v2, result
 SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
-TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2
+TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2 (2D)
+TRANSFORM_COLORS_3D = ("#E63946", "#118AB2", "#06FFA5")  # e1, e2, e3 (3D)
 SPAN_COLOR = "#7C3AED"
 
 GRID_COLOR = "#CCCCCC"
@@ -46,6 +47,10 @@ def _calculate_axis_range(vectors: list[Vector]) -> tuple[float, float]:
     max_coord = max((abs(c) for c in coords), default=0.0) * AXIS_PADDING
     max_coord = max(max_coord, MIN_AXIS_RANGE)
     return (-max_coord, max_coord)
+
+
+def _smooth_step(t: float) -> float:
+    return t * t * (3 - 2 * t)
 
 
 class _MatplotlibBackendBase(_BaseBackend):
