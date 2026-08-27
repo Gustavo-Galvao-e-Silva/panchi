@@ -8,20 +8,17 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.matplotlib_base import (
+    ADDITION_COLORS,
     DEFAULT_COLORS,
     GRID_COLOR,
+    SCALING_COLORS,
+    SPAN_COLOR,
+    TRANSFORM_COLORS,
     _EPSILON,
     _MatplotlibBackendBase,
     _calculate_axis_range,
     _resolve_colors,
 )
-
-# Per-method default color roles. Any of these can be overridden by passing
-# ``colors=`` (animations) or ``span_color=`` (spans) to the matching method.
-ADDITION_COLORS = ("#E63946", "#F77F00", "#06FFA5")  # v1, v2, result
-SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
-TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2
-SPAN_COLOR = "#7C3AED"
 
 
 def _setup_coordinate_plane(

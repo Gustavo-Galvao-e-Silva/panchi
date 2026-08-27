@@ -82,6 +82,56 @@ class TestPlotVectors3D:
 # ==================== DIMENSION VALIDATION ====================
 
 
+class TestAnimations3D:
+    """Test cases for Animator3D 3D animations (matplotlib backend)."""
+
+    def test_animate_scaling(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_scaling(Vector([1, 2, 1]), 2.0, frames=6, interval=50)
+        print("\n✓ 3D scaling gif saved")
+        assert (tmp_path / "animate_scaling.png").exists() is False
+        assert (tmp_path / "animate_scaling.gif").exists()
+
+    def test_animate_scaling_negative(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_scaling(Vector([1, 0, 2]), -1.5, frames=6, interval=50)
+        print("\n✓ 3D negative scaling gif saved")
+        assert (tmp_path / "animate_scaling.gif").exists()
+
+    def test_animate_addition(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_addition(
+            Vector([2, 1, 0]), Vector([1, 2, 2]), frames=6, interval=50
+        )
+        print("\n✓ 3D addition gif saved")
+        assert (tmp_path / "animate_addition.gif").exists()
+
+    def test_animate_custom_colors_and_name(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_addition(
+            Vector([2, 1, 0]),
+            Vector([1, 2, 2]),
+            frames=6,
+            interval=50,
+            colors=["#805B49", "#FFB592"],
+            name="my_add",
+        )
+        print("\n✓ 3D addition custom colors/name saved")
+        assert (tmp_path / "my_add.gif").exists()
+
+    def test_animate_addition_rejects_2d(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        print("\n✓ 2D vectors → animate_addition raises ValueError")
+        with pytest.raises(ValueError, match="Only 3D vectors"):
+            animator.animate_addition(Vector([1, 2]), Vector([3, 4]), frames=6)
+
+    def test_animate_scaling_rejects_2d(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        print("\n✓ 2D vector → animate_scaling raises ValueError")
+        with pytest.raises(ValueError, match="Only 3D vectors"):
+            animator.animate_scaling(Vector([1, 2]), 2.0, frames=6)
+
+
 class TestValidate3D:
     """Test cases for Animator3D._validate_3d."""
 

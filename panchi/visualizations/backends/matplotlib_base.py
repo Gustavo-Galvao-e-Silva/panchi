@@ -10,6 +10,13 @@ from panchi.visualizations.backends.base import _BaseBackend
 
 DEFAULT_COLORS = ["#E63946", "#F77F00", "#06FFA5", "#118AB2", "#073B4C"]
 
+# Per-method default color roles, shared across dimensions. Overridable by
+# passing ``colors=`` (animations) or ``span_color=`` (spans) to the method.
+ADDITION_COLORS = ("#E63946", "#F77F00", "#06FFA5")  # v1, v2, result
+SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
+TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2
+SPAN_COLOR = "#7C3AED"
+
 GRID_COLOR = "#CCCCCC"
 
 AXIS_PADDING = 1.3
@@ -75,11 +82,14 @@ class _MatplotlibBackendBase(_BaseBackend):
         frames: int,
         interval: int,
         name: str,
+        blit: bool = True,
     ) -> None:
-        """Build a blitting ``FuncAnimation`` from ``frame_fn`` and finalize it.
+        """Build a ``FuncAnimation`` from ``frame_fn`` and finalize it.
 
         Short pauses hold the first and last frames, so each loop opens on the
-        static setup and settles on the result before restarting.
+        static setup and settles on the result before restarting. ``blit``
+        defaults to ``True`` (2D); the 3D backend passes ``blit=False`` because
+        mplot3d artists do not support blitting.
         """
         pause = max(1, round(PAUSE_SECONDS * 1000 / interval))
         last = frames - 1
@@ -92,7 +102,7 @@ class _MatplotlibBackendBase(_BaseBackend):
             with_pauses,
             frames=frames + 2 * pause,
             interval=interval,
-            blit=True,
+            blit=blit,
             repeat=True,
         )
         self._finalize_animation(anim, name, interval)

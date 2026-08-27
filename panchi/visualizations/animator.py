@@ -389,6 +389,80 @@ class Animator3D:
             name=name or "plot_vectors",
         )
 
+    def animate_addition(
+        self,
+        v1: Vector,
+        v2: Vector,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+        colors: list[str] | None = None,
+    ) -> None:
+        """Animate the addition of two 3D vectors.
+
+        Parameters
+        ----------
+        v1 : Vector
+            First vector.
+        v2 : Vector
+            Second vector.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to three colors for ``[v1, v2, v1 + v2]``. Any omitted role
+            keeps its default. ``None`` uses the default palette.
+        """
+        self._validate_3d(v1, v2)
+        self._backend.animate_addition(
+            v1,
+            v2,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_addition",
+            colors=colors,
+        )
+
+    def animate_scaling(
+        self,
+        vector: Vector,
+        scale_factor: float,
+        frames: int = 60,
+        interval: int = 30,
+        name: str | None = None,
+        colors: list[str] | None = None,
+    ) -> None:
+        """Animate scalar multiplication of a 3D vector.
+
+        Parameters
+        ----------
+        vector : Vector
+            Vector to scale.
+        scale_factor : float
+            Scaling factor.
+        frames : int
+            Number of animation frames. Default ``60``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        colors : list[str], optional
+            Up to two colors for ``[original, scaled]``. Any omitted role
+            keeps its default. ``None`` uses the default palette.
+        """
+        self._validate_3d(vector)
+        self._backend.animate_scaling(
+            vector,
+            scale_factor,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_scaling",
+            colors=colors,
+        )
+
     @staticmethod
     def _validate_3d(*vectors: Vector) -> None:
         for v in vectors:
