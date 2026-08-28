@@ -70,6 +70,7 @@ packages = [
   "panchi.primitives",
   "panchi.algorithms",
   "panchi.visualizations",
+  "panchi.visualizations.backends",
 ]
 
 [tool.setuptools.package-data]

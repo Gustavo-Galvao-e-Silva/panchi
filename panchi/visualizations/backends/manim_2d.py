@@ -1,73 +1,45 @@
 from __future__ import annotations
 
-import shutil
-from pathlib import Path
-from typing import Callable
-
-try:
-    import manim
-    from manim import (
-        Arrow,
-        Axes,
-        Create,
-        DashedLine,
-        FadeIn,
-        GrowArrow,
-        Line,
-        MathTex,
-        NumberPlane,
-        Polygon,
-        Rectangle,
-        Scene,
-        Transform,
-        Write,
-    )
-
-    MANIM_AVAILABLE = True
-except ImportError:
-    MANIM_AVAILABLE = False
-    raise
+import manim
+from manim import (
+    Arrow,
+    Axes,
+    Create,
+    DashedLine,
+    FadeIn,
+    GrowArrow,
+    Line,
+    MathTex,
+    NumberPlane,
+    Polygon,
+    Rectangle,
+    Scene,
+    Transform,
+    Write,
+)
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
-from panchi.visualizations.base import _BaseBackend
-
-DEFAULT_COLORS = [manim.RED, manim.ORANGE, manim.GREEN, manim.BLUE, manim.PURPLE]
-
-# Per-method default color roles, overridable via ``colors=`` / ``span_color=``.
-ADDITION_COLORS = (manim.RED, manim.ORANGE, manim.GREEN)  # v1, v2, result
-SCALING_COLORS = (manim.RED, manim.BLUE)  # original, scaled
-TRANSFORM_COLORS = (manim.RED, manim.BLUE)  # e1, e2
-SPAN_COLOR = manim.PURPLE
-
-AXIS_COLOR = manim.GREY_B
-GUIDE_COLOR = manim.GREY
-PARALLELOGRAM_COLOR = manim.BLUE_E
-MATRIX_HUD_COLOR = manim.YELLOW
-
-AXIS_PADDING = 1.4
-_EPSILON = 1e-12
+from panchi.visualizations.backends.manim_base import (
+    ADDITION_COLORS,
+    AXIS_COLOR,
+    DEFAULT_COLORS,
+    GUIDE_COLOR,
+    MATRIX_HUD_COLOR,
+    PARALLELOGRAM_COLOR,
+    SCALING_COLORS,
+    SPAN_COLOR,
+    TRANSFORM_COLORS,
+    _axis_range,
+    _BuilderSceneMixin,
+    _EPSILON,
+    _ManimBackendBase,
+    _resolve_colors,
+)
 
 _USABLE_WIDTH = 12.0
 _USABLE_HEIGHT = 6.8
-
-_QUALITY_MAP = {
-    "low": "low_quality",
-    "medium": "medium_quality",
-    "high": "high_quality",
-    "production": "production_quality",
-}
-
-# Scratch/cache subdirectories manim writes alongside the final ``<name>.mp4``.
-# Removed after rendering unless ``include_extra_files`` is set.
-_INTERMEDIATE_DIRS = ("partial_movie_files", "Tex", "texts", "images")
-
-
-def _resolve_colors(colors: list[str] | None, defaults: tuple) -> list:
-    """Fill in per-role colors positionally, keeping defaults for omitted roles."""
-    colors = colors or []
-    return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
 
 
 def _label_direction(vx: float, vy: float) -> manim.Vector:
@@ -85,11 +57,6 @@ def _label_direction(vx: float, vy: float) -> manim.Vector:
     if vx < 0 and vy < 0:
         return manim.DOWN + manim.RIGHT
     return manim.DOWN + manim.LEFT
-
-
-def _axis_range(coords, padding: float = AXIS_PADDING) -> int:
-    """Symmetric axis half-extent covering ``coords`` with padding."""
-    return int(max(abs(c) for c in coords) * padding) + 1
 
 
 def _arrow(
@@ -193,9 +160,7 @@ class _VectorScene(Scene):
         arrow = _arrow(self.axes, start, coords, color, stroke_width)
         label_mob = None
         if label is not None:
-            label_mob = _label(
-                label, color, arrow, label_dir or coords, label_scale
-            )
+            label_mob = _label(label, color, arrow, label_dir or coords, label_scale)
 
         if opacity != 1.0:
             arrow.set_opacity(opacity)
@@ -211,56 +176,14 @@ class _VectorScene(Scene):
         return arrow, label_mob
 
 
-class _FunctionScene(_VectorScene):
-    """A scene whose ``construct`` delegates to a supplied builder callable.
-
-    Lets each backend method describe its animation as a plain function of the
-    scene, instead of declaring a bespoke ``Scene`` subclass inline.
-    """
-
-    def __init__(self, builder: Callable[[_VectorScene], None]) -> None:
-        super().__init__()
-        self._builder = builder
-
-    def construct(self) -> None:
-        self._builder(self)
+class _FunctionScene(_BuilderSceneMixin, _VectorScene):
+    """A 2D scene whose ``construct`` delegates to a supplied builder callable."""
 
 
-class _ManimBackend(_BaseBackend):
+class _ManimBackend2D(_ManimBackendBase):
     """Manim-based 2D visualization backend."""
 
-    def __init__(
-        self, save_path: Path | None, quality: str, include_extra_files: bool
-    ) -> None:
-        super().__init__(save_path=save_path, quality=quality)
-        self.include_extra_files = include_extra_files
-
-    def _configure(self, name: str) -> None:
-        manim.config.quality = _QUALITY_MAP.get(self.quality, "medium_quality")
-        manim.config.disable_caching = True
-        if self.save_path:
-            self.save_path.mkdir(parents=True, exist_ok=True)
-            manim.config.media_dir = str(self.save_path)
-            manim.config.video_dir = "{media_dir}"
-            manim.config.output_file = name
-
-    def _cleanup(self) -> None:
-        """Remove manim's intermediary scratch dirs, keeping the final ``.mp4``.
-
-        The rendered video lands directly in ``save_path``; manim also leaves
-        ``Tex/``, ``images/`` and ``partial_movie_files/`` behind. Those are
-        deleted unless the user opted into ``include_extra_files``.
-        """
-        if self.include_extra_files or not self.save_path:
-            return
-        for sub in _INTERMEDIATE_DIRS:
-            shutil.rmtree(self.save_path / sub, ignore_errors=True)
-
-    def _render(self, name: str, builder: Callable[[_VectorScene], None]) -> None:
-        """Configure output, render the builder as a scene, then clean up."""
-        self._configure(name)
-        _FunctionScene(builder).render()
-        self._cleanup()
+    _function_scene_cls = _FunctionScene
 
     def plot_vectors(
         self,
@@ -306,7 +229,9 @@ class _ManimBackend(_BaseBackend):
             range_val = _axis_range((*v1c, *v2c, *result))
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-            scene.add_vector(v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5)
+            scene.add_vector(
+                v1c, color_v1, r"v_1", stroke_width=7, run_time=1, wait=0.5
+            )
             scene.add_vector(
                 v2c, color_v2, r"v_2", stroke_width=7, run_time=1, opacity=0.3, wait=0.5
             )
@@ -462,9 +387,7 @@ class _ManimBackend(_BaseBackend):
                 )
             )
             label_e2.add_updater(
-                lambda m: m.next_to(
-                    arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2
-                )
+                lambda m: m.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
             )
 
             scene.play(
@@ -540,9 +463,7 @@ class _ManimBackend(_BaseBackend):
                 rect.move_to(scene.axes.c2p(0, 0))
                 scene.play(FadeIn(rect), run_time=0.8)
 
-            for vec, color, label in zip(
-                basis, color_list, label_list, strict=False
-            ):
+            for vec, color, label in zip(basis, color_list, label_list, strict=False):
                 scene.add_vector((vec[0], vec[1]), color, label)
 
             scene.wait(1.5)

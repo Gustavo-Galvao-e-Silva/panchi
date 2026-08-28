@@ -11,7 +11,7 @@ REQUIREMENTS:
 from pathlib import Path
 
 from panchi import Matrix, Vector, VectorSpace
-from panchi.visualizations import Animator2D
+from panchi.visualizations import Animator2D, Animator3D
 
 
 def check_manim():
@@ -99,6 +99,64 @@ def run_tests():
         print(f"  FAIL: {e}")
         return False
 
+    print("\n[3D] Vector plotting (Animator3D)")
+    try:
+        animator_3d = Animator3D(backend="manim", save_path=output_dir)
+        animator_3d.plot_vectors(
+            Vector([3, 2, 1]),
+            Vector([-2, 3, 2]),
+            Vector([1, -1, 3]),
+            labels=[r"a", r"b", r"c"],
+            name="vectors_3d",
+        )
+        print("  OK: 3D vectors rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Vector addition (Animator3D)")
+    try:
+        animator_3d.animate_addition(
+            Vector([2, 1, 0]), Vector([1, 2, 2]), name="addition_3d"
+        )
+        print("  OK: 3D addition rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Vector scaling (Animator3D)")
+    try:
+        animator_3d.animate_scaling(
+            Vector([1, 2, 1]), scale_factor=2.0, name="scaling_3d"
+        )
+        print("  OK: 3D scaling rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Linear transformation (Animator3D)")
+    try:
+        animator_3d.animate_transform(
+            Matrix([[1, 0.5, 0], [0, 1, 0.5], [0.3, 0, 1]]), name="transform_3d"
+        )
+        print("  OK: 3D transform rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Span visualization (Animator3D)")
+    try:
+        animator_3d.plot_span(
+            Vector([1, 0, 0]),
+            Vector([0, 1, 1]),
+            labels=[r"b_1", r"b_2"],
+            name="span_3d",
+        )
+        print("  OK: 3D span rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
     return True
 
 
@@ -111,8 +169,8 @@ def main():
     if not check_manim():
         return
 
-    print("\nThis will render 7 videos to ./manim_test_output/")
-    print("Estimated time: ~5-10 minutes\n")
+    print("\nThis will render 12 videos to ./manim_test_output/")
+    print("Estimated time: ~7-15 minutes\n")
 
     response = input("Continue? [y/N]: ").strip().lower()
     if response not in ("y", "yes"):

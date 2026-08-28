@@ -44,7 +44,7 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 - Eigenvalues and eigenvectors via the QR algorithm
 - Matrix inverse and linear system solving (with an optional numerical tolerance)
 - Rich result formats for algorithms, allowing for step-by-step inspection
-- [2D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend
+- [2D and 3D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend
 
 ---
 
