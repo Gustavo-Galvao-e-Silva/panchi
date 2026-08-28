@@ -177,6 +177,26 @@ class TestDiagonal:
         print(f"\n✓ diagonal(Vector([2,3])) = {D.data}")
         assert D.data == [[2, 0], [0, 3]]
 
+    def test_diagonal_empty_list(self):
+        with pytest.raises(ValueError):
+            pan.diagonal([])
+
+    def test_diagonal_empty_vector(self):
+        with pytest.raises(ValueError):
+            pan.diagonal(pan.Vector([]))
+
+    def test_diagonal_invalid_tuple(self):
+        with pytest.raises(TypeError):
+            pan.diagonal((1, 2))
+
+    def test_diagonal_none(self):
+        with pytest.raises(TypeError):
+            pan.diagonal(None)
+
+    def test_diagonal_integer(self):
+        with pytest.raises(TypeError):
+            pan.diagonal(3)
+
 
 class TestRandomVector:
     """Test cases for random vector creation."""
@@ -201,6 +221,14 @@ class TestRandomVector:
         with pytest.raises(ValueError):
             pan.random_vector(3, 5.0, 1.0)
 
+    def test_random_vector_invalid_dimensions(self):
+        with pytest.raises(ValueError):
+            pan.random_vector(0)
+        with pytest.raises(ValueError):
+            pan.random_vector(-3)
+        with pytest.raises(TypeError):
+            pan.random_vector(2.5)
+
 
 class TestRandomMatrix:
     """Test cases for random matrix creation."""
@@ -220,6 +248,20 @@ class TestRandomMatrix:
         print(f"\n✓ random_matrix with low >= high → raises ValueError")
         with pytest.raises(ValueError):
             pan.random_matrix(2, 2, 10.0, 1.0)
+
+    def test_random_matrix_invalid_dimensions(self):
+        with pytest.raises(ValueError):
+            pan.random_matrix(0, 5)
+        with pytest.raises(ValueError):
+            pan.random_matrix(-1, 2)
+        with pytest.raises(TypeError):
+            pan.random_matrix(2.5, 2)
+        with pytest.raises(TypeError):
+            pan.random_matrix(2, 2.5)
+        with pytest.raises(ValueError):
+            pan.random_matrix(2, 0)
+        with pytest.raises(ValueError):
+            pan.random_matrix(2, -1)
 
 
 class TestRotationMatrix2D:

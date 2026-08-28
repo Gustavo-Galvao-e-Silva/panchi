@@ -266,6 +266,13 @@ def diagonal(values: list | Vector) -> Matrix:
     Matrix
         A square matrix with values on the diagonal.
 
+    Raises
+    ------
+    TypeError
+        If values is not a list or Vector.
+    ValueError
+        If values is empty.
+
     Examples
     --------
     >>> D = diagonal([1, 2, 3])
@@ -274,6 +281,13 @@ def diagonal(values: list | Vector) -> Matrix:
      [0, 2, 0],
      [0, 0, 3]]
     """
+    if not isinstance(values, (list, Vector)):
+        raise TypeError(
+            f"Values must be a list or Vector. Got {type(values).__name__}."
+        )
+    if len(values) == 0:
+        raise ValueError("Values must not be empty.")
+
     n = len(values)
     return Matrix([[values[i] if i == j else 0 for j in range(n)] for i in range(n)])
 
@@ -300,6 +314,10 @@ def random_vector(dims: int, low: int | float = 0.0, high: int | float = 1.0) ->
 
     Raises
     ------
+    TypeError
+        If dims is not an integer.
+    ValueError
+        If dims is not positive.
     ValueError
         If low is not smaller than high.
 
@@ -309,6 +327,11 @@ def random_vector(dims: int, low: int | float = 0.0, high: int | float = 1.0) ->
     >>> v.dims
     3
     """
+    if not isinstance(dims, int):
+        raise TypeError(f"Dimension must be an integer. Got {type(dims).__name__}.")
+    if dims <= 0:
+        raise ValueError(f"Dimension must be positive. Got {dims}.")
+
     if low >= high:
         raise ValueError(
             f"Low must be smaller than high. Got low: {low}, high: {high}."
@@ -343,6 +366,10 @@ def random_matrix(
 
     Raises
     ------
+    TypeError
+        If rows or cols is not an integer.
+    ValueError
+        If rows or cols is not positive.
     ValueError
         If low is not smaller than high.
 
@@ -352,6 +379,15 @@ def random_matrix(
     >>> m.shape
     (2, 3)
     """
+    if not isinstance(rows, int) or not isinstance(cols, int):
+        raise TypeError(
+            f"Rows and columns must be integers. Got rows: {type(rows).__name__}, cols: {type(cols).__name__}."
+        )
+    if rows <= 0 or cols <= 0:
+        raise ValueError(
+            f"Rows and columns must be positive. Got rows: {rows}, cols: {cols}."
+        )
+
     if low >= high:
         raise ValueError(
             f"Low must be smaller than high. Got low: {low}, high: {high}."
