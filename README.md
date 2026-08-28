@@ -85,6 +85,8 @@ animator = Animator2D()
 animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))  # 90° rotation
 ```
 
+The same tools work in three dimensions via `Animator3D` — vectors, spans, and 3x3 transformations in R³.
+
 ---
 
 ## Documentation
