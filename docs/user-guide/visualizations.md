@@ -1,6 +1,6 @@
 # Visualizations
 
-panchi includes a built-in visualization system for 2D vectors, linear transformations, and vector spaces. All visualizations are accessed through a single class: `Animator2D`.
+panchi includes a built-in visualization system for vectors, linear transformations, and vector spaces. Two-dimensional visualizations are accessed through `Animator2D`, and three-dimensional ones through `Animator3D` — the two classes share the same five-method API, differing only in dimension. This page documents `Animator2D` first, then covers what changes in [`Animator3D`](#3d-visualizations-animator3d).
 
 ## Setup
 
@@ -202,4 +202,102 @@ The `name` parameter controls the filename (without extension). If omitted, it d
 | Parallelogram in addition | No | Yes |
 | Render speed | Fast | Slower (video encoding) |
 
-Both backends support all five visualization methods with the same API.
+Both backends support all five visualization methods with the same API, for both `Animator2D` and `Animator3D`.
+
+---
+
+## 3D visualizations (`Animator3D`)
+
+`Animator3D` mirrors `Animator2D` for vectors in **R³**. It exposes the same five methods — `plot_vectors`, `animate_addition`, `animate_scaling`, `animate_transform`, and `plot_span` — with identical signatures. Everything above about backends, `save_path`, output formats, and the `name` parameter applies unchanged; only the geometry becomes three-dimensional.
+
+```python
+from panchi import Vector, Matrix, VectorSpace
+from panchi.visualizations import Animator3D
+
+animator = Animator3D()                          # interactive matplotlib
+animator = Animator3D(save_path="./output")      # save .png / .gif
+animator = Animator3D(backend="manim", save_path="./videos")
+```
+
+The constructor takes the same parameters as `Animator2D` (`backend`, `save_path`, `quality`, `figsize`). The only difference: for 3D the `quality` tiers are `"low"`, `"medium"`, and `"high"` — there is no `"production"` tier.
+
+All vectors passed to `Animator3D` must be 3D; a 2D vector raises a `ValueError`.
+
+### Plotting vectors
+
+```python
+animator.plot_vectors(
+    Vector([3, 2, 1]),
+    Vector([-1, 2, 3]),
+    Vector([1, -2, 2]),
+    labels=["v1", "v2", "v3"],
+)
+```
+
+Each vector is drawn as a 3D arrow from the origin inside an x/y/z coordinate box. Accepts the same `colors`, `labels`, `grid`, and `name` options as the 2D version.
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/vectors_3d.png" alt="Example output: three vectors as arrows from the origin in 3D">
+  <figcaption>Example output.</figcaption>
+</figure>
+
+### Animating vector addition
+
+```python
+animator.animate_addition(Vector([3, 1, 0]), Vector([1, 2, 3]))
+```
+
+Draws v1, then v2 growing tip-to-tail from v1, and finally the result — with the parallelogram spanned by v1 and v2 shown as a translucent face. Same `frames`, `interval`, `name`, and `colors` (`[v1, v2, v1 + v2]`) options as in 2D.
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/addition_3d.gif" alt="Example output: two 3D vectors added tip-to-tail">
+  <figcaption>Example output.</figcaption>
+</figure>
+
+### Animating scalar multiplication
+
+```python
+animator.animate_scaling(Vector([2, 1, 1]), scale_factor=2.0)
+```
+
+The vector stretches, shrinks, or flips in R³ exactly as in the 2D case. Options: `frames`, `interval`, `name`, and `colors` (`[original, scaled]`).
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/scaling_3d.gif" alt="Example output: a 3D vector stretching to twice its length">
+  <figcaption>Example output.</figcaption>
+</figure>
+
+### Animating linear transformations
+
+```python
+# rotate 45° about the z-axis
+animator.animate_transform(Matrix([[1, -1, 0], [1, 1, 0], [0, 0, 1]]))
+```
+
+The 3D analogue of the grid deformation: the unit cube smoothly morphs from the identity into the **parallelepiped** spanned by the matrix columns, with the three basis vectors following along and the matrix shown as an overlay.
+
+Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `frames`, `interval`, `name`, and `colors` (up to three, for the basis arrows `[e1, e2, e3]`).
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/transform_3d.gif" alt="Example output: the unit cube morphing under a 3x3 matrix">
+  <figcaption>Example output — a rotation about the z-axis.</figcaption>
+</figure>
+
+### Visualizing spans
+
+```python
+animator.plot_span(Vector([1, 0, 1]), Vector([0, 1, 1]), labels=["v1", "v2"])
+```
+
+`plot_span` adapts to the dimension of the subspace:
+
+- **dim 1** — a line through the origin in the basis direction
+- **dim 2** — a shaded plane patch through the origin
+- **dim 3** — a translucent cube indicating the span fills all of R³
+
+As in 2D, linearly dependent vectors are reduced to the true basis automatically, so the drawn dimension reflects the real span. Options: `colors`, `labels`, `grid`, `name`, and `span_color`.
+
+<figure class="viz" markdown="span">
+  <img src="../../assets/viz/span_plane_3d.png" alt="Example output: two 3D vectors shading the plane they span">
+  <figcaption>Example output — two independent vectors spanning a plane in R³.</figcaption>
+</figure>

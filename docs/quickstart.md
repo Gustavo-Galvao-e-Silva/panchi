@@ -101,6 +101,8 @@ animator = Animator2D(backend="manim", save_path="./videos")
 animator.animate_transform(pan.Matrix([[1, 1], [0, 1]]))
 ```
 
+The same methods work in three dimensions — swap `Animator2D` for `Animator3D` and pass 3D vectors and 3x3 matrices.
+
 See the [Visualizations guide](user-guide/visualizations.md) for the full feature set.
 
 ---
