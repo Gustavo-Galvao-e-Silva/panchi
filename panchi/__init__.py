@@ -5,7 +5,7 @@ panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 from fractions import Fraction
 

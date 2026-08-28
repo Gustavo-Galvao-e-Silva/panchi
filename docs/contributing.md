@@ -83,6 +83,12 @@ Although these are guides, if they are blocking the advancement of this library'
 
 ## Development Setup
 
+!!! tip "Using an AI coding agent?"
+    If you contribute with a coding agent (Claude Code, Cursor, Copilot, …), point
+    it at [`AGENTS.md`](https://github.com/Gustavo-Galvao-e-Silva/panchi/blob/main/AGENTS.md)
+    in the repository root. It's the agent-oriented summary of this guide, with the
+    project layout and the exact `pytest` / `ruff` / `black` / `mypy` commands.
+
 ### 1. Fork and Clone
 ```bash
 # Fork the repository on GitHub, then:
@@ -485,6 +491,10 @@ Pull requests need:
 ---
 
 ## Community Guidelines
+
+All participation in the panchi community is governed by our
+[Code of Conduct](https://github.com/Gustavo-Galvao-e-Silva/panchi/blob/main/CODE_OF_CONDUCT.md).
+In short:
 
 ### Be Respectful
 - Treat all contributors with respect
