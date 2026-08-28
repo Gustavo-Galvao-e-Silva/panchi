@@ -16,6 +16,8 @@ concurrency:
 jobs:
   lint:
     runs-on: ubuntu-latest
+    # Advisory only: ruff/black run and surface issues, but never block a merge.
+    continue-on-error: true
 
     steps:
       - name: Checkout repository

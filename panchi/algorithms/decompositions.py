@@ -31,12 +31,12 @@ def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
     Matrix
         An n×n lower triangular matrix with ones on the diagonal.
     """
-    lower = identity(n)
+    l = identity(n)
     for step in steps:
         if isinstance(step, RowAdd):
-            lower[step.target][step.source] = -step.scalar
+            l[step.target][step.source] = -step.scalar
 
-    return lower
+    return l
 
 
 def _calculate_p(n: int, steps: list[RowOperation]) -> Matrix:
@@ -113,10 +113,10 @@ def lu(matrix: Matrix) -> LUDecomposition:
     matrix_ref = ref(matrix)
     n = matrix.rows
     steps = matrix_ref.steps
-    lower = _calculate_l(n, steps)
+    l = _calculate_l(n, steps)
     u = matrix_ref.result
     p = _calculate_p(n, steps)
-    return LUDecomposition(matrix, lower, u, p, steps)
+    return LUDecomposition(matrix, l, u, p, steps)
 
 
 def qr_decomposition(matrix: Matrix) -> QRDecomposition:
