@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Questions & general discussion
+    url: https://github.com/Gustavo-Galvao-e-Silva/panchi/discussions
+    about: Ask questions, share ideas, or discuss usage in GitHub Discussions.
