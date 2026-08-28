@@ -337,10 +337,8 @@ class TestAnimationColors:
         assert (tmp_path / "animate_transform.gif").exists()
 
     def test_partial_colors_keep_defaults(self):
-        from panchi.visualizations.matplotlib import (
-            ADDITION_COLORS,
-            _resolve_colors,
-        )
+        from panchi.visualizations.backends.matplotlib_2d import ADDITION_COLORS
+        from panchi.visualizations.backends.matplotlib_base import _resolve_colors
 
         # A partial list fills only the roles supplied; the rest fall back.
         resolved = _resolve_colors(["#805B49"], ADDITION_COLORS)
@@ -350,10 +348,8 @@ class TestAnimationColors:
         assert resolved[2] == ADDITION_COLORS[2]
 
     def test_none_colors_reproduce_defaults(self):
-        from panchi.visualizations.matplotlib import (
-            TRANSFORM_COLORS,
-            _resolve_colors,
-        )
+        from panchi.visualizations.backends.matplotlib_2d import TRANSFORM_COLORS
+        from panchi.visualizations.backends.matplotlib_base import _resolve_colors
 
         resolved = _resolve_colors(None, TRANSFORM_COLORS)
         print(f"\n✓ None colors → default palette {resolved}")
