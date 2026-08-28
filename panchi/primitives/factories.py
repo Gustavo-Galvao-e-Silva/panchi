@@ -1,10 +1,11 @@
 from __future__ import annotations
+
 import random
 from fractions import Fraction
-from math import pi, cos, sin
+from math import cos, pi, sin
 
-from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
 
 
 def identity(n: int) -> Matrix:

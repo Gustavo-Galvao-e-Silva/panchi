@@ -1,6 +1,6 @@
 import pytest
 
-from panchi import Vector, Matrix, vector_column_matrix
+from panchi import Matrix, Vector, vector_column_matrix
 
 
 class TestVectorColumnMatrix:

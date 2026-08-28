@@ -1,9 +1,7 @@
 import pytest
 
-from panchi.primitives import Matrix, Vector, identity
 from panchi.algorithms import RowAdd, RowScale, RowSwap, ref, rref
-
-
+from panchi.primitives import Matrix, Vector, identity
 
 # ==================== ROW SWAP TESTS ====================
 

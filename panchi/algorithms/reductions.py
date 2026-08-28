@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from panchi.primitives.matrix import Matrix
 from panchi.algorithms.results import Reduction
 from panchi.algorithms.row_operations import (
-    RowOperation,
     RowAdd,
+    RowOperation,
     RowScale,
     RowSwap,
 )
+from panchi.primitives.matrix import Matrix
 
 
 def _find_first_non_zero_row(
@@ -71,7 +71,9 @@ def _swap_pivot(
     result = matrix.copy()
     new_operations = []
     if abs(result[pivot_row][pivot_col]) <= tolerance:
-        target_row = _find_first_non_zero_row(pivot_row + 1, pivot_col, result, tolerance)
+        target_row = _find_first_non_zero_row(
+            pivot_row + 1, pivot_col, result, tolerance
+        )
         if target_row is not None:
             op = RowSwap(pivot_row, target_row)
             result = op.apply(result)
@@ -152,7 +154,6 @@ def _add_above_pivot(
     tuple[Matrix, list[RowOperation]]
         The updated matrix and the list of RowAdd operations applied.
     """
-    pivot = matrix[pivot_row][pivot_col]
     result = matrix.copy()
     new_operations = []
     for i in range(pivot_row - 1, -1, -1):

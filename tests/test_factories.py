@@ -1,5 +1,6 @@
+from math import isclose, pi
+
 import pytest
-from math import pi, isclose
 
 import panchi as pan
 
@@ -8,33 +9,33 @@ class TestIdentityMatrix:
     """Test cases for identity matrix creation."""
 
     def test_identity_2x2(self):
-        I = pan.identity(2)
-        print(f"\n✓ identity(2) = {I.data}")
-        assert I.data == [[1, 0], [0, 1]]
-        assert I.shape == (2, 2)
+        ident = pan.identity(2)
+        print(f"\n✓ identity(2) = {ident.data}")
+        assert ident.data == [[1, 0], [0, 1]]
+        assert ident.shape == (2, 2)
 
     def test_identity_3x3(self):
-        I = pan.identity(3)
-        print(f"\n✓ identity(3) = {I.data}")
-        assert I.data == [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        ident = pan.identity(3)
+        print(f"\n✓ identity(3) = {ident.data}")
+        assert ident.data == [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
     def test_identity_1x1(self):
-        I = pan.identity(1)
-        print(f"\n✓ identity(1) = {I.data}")
-        assert I.data == [[1]]
+        ident = pan.identity(1)
+        print(f"\n✓ identity(1) = {ident.data}")
+        assert ident.data == [[1]]
 
     def test_identity_invalid_type(self):
-        print(f"\n✓ identity(2.5) → raises TypeError")
+        print("\n✓ identity(2.5) → raises TypeError")
         with pytest.raises(TypeError):
             pan.identity(2.5)
 
     def test_identity_negative(self):
-        print(f"\n✓ identity(-1) → raises ValueError")
+        print("\n✓ identity(-1) → raises ValueError")
         with pytest.raises(ValueError):
             pan.identity(-1)
 
     def test_identity_zero(self):
-        print(f"\n✓ identity(0) → raises ValueError")
+        print("\n✓ identity(0) → raises ValueError")
         with pytest.raises(ValueError):
             pan.identity(0)
 
@@ -54,12 +55,12 @@ class TestZeroMatrix:
         assert Z.data == [[0, 0], [0, 0]]
 
     def test_zero_matrix_invalid_type(self):
-        print(f"\n✓ zero_matrix(2.5, 3) → raises TypeError")
+        print("\n✓ zero_matrix(2.5, 3) → raises TypeError")
         with pytest.raises(TypeError):
             pan.zero_matrix(2.5, 3)
 
     def test_zero_matrix_negative(self):
-        print(f"\n✓ zero_matrix(-1, 2) → raises ValueError")
+        print("\n✓ zero_matrix(-1, 2) → raises ValueError")
         with pytest.raises(ValueError):
             pan.zero_matrix(-1, 2)
 
@@ -68,23 +69,23 @@ class TestOneMatrix:
     """Test cases for one matrix creation."""
 
     def test_one_matrix_2x3(self):
-        O = pan.one_matrix(2, 3)
-        print(f"\n✓ one_matrix(2, 3) = {O.data}")
-        assert O.data == [[1, 1, 1], [1, 1, 1]]
-        assert O.shape == (2, 3)
+        ones = pan.one_matrix(2, 3)
+        print(f"\n✓ one_matrix(2, 3) = {ones.data}")
+        assert ones.data == [[1, 1, 1], [1, 1, 1]]
+        assert ones.shape == (2, 3)
 
     def test_one_matrix_square(self):
-        O = pan.one_matrix(2, 2)
-        print(f"\n✓ one_matrix(2, 2) = {O.data}")
-        assert O.data == [[1, 1], [1, 1]]
+        ones = pan.one_matrix(2, 2)
+        print(f"\n✓ one_matrix(2, 2) = {ones.data}")
+        assert ones.data == [[1, 1], [1, 1]]
 
     def test_one_matrix_invalid_type(self):
-        print(f"\n✓ one_matrix(2, 3.5) → raises TypeError")
+        print("\n✓ one_matrix(2, 3.5) → raises TypeError")
         with pytest.raises(TypeError):
             pan.one_matrix(2, 3.5)
 
     def test_one_matrix_zero(self):
-        print(f"\n✓ one_matrix(0, 2) → raises ValueError")
+        print("\n✓ one_matrix(0, 2) → raises ValueError")
         with pytest.raises(ValueError):
             pan.one_matrix(0, 2)
 
@@ -104,12 +105,12 @@ class TestZeroVector:
         assert z.data == [0]
 
     def test_zero_vector_invalid_type(self):
-        print(f"\n✓ zero_vector(3.5) → raises TypeError")
+        print("\n✓ zero_vector(3.5) → raises TypeError")
         with pytest.raises(TypeError):
             pan.zero_vector(3.5)
 
     def test_zero_vector_negative(self):
-        print(f"\n✓ zero_vector(-1) → raises ValueError")
+        print("\n✓ zero_vector(-1) → raises ValueError")
         with pytest.raises(ValueError):
             pan.zero_vector(-1)
 
@@ -129,7 +130,7 @@ class TestOneVector:
         assert o.data == [1]
 
     def test_one_vector_invalid_type(self):
-        print(f"\n✓ one_vector('3') → raises TypeError")
+        print("\n✓ one_vector('3') → raises TypeError")
         with pytest.raises(TypeError):
             pan.one_vector("3")
 
@@ -153,12 +154,12 @@ class TestUnitVector:
         assert e2.data == [0, 0, 1]
 
     def test_unit_vector_invalid_index(self):
-        print(f"\n✓ unit_vector(3, 5) → raises ValueError")
+        print("\n✓ unit_vector(3, 5) → raises ValueError")
         with pytest.raises(ValueError):
             pan.unit_vector(3, 5)
 
     def test_unit_vector_negative_index(self):
-        print(f"\n✓ unit_vector(3, -1) → raises ValueError")
+        print("\n✓ unit_vector(3, -1) → raises ValueError")
         with pytest.raises(ValueError):
             pan.unit_vector(3, -1)
 
@@ -208,16 +209,16 @@ class TestRandomVector:
 
     def test_random_vector_range(self):
         v = pan.random_vector(100, 0.0, 1.0)
-        print(f"\n✓ random_vector range check")
+        print("\n✓ random_vector range check")
         assert all(0.0 <= x <= 1.0 for x in v.data)
 
     def test_random_vector_custom_range(self):
         v = pan.random_vector(50, -5.0, 5.0)
-        print(f"\n✓ random_vector custom range [-5, 5]")
+        print("\n✓ random_vector custom range [-5, 5]")
         assert all(-5.0 <= x <= 5.0 for x in v.data)
 
     def test_random_vector_invalid_range(self):
-        print(f"\n✓ random_vector with low >= high → raises ValueError")
+        print("\n✓ random_vector with low >= high → raises ValueError")
         with pytest.raises(ValueError):
             pan.random_vector(3, 5.0, 1.0)
 
@@ -240,12 +241,12 @@ class TestRandomMatrix:
 
     def test_random_matrix_range(self):
         M = pan.random_matrix(5, 5, 0.0, 1.0)
-        print(f"\n✓ random_matrix range check")
+        print("\n✓ random_matrix range check")
         for row in M.data:
             assert all(0.0 <= x <= 1.0 for x in row)
 
     def test_random_matrix_invalid_range(self):
-        print(f"\n✓ random_matrix with low >= high → raises ValueError")
+        print("\n✓ random_matrix with low >= high → raises ValueError")
         with pytest.raises(ValueError):
             pan.random_matrix(2, 2, 10.0, 1.0)
 
@@ -269,7 +270,7 @@ class TestRotationMatrix2D:
 
     def test_rotation_90_degrees(self):
         R = pan.rotation_matrix_2d(pi / 2, radians=True)
-        print(f"\n✓ rotation_matrix_2d(90°) ≈ [[0,-1],[1,0]]")
+        print("\n✓ rotation_matrix_2d(90°) ≈ [[0,-1],[1,0]]")
         assert isclose(R[0][0], 0, abs_tol=1e-10)
         assert isclose(R[0][1], -1, abs_tol=1e-10)
         assert isclose(R[1][0], 1, abs_tol=1e-10)
@@ -277,19 +278,19 @@ class TestRotationMatrix2D:
 
     def test_rotation_180_degrees(self):
         R = pan.rotation_matrix_2d(pi, radians=True)
-        print(f"\n✓ rotation_matrix_2d(180°) ≈ [[-1,0],[0,-1]]")
+        print("\n✓ rotation_matrix_2d(180°) ≈ [[-1,0],[0,-1]]")
         assert isclose(R[0][0], -1, abs_tol=1e-10)
         assert isclose(R[1][1], -1, abs_tol=1e-10)
 
     def test_rotation_degrees_mode(self):
         R = pan.rotation_matrix_2d(90, radians=False)
-        print(f"\n✓ rotation_matrix_2d(90, radians=False)")
+        print("\n✓ rotation_matrix_2d(90, radians=False)")
         assert isclose(R[0][0], 0, abs_tol=1e-10)
         assert isclose(R[0][1], -1, abs_tol=1e-10)
 
     def test_rotation_zero(self):
         R = pan.rotation_matrix_2d(0)
-        print(f"\n✓ rotation_matrix_2d(0) = identity")
+        print("\n✓ rotation_matrix_2d(0) = identity")
         assert isclose(R[0][0], 1, abs_tol=1e-10)
         assert isclose(R[1][1], 1, abs_tol=1e-10)
         assert isclose(R[0][1], 0, abs_tol=1e-10)
@@ -302,7 +303,7 @@ class TestRotationMatrix3D:
     def test_rotation_z_axis(self):
         axis = pan.Vector([0, 0, 1])
         R = pan.rotation_matrix_3d(pi / 2, axis, radians=True)
-        print(f"\n✓ rotation_matrix_3d(90° around z-axis)")
+        print("\n✓ rotation_matrix_3d(90° around z-axis)")
         assert R.shape == (3, 3)
         v = pan.Vector([1, 0, 0])
         result = R @ v
@@ -312,14 +313,14 @@ class TestRotationMatrix3D:
 
     def test_rotation_zero_axis(self):
         axis = pan.Vector([0, 0, 0])
-        print(f"\n✓ rotation with zero axis → raises ValueError")
+        print("\n✓ rotation with zero axis → raises ValueError")
         with pytest.raises(ValueError):
             pan.rotation_matrix_3d(pi / 2, axis)
 
     def test_rotation_degrees_mode_3d(self):
         axis = pan.Vector([0, 0, 1])
         R = pan.rotation_matrix_3d(90, axis, radians=False)
-        print(f"\n✓ rotation_matrix_3d(90, radians=False)")
+        print("\n✓ rotation_matrix_3d(90, radians=False)")
         assert R.shape == (3, 3)
 
 
@@ -349,7 +350,7 @@ class TestDotProduct:
     def test_dot_different_dimensions(self):
         v1 = pan.Vector([1, 2])
         v2 = pan.Vector([1, 2, 3])
-        print(f"\n✓ dot with different dimensions → raises ValueError")
+        print("\n✓ dot with different dimensions → raises ValueError")
         with pytest.raises(ValueError):
             pan.dot(v1, v2)
 
@@ -382,6 +383,6 @@ class TestCrossProduct:
     def test_cross_non_3d_vectors(self):
         v1 = pan.Vector([1, 2])
         v2 = pan.Vector([3, 4])
-        print(f"\n✓ cross with non-3D vectors → raises ValueError")
+        print("\n✓ cross with non-3D vectors → raises ValueError")
         with pytest.raises(ValueError):
             pan.cross(v1, v2)

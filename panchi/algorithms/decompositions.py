@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.factories import identity, vector_column_matrix
 from panchi.algorithms.reductions import ref
-from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from panchi.algorithms.vector_operations import _gram_schmidt_steps
 from panchi.algorithms.results import LUDecomposition, QRDecomposition
+from panchi.algorithms.row_operations import RowAdd, RowOperation, RowSwap
+from panchi.algorithms.vector_operations import _gram_schmidt_steps
+from panchi.primitives.factories import identity, vector_column_matrix
+from panchi.primitives.matrix import Matrix
 
 
 def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
@@ -31,12 +31,12 @@ def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
     Matrix
         An n×n lower triangular matrix with ones on the diagonal.
     """
-    l = identity(n)
+    lower = identity(n)
     for step in steps:
         if isinstance(step, RowAdd):
-            l[step.target][step.source] = -step.scalar
+            lower[step.target][step.source] = -step.scalar
 
-    return l
+    return lower
 
 
 def _calculate_p(n: int, steps: list[RowOperation]) -> Matrix:
@@ -113,10 +113,10 @@ def lu(matrix: Matrix) -> LUDecomposition:
     matrix_ref = ref(matrix)
     n = matrix.rows
     steps = matrix_ref.steps
-    l = _calculate_l(n, steps)
+    lower = _calculate_l(n, steps)
     u = matrix_ref.result
     p = _calculate_p(n, steps)
-    return LUDecomposition(matrix, l, u, p, steps)
+    return LUDecomposition(matrix, lower, u, p, steps)
 
 
 def qr_decomposition(matrix: Matrix) -> QRDecomposition:
