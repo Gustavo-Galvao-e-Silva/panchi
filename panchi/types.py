@@ -8,6 +8,11 @@ SCALAR_TYPES = (int, float, Fraction)
 
 def parse_scalar(value) -> int | float | Fraction:
     """Parse a value into a scalar. Strings like '1/3' become Fraction."""
+    if isinstance(value, bool):
+        raise TypeError(
+            "Cannot convert bool to a number. "
+            "Booleans are not valid scalars; use 1 or 0 explicitly."
+        )
     if isinstance(value, SCALAR_TYPES):
         return value
     if isinstance(value, str):
