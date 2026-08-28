@@ -565,7 +565,7 @@ class Solution:
         return header
 
     def _format_general_solution(self) -> str:
-        basis = self.null_space.basis
+        basis = list(self.null_space)
         n = len(basis)
 
         if n == 1:

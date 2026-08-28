@@ -32,11 +32,24 @@ from panchi.primitives.factories import (
 from panchi.algorithms.vector_operations import (
     dot,
     cross,
-    orthogonal_complement,
     vector_projection,
     gram_schmidt,
 )
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
+from panchi.algorithms.vector_space_operations import (
+    basis,
+    rank,
+    is_full_rank,
+    contains,
+    same_subspace,
+    orthogonal_complement,
+)
+from panchi.algorithms.matrix_operations import (
+    inverse,
+    solve,
+    determinant,
+    determinant_lu,
+    eigen,
+)
 from panchi.algorithms.decompositions import qr_decomposition
 
 __all__ = [
@@ -61,11 +74,17 @@ __all__ = [
     "exact_matrix",
     "dot",
     "cross",
-    "orthogonal_complement",
     "vector_projection",
     "gram_schmidt",
+    "basis",
+    "rank",
+    "is_full_rank",
+    "contains",
+    "same_subspace",
+    "orthogonal_complement",
     "inverse",
     "solve",
+    "determinant",
     "determinant_lu",
     "qr_decomposition",
     "eigen",

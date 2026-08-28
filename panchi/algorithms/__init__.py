@@ -20,13 +20,26 @@ from panchi.algorithms.results import (
     Solution,
     EigenResult,
 )
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
+from panchi.algorithms.matrix_operations import (
+    inverse,
+    solve,
+    determinant,
+    determinant_lu,
+    eigen,
+)
 from panchi.algorithms.vector_operations import (
     dot,
     cross,
-    orthogonal_complement,
     vector_projection,
     gram_schmidt,
+)
+from panchi.algorithms.vector_space_operations import (
+    basis,
+    rank,
+    is_full_rank,
+    contains,
+    same_subspace,
+    orthogonal_complement,
 )
 
 __all__ = [
@@ -45,11 +58,17 @@ __all__ = [
     "EigenResult",
     "inverse",
     "solve",
+    "determinant",
     "determinant_lu",
     "eigen",
     "dot",
     "cross",
-    "orthogonal_complement",
     "vector_projection",
     "gram_schmidt",
+    "basis",
+    "rank",
+    "is_full_rank",
+    "contains",
+    "same_subspace",
+    "orthogonal_complement",
 ]

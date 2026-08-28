@@ -210,7 +210,7 @@ def determinant_lu(matrix: Matrix) -> float:
 
     See Also
     --------
-    Matrix.determinant : Determinant via cofactor expansion.
+    determinant : Determinant via cofactor expansion.
     """
     if not isinstance(matrix, Matrix):
         raise TypeError(
@@ -227,6 +227,110 @@ def determinant_lu(matrix: Matrix) -> float:
     parity = _swap_parity(matrix_lu.steps)
     upper_diagonal_product = _main_diagonal_product(matrix_lu.upper)
     return parity * upper_diagonal_product
+
+
+def _submatrix(matrix: Matrix, excluded_row: int, excluded_col: int) -> Matrix:
+    """
+    Return the submatrix formed by deleting one row and one column.
+
+    Used when computing cofactors for the determinant.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to take the submatrix of.
+    excluded_row : int
+        The index of the row to remove.
+    excluded_col : int
+        The index of the column to remove.
+
+    Returns
+    -------
+    Matrix
+        The (n-1)×(n-1) submatrix with the specified row and column removed.
+    """
+    result = []
+    for i in range(matrix.rows):
+        if i == excluded_row:
+            continue
+        row = []
+        for j in range(matrix.cols):
+            if j == excluded_col:
+                continue
+            row.append(matrix[i][j])
+        result.append(row)
+
+    return Matrix(result)
+
+
+def determinant(matrix: Matrix) -> Scalar:
+    """
+    Compute the determinant of a square matrix using cofactor expansion.
+
+    The determinant is a scalar that encodes properties of the matrix,
+    including whether it is invertible (det ≠ 0) and how it scales areas or
+    volumes under transformation. Only defined for square matrices.
+
+    Computed by expanding along the first row: for each entry in the first
+    row, multiply it by its cofactor (the signed determinant of the submatrix
+    formed by removing that entry's row and column), then sum the results.
+    Unlike ``determinant_lu``, this preserves exact ``int``/``Fraction``
+    arithmetic, at the cost of O(n!) work.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose determinant will be computed. Must be square.
+
+    Returns
+    -------
+    int | float | Fraction
+        The determinant of the matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> determinant(Matrix([[1, 2], [3, 4]]))
+    -2
+    >>> determinant(Matrix([[6]]))
+    6
+
+    See Also
+    --------
+    determinant_lu : Determinant via LU decomposition (float, O(n³)).
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Determinant is only defined for Matrix objects."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot calculate determinant of non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}. "
+            f"Determinants are only defined for square matrices (n×n)."
+        )
+
+    if matrix.rows == 1:
+        return matrix[0][0]
+
+    if matrix.rows == 2:
+        return (matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0])
+
+    det = 0
+    for j in range(matrix.cols):
+        entry = matrix[0][j]
+        if entry != 0:
+            sign = (-1) ** j
+            det += sign * entry * determinant(_submatrix(matrix, 0, j))
+
+    return det
 
 
 def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
@@ -362,7 +466,7 @@ def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
 
     if solution.null_space is None:
         return None
-    return solution.null_space.basis[0].normalize()
+    return solution.null_space[0].normalize()
 
 
 def eigen(

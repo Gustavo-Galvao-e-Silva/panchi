@@ -125,37 +125,6 @@ class Matrix:
         else:
             return Matrix(result)
 
-    def _get_submatrix(self, excluded_row: int, excluded_col: int) -> Matrix:
-        """
-        Return the submatrix formed by deleting one row and one column.
-
-        Used internally when computing cofactors for the determinant.
-
-        Parameters
-        ----------
-        excluded_row : int
-            The index of the row to remove.
-        excluded_col : int
-            The index of the column to remove.
-
-        Returns
-        -------
-        Matrix
-            The (n-1)×(n-1) submatrix with the specified row and column removed.
-        """
-        result = []
-        for i in range(self.rows):
-            if i == excluded_row:
-                continue
-            row = []
-            for j in range(self.cols):
-                if j == excluded_col:
-                    continue
-                row.append(self.data[i][j])
-            result.append(row)
-
-        return Matrix(result)
-
     def __getitem__(self, index: int) -> list[Scalar]:
         """
         Access a row of the matrix by index.
@@ -588,7 +557,7 @@ class Matrix:
         if exponent < 0:
             raise ValueError(
                 f"Matrix exponent cannot be negative. Got {exponent}. "
-                f"For matrix inversion, use the inverse() method instead."
+                f"For matrix inversion, use inverse() from panchi.algorithms instead."
             )
 
         if not self.is_square:
@@ -842,64 +811,6 @@ class Matrix:
         """
         n = self.cols
         return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
-
-    @property
-    def determinant(self) -> float:
-        """
-        Calculate the determinant of the matrix using cofactor expansion.
-
-        The determinant is a scalar value that encodes certain properties
-        of the matrix, including whether it's invertible (det ≠ 0) and
-        how it scales areas or volumes under transformation. Only defined
-        for square matrices.
-
-        Computed by expanding along the first row: for each entry in the
-        first row, multiply it by its cofactor (the signed determinant of
-        the submatrix formed by removing that entry's row and column), then
-        sum the results.
-
-        Returns
-        -------
-        float
-            The determinant of the matrix.
-
-        Raises
-        ------
-        ValueError
-            If the matrix is not square.
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4]])
-        >>> m.determinant
-        -2
-        >>> Matrix([[6]]).determinant
-        6
-        """
-        if not self.is_square:
-            raise ValueError(
-                f"Cannot calculate determinant of non-square matrix. "
-                f"Your matrix is {self.rows}×{self.cols}. "
-                f"Determinants are only defined for square matrices (n×n)."
-            )
-
-        if self.rows == 1:
-            return self.data[0][0]
-
-        if self.rows == 2:
-            return (self.data[0][0] * self.data[1][1]) - (
-                self.data[0][1] * self.data[1][0]
-            )
-
-        det = 0
-        for j in range(self.cols):
-            entry = self.data[0][j]
-            if entry != 0:
-                sign = (-1) ** j
-                submatrix = self._get_submatrix(0, j)
-                det += sign * entry * submatrix.determinant
-
-        return det
 
     @property
     def trace(self) -> Scalar:

@@ -6,6 +6,8 @@ from matplotlib.patches import FancyArrowPatch
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.algorithms.vector_space_operations import basis as compute_basis
+from panchi.algorithms.vector_space_operations import rank
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.matplotlib_base import (
     ADDITION_COLORS,
@@ -351,8 +353,8 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
+        basis = compute_basis(space)
+        dim = rank(space)
 
         fig, ax = plt.subplots(figsize=self.figsize)
 

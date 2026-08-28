@@ -84,9 +84,15 @@ print(A.transpose()) # equivalent method
 ```python
 A = pan.Matrix([[1, 2], [3, 4]])
 
-print(A.trace)        # 5       — sum of diagonal (square only)
-print(A.determinant)  # -2      — cofactor expansion (square only)
-print(A.is_square)    # True
+print(A.trace)      # 5       — sum of diagonal (square only)
+print(A.is_square)  # True
+```
+
+The determinant is a free function (like `solve`, `inverse`, and `determinant_lu`), not a
+property — it is an algorithm, so it lives in `panchi.algorithms` rather than on the matrix:
+
+```python
+print(pan.determinant(A))  # -2  — cofactor expansion, exact (square only)
 ```
 
 ## Identity matrices

@@ -127,7 +127,7 @@ print(result.solution)  # [1, -1]
 
 ```python
 A = pan.exact_matrix([[1, 2], [3, 4]])
-print(A.determinant)  # -2
+print(pan.determinant(A))  # -2
 ```
 
 ## When to use exact arithmetic

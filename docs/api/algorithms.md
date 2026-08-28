@@ -5,7 +5,7 @@ from panchi.algorithms import ref, rref, lu, qr_decomposition
 from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
 from panchi.algorithms import InverseResult, Solution, EigenResult
-from panchi.algorithms import inverse, solve, determinant_lu, eigen
+from panchi.algorithms import inverse, solve, determinant, determinant_lu, eigen
 from panchi.algorithms import dot, cross, orthogonal_complement
 from panchi.algorithms import gram_schmidt, vector_projection
 ```
@@ -40,9 +40,21 @@ from panchi.algorithms import gram_schmidt, vector_projection
 
 ::: panchi.algorithms.solve
 
+::: panchi.algorithms.determinant
+
 ::: panchi.algorithms.determinant_lu
 
 ## Vector space operations
+
+::: panchi.algorithms.basis
+
+::: panchi.algorithms.rank
+
+::: panchi.algorithms.is_full_rank
+
+::: panchi.algorithms.contains
+
+::: panchi.algorithms.same_subspace
 
 ::: panchi.algorithms.orthogonal_complement
 

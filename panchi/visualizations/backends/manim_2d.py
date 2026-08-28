@@ -20,6 +20,8 @@ from manim import (
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.algorithms.vector_space_operations import basis as compute_basis
+from panchi.algorithms.vector_space_operations import rank
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.manim_base import (
     ADDITION_COLORS,
@@ -418,8 +420,8 @@ class _ManimBackend2D(_ManimBackendBase):
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
+        basis = compute_basis(space)
+        dim = rank(space)
         color_list = colors or DEFAULT_COLORS[: len(basis)]
         label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
         span_color = span_color or SPAN_COLOR

@@ -1,6 +1,7 @@
 from fractions import Fraction
 
 import panchi as pan
+from panchi import determinant
 from panchi import (
     Vector,
     Matrix,
@@ -182,7 +183,7 @@ class TestFractionAlgorithms:
 
     def test_determinant_exact(self):
         m = exact_matrix([[1, 2], [3, 4]])
-        det = m.determinant
+        det = determinant(m)
         assert det == Fraction(-2)
 
     def test_inverse_exact(self):
