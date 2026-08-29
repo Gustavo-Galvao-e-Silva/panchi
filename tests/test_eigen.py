@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from panchi import Matrix, eigen, determinant_lu
+from panchi import Matrix, determinant_lu, eigen
 from panchi.algorithms import EigenResult
 
 
@@ -96,7 +96,9 @@ class TestEigenvectorCorrectness:
 
     def test_pairs_align_values_and_vectors(self):
         result = eigen(Matrix([[2, 1], [1, 2]]))
-        assert result.pairs == list(zip(result.eigenvalues, result.eigenvectors))
+        assert result.pairs == list(
+            zip(result.eigenvalues, result.eigenvectors, strict=False)
+        )
 
     def test_str_lists_eigenvectors_when_present(self):
         text = str(eigen(Matrix([[2, 1], [1, 2]])))

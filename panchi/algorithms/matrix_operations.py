@@ -1,11 +1,11 @@
-from panchi.types import Scalar
+from panchi.algorithms.decompositions import lu, qr_decomposition
+from panchi.algorithms.reductions import rref
+from panchi.algorithms.results import EigenResult, InverseResult, Reduction, Solution
+from panchi.algorithms.row_operations import RowOperation, RowSwap
+from panchi.primitives.factories import identity, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.primitives.factories import identity, zero_vector
-from panchi.algorithms.row_operations import RowOperation, RowSwap
-from panchi.algorithms.results import InverseResult, Reduction, Solution, EigenResult
-from panchi.algorithms.reductions import rref
-from panchi.algorithms.decompositions import lu, qr_decomposition
+from panchi.types import Scalar
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
@@ -328,7 +328,9 @@ def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
         null_space = VectorSpace(null_vectors)
         return Solution(A, b, "infinite", None, steps, particular, null_space)
 
-    pivot_row_indices = [row for row, _ in sorted(matrix_rref.pivots, key=lambda p: p[1])]
+    pivot_row_indices = [
+        row for row, _ in sorted(matrix_rref.pivots, key=lambda p: p[1])
+    ]
     solution = Vector([applied_b[row] for row in pivot_row_indices])
     return Solution(A, b, "unique", solution, steps)
 
@@ -454,4 +456,6 @@ def eigen(
             vector = _eigenvector(matrix, eigenvalue, n)
             if vector is not None:
                 eigenvectors.append(vector)
-    return EigenResult(matrix, eigenvalues, eigenvectors, iterations, converged, current)
+    return EigenResult(
+        matrix, eigenvalues, eigenvectors, iterations, converged, current
+    )

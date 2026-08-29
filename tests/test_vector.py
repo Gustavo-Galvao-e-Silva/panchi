@@ -42,12 +42,12 @@ class TestVectorInitialization:
         assert v.dims == 1
 
     def test_invalid_type_string(self):
-        print(f"\n✓ Vector('not a list') → raises TypeError")
+        print("\n✓ Vector('not a list') → raises TypeError")
         with pytest.raises(TypeError):
             Vector("not a list")
 
     def test_invalid_type_in_list(self):
-        print(f"\n✓ Vector([1,2,'three']) → raises TypeError (corrected validation)")
+        print("\n✓ Vector([1,2,'three']) → raises TypeError (corrected validation)")
         with pytest.raises(TypeError):
             Vector([1, 2, "three"])
 
@@ -70,13 +70,13 @@ class TestVectorIndexing:
 
     def test_invalid_index_type_float(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ v[1.5] → raises TypeError")
+        print("\n✓ v[1.5] → raises TypeError")
         with pytest.raises(TypeError):
             _ = v[1.5]
 
     def test_invalid_index_type_string(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ v['0'] → raises TypeError")
+        print("\n✓ v['0'] → raises TypeError")
         with pytest.raises(TypeError):
             _ = v["0"]
 
@@ -101,13 +101,13 @@ class TestVectorAddition:
     def test_add_different_dimensions(self):
         v1 = Vector([1, 2])
         v2 = Vector([1, 2, 3])
-        print(f"\n✓ [1,2] + [1,2,3] → raises ValueError (dimension mismatch)")
+        print("\n✓ [1,2] + [1,2,3] → raises ValueError (dimension mismatch)")
         with pytest.raises(ValueError):
             _ = v1 + v2
 
     def test_add_non_vector(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ Vector + list → raises TypeError")
+        print("\n✓ Vector + list → raises TypeError")
         with pytest.raises(TypeError):
             _ = v + [1, 2, 3]
 
@@ -139,13 +139,13 @@ class TestVectorSubtraction:
     def test_subtract_different_dimensions(self):
         v1 = Vector([1, 2])
         v2 = Vector([1, 2, 3])
-        print(f"\n✓ [1,2] - [1,2,3] → raises ValueError (dimension mismatch)")
+        print("\n✓ [1,2] - [1,2,3] → raises ValueError (dimension mismatch)")
         with pytest.raises(ValueError):
             _ = v1 - v2
 
     def test_subtract_non_vector(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ Vector - scalar → raises TypeError")
+        print("\n✓ Vector - scalar → raises TypeError")
         with pytest.raises(TypeError):
             _ = v - 5
 
@@ -179,9 +179,9 @@ class TestVectorScalarMultiplication:
 
     def test_multiply_by_non_scalar(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ 'string' * Vector → raises TypeError")
+        print("\n✓ 'string' * Vector → raises TypeError")
         with pytest.raises(TypeError):
-            result = "string" * v
+            "string" * v
 
     def test_right_multiply_integer(self):
         v = Vector([1, 2, 3])
@@ -216,24 +216,24 @@ class TestVectorSetItem:
 
     def test_set_invalid_index_type(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ v['0'] = 5 → raises TypeError")
+        print("\n✓ v['0'] = 5 → raises TypeError")
         with pytest.raises(TypeError):
             v["0"] = 5
 
     def test_set_invalid_value_type(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ v[0] = 'string' → raises TypeError")
+        print("\n✓ v[0] = 'string' → raises TypeError")
         with pytest.raises(TypeError):
             v[0] = "string"
 
     def test_set_string_fraction(self):
         v = Vector([1, 2, 3])
-        v[0] = '1/3'
+        v[0] = "1/3"
         assert v[0] == Fraction(1, 3)
 
     def test_set_string_integer(self):
         v = Vector([1, 2, 3])
-        v[0] = '5'
+        v[0] = "5"
         assert v[0] == 5
 
 
@@ -254,7 +254,7 @@ class TestVectorDivision:
 
     def test_divide_by_non_scalar(self):
         v = Vector([1, 2, 3])
-        print(f"\n✓ Vector / 'string' → raises TypeError")
+        print("\n✓ Vector / 'string' → raises TypeError")
         with pytest.raises(TypeError):
             _ = v / "string"
 
@@ -270,7 +270,8 @@ class TestVectorNegation:
 
     def test_double_negation(self):
         v = Vector([1, 2, 3])
-        result = -(-v)
+        negated = -v
+        result = -negated
         print(f"\n✓ -(-[1, 2, 3]) = {result.data} (expected [1, 2, 3])")
         assert result.data == [1, 2, 3]
 
@@ -319,7 +320,7 @@ class TestVectorNormalize:
     def test_normalize_preserves_original(self):
         v = Vector([3, 4])
         original_data = v.data.copy()
-        normalized = v.normalize()
+        v.normalize()
         print(
             f"\n✓ Normalization preserves original: {v.data} (expected {original_data})"
         )
@@ -383,7 +384,7 @@ class TestVectorIterator:
 
     def test_iteration(self):
         v = Vector([1, 2, 3])
-        result = [x for x in v]
+        result = list(v)
         print(f"\n✓ Iterating over vector: {result} (expected [1, 2, 3])")
         assert result == [1, 2, 3]
 

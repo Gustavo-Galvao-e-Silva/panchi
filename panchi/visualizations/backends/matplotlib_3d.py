@@ -13,15 +13,15 @@ from panchi.visualizations.backends.geometry import (
     apply_3x3,
 )
 from panchi.visualizations.backends.matplotlib_base import (
+    _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
     GRID_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS_3D,
-    _EPSILON,
-    _MatplotlibBackendBase,
     _calculate_axis_range,
+    _MatplotlibBackendBase,
     _resolve_colors,
     _smooth_step,
 )
@@ -333,7 +333,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
                 arrow.remove()
             state["arrows"] = [
                 _draw_arrow_3d(ax, (0, 0, 0), apply_3x3(current, b), color, linewidth=3)
-                for b, color in zip(basis, basis_colors)
+                for b, color in zip(basis, basis_colors, strict=False)
             ]
 
             return ()

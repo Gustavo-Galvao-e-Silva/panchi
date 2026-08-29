@@ -26,6 +26,7 @@ from panchi.visualizations.backends.geometry import (
     apply_3x3,
 )
 from panchi.visualizations.backends.manim_base import (
+    _EPSILON,
     ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
@@ -37,7 +38,6 @@ from panchi.visualizations.backends.manim_base import (
     TRANSFORM_COLORS_3D,
     _axis_range,
     _BuilderSceneMixin,
-    _EPSILON,
     _ManimBackendBase,
     _resolve_colors,
 )
@@ -73,7 +73,7 @@ class _VectorScene3D(ThreeDScene):
         # orientation), so they stay legible and anchored to their own axis
         # instead of lying flat in the world plane.
         ends = ((x_range[1], 0, 0), (0, y_range[1], 0), (0, 0, z_range[1]))
-        for name, end in zip(("x", "y", "z"), ends):
+        for name, end in zip(("x", "y", "z"), ends, strict=False):
             label = MathTex(name, color=AXIS_COLOR).scale(0.8)
             label.move_to(self.axes.c2p(*end) * 1.08)
             self.add_fixed_orientation_mobjects(label)
@@ -283,7 +283,7 @@ class _ManimBackend3D(_ManimBackendBase):
             cube = cube_group(identity)
             arrows = [
                 Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*b), color=color)
-                for b, color in zip(basis, basis_colors)
+                for b, color in zip(basis, basis_colors, strict=False)
             ]
             scene.play(Create(cube), *[Create(a) for a in arrows], run_time=1.2)
             scene.wait(0.4)
@@ -295,11 +295,14 @@ class _ManimBackend3D(_ManimBackendBase):
                     scene.axes.c2p(*apply_3x3(target, b)),
                     color=color,
                 )
-                for b, color in zip(basis, basis_colors)
+                for b, color in zip(basis, basis_colors, strict=False)
             ]
             scene.play(
                 Transform(cube, cube_target),
-                *[Transform(a, at) for a, at in zip(arrows, arrow_targets)],
+                *[
+                    Transform(a, at)
+                    for a, at in zip(arrows, arrow_targets, strict=False)
+                ],
                 run_time=3,
             )
             scene.wait(2)

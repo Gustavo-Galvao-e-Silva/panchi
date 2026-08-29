@@ -8,15 +8,15 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.matplotlib_base import (
+    _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
     GRID_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS,
-    _EPSILON,
-    _MatplotlibBackendBase,
     _calculate_axis_range,
+    _MatplotlibBackendBase,
     _resolve_colors,
     _smooth_step,
 )
