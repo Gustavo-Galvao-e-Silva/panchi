@@ -1,11 +1,12 @@
 from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import overload
 
-from panchi.types import Scalar, SCALAR_TYPES
+from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.primitives.factories import identity
+from panchi.types import SCALAR_TYPES, Scalar
 
 
 class RowOperation(ABC):
@@ -812,7 +813,9 @@ class RowAdd(RowOperation):
 
         if isinstance(target, Vector):
             result = target.copy()
-            result[self.target] = target[self.target] + self.scalar * target[self.source]
+            result[self.target] = (
+                target[self.target] + self.scalar * target[self.source]
+            )
             return result
 
         return self.elementary_matrix(target.rows) @ target

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from typing import Iterator
+from collections.abc import Iterator
 
-from panchi.primitives.vector import Vector
 from panchi.primitives.matrix import Matrix
-from panchi.algorithms.reductions import ref
-from panchi.algorithms.matrix_operations import solve
+from panchi.primitives.vector import Vector
 
 
 class VectorSpace:
@@ -264,7 +262,9 @@ class VectorSpace:
         """
         ambient = self.data[0].dims
         basis_lines = "\n".join(f"  {v}" for v in self.basis)
-        return f"VectorSpace in R^{ambient}, dimension {self.dims}\nBasis:\n{basis_lines}"
+        return (
+            f"VectorSpace in R^{ambient}, dimension {self.dims}\nBasis:\n{basis_lines}"
+        )
 
     def __repr__(self) -> str:
         """
@@ -316,6 +316,8 @@ class VectorSpace:
         >>> len(vs.basis)
         2
         """
+        from panchi.algorithms.reductions import ref
+
         vector_col_list = [v.to_list() for v in self.data]
         vector_col_matrix = Matrix(vector_col_list).T
         matrix_ref = ref(vector_col_matrix)
@@ -429,15 +431,15 @@ class VectorSpace:
         False
         """
         if not isinstance(v, Vector):
-            raise TypeError(
-                f"contains() requires a Vector. Got {type(v).__name__}."
-            )
+            raise TypeError(f"contains() requires a Vector. Got {type(v).__name__}.")
 
         if v.dims != self.ambient_dims:
             raise ValueError(
                 f"Vector has {v.dims} component(s), but this space lives in "
                 f"R^{self.ambient_dims}. Dimensions must match."
             )
+
+        from panchi.algorithms.matrix_operations import solve
 
         basis_matrix = Matrix([b.to_list() for b in self.basis]).T
         return solve(basis_matrix, v).status != "inconsistent"

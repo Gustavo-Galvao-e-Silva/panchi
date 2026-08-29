@@ -1,5 +1,6 @@
+from math import isclose, pi
+
 import pytest
-from math import pi, isclose
 
 import panchi as pan
 
@@ -171,7 +172,7 @@ class TestMixedOperations:
 
         assert (identity_2d @ v2).data == v2.data
         assert (identity_3d @ v3).data == v3.data
-        print(f"\n✓ Identity matrices preserve vectors")
+        print("\n✓ Identity matrices preserve vectors")
 
 
 class TestOperationsIntegration:
@@ -188,7 +189,7 @@ class TestOperationsIntegration:
         assert pan.dot(e1, e2) == 0
         assert pan.dot(e2, e3) == 0
         assert pan.dot(e1, e3) == 0
-        print(f"\n✓ Unit vectors are orthogonal")
+        print("\n✓ Unit vectors are orthogonal")
 
     def test_rotation_preserves_magnitude(self):
         """Test that rotation preserves vector magnitude."""
@@ -218,7 +219,7 @@ class TestOperationsIntegration:
 
         assert pan.dot(result, v1) == 0
         assert pan.dot(result, v2) == 0
-        print(f"\n✓ Cross product is orthogonal to inputs")
+        print("\n✓ Cross product is orthogonal to inputs")
 
 
 class TestEdgeCases:
@@ -233,11 +234,11 @@ class TestEdgeCases:
 
         result_v = v_empty + v_empty
         assert result_v.data == []
-        print(f"\n✓ Empty vector + empty vector = []")
+        print("\n✓ Empty vector + empty vector = []")
 
         result_m = m_empty + m_empty
         assert result_m.data == []
-        print(f"\n✓ Empty matrix + empty matrix = []")
+        print("\n✓ Empty matrix + empty matrix = []")
 
     def test_single_element_operations(self):
         """Test operations on single-element vectors and matrices."""
@@ -250,7 +251,7 @@ class TestEdgeCases:
         mv_result = m @ v
         assert mv_result.data == [15]
 
-        print(f"\n✓ Single element operations work correctly")
+        print("\n✓ Single element operations work correctly")
 
     def test_large_dimension_compatibility(self):
         """Test that dimension checking works for larger matrices."""
@@ -259,11 +260,11 @@ class TestEdgeCases:
 
         result = m1 @ m2
         assert result.shape == (5, 8)
-        print(f"\n✓ (5x10) @ (10x8) = (5x8) ✓")
+        print("\n✓ (5x10) @ (10x8) = (5x8) ✓")
 
         with pytest.raises(ValueError):
             _ = m1 + m2
-        print(f"\n✓ (5x10) + (10x8) raises ValueError ✓")
+        print("\n✓ (5x10) + (10x8) raises ValueError ✓")
 
     def test_zero_operations(self):
         """Test operations with zero vectors and matrices."""
@@ -279,4 +280,4 @@ class TestEdgeCases:
         result = z_mat @ pan.Vector([v[0], v[1]])
         assert result.data == [0, 0]
 
-        print(f"\n✓ Zero vector/matrix operations work correctly")
+        print("\n✓ Zero vector/matrix operations work correctly")

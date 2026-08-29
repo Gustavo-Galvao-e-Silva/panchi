@@ -1,8 +1,9 @@
 from __future__ import annotations
-from fractions import Fraction
-from typing import Iterator
 
-from panchi.types import Scalar, SCALAR_TYPES, parse_scalar
+from collections.abc import Iterator
+from fractions import Fraction
+
+from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
 class Vector:
@@ -52,7 +53,7 @@ class Vector:
                 raise TypeError(
                     f"All vector elements must be numbers (int, float, Fraction, "
                     f"or string like '1/3'). Found {type(x).__name__} at index {i}."
-                )
+                ) from None
 
         self.data = parsed
         self.shape = (len(parsed), 1)
@@ -118,7 +119,7 @@ class Vector:
         try:
             new_value = parse_scalar(new_value)
         except TypeError:
-            raise TypeError("Vectors can only hold numbers")
+            raise TypeError("Vectors can only hold numbers") from None
 
         self.data[key] = new_value
 

@@ -10,23 +10,23 @@ Decompositions factor matrices into structured components, and solvers
 find solutions to linear systems by reducing augmented matrices.
 """
 
-from panchi.algorithms.row_operations import RowSwap, RowScale, RowAdd
-from panchi.algorithms.reductions import Reduction, ref, rref
 from panchi.algorithms.decompositions import lu, qr_decomposition
+from panchi.algorithms.matrix_operations import determinant_lu, eigen, inverse, solve
+from panchi.algorithms.reductions import Reduction, ref, rref
 from panchi.algorithms.results import (
+    EigenResult,
+    InverseResult,
     LUDecomposition,
     QRDecomposition,
-    InverseResult,
     Solution,
-    EigenResult,
 )
-from panchi.algorithms.matrix_operations import inverse, solve, determinant_lu, eigen
+from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
 from panchi.algorithms.vector_operations import (
-    dot,
     cross,
+    dot,
+    gram_schmidt,
     orthogonal_complement,
     vector_projection,
-    gram_schmidt,
 )
 
 __all__ = [

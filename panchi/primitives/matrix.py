@@ -1,9 +1,11 @@
 from __future__ import annotations
-from fractions import Fraction
-from typing import Iterator, overload
 
-from panchi.types import Scalar, SCALAR_TYPES, parse_scalar
+from collections.abc import Iterator
+from fractions import Fraction
+from typing import overload
+
 from panchi.primitives.vector import Vector
+from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
 class Matrix:
@@ -70,7 +72,7 @@ class Matrix:
                             f"All matrix elements must be numbers (int, float, Fraction, "
                             f"or string like '1/3'). "
                             f"Found {type(elem).__name__} at position [{i}][{j}]."
-                        )
+                        ) from None
                 parsed_data.append(parsed_row)
 
         self.data = parsed_data
@@ -241,7 +243,7 @@ class Matrix:
                 raise TypeError(
                     f"All row elements must be numbers (int, float, or Fraction). "
                     f"Found {type(elem).__name__} at position [{j}]."
-                )
+                ) from None
 
         if len(new_row) != self.cols:
             raise ValueError(
@@ -964,9 +966,7 @@ class Matrix:
         Vector([1, 2, 3])
         """
         if self.rows == 0:
-            raise ValueError(
-                "Cannot extract row vectors from an empty matrix."
-            )
+            raise ValueError("Cannot extract row vectors from an empty matrix.")
 
         return [Vector(row.copy()) for row in self.data]
 
@@ -998,9 +998,7 @@ class Matrix:
         Vector([2, 5])
         """
         if self.cols == 0:
-            raise ValueError(
-                "Cannot extract column vectors from an empty matrix."
-            )
+            raise ValueError("Cannot extract column vectors from an empty matrix.")
 
         return [
             Vector([self.data[i][j] for i in range(self.rows)])

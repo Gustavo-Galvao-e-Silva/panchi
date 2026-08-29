@@ -1,7 +1,12 @@
 from __future__ import annotations
 
-from panchi.types import Scalar
+from typing import TYPE_CHECKING
+
 from panchi.primitives.vector import Vector
+from panchi.types import Scalar
+
+if TYPE_CHECKING:
+    from panchi.primitives.vector_space import VectorSpace
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> Scalar:
@@ -124,9 +129,9 @@ def orthogonal_complement(space: VectorSpace) -> VectorSpace:
     >>> comp.basis[0]
     Vector([0, 0, 1])
     """
-    from panchi.primitives.vector_space import VectorSpace
-    from panchi.primitives.matrix import Matrix
     from panchi.algorithms.reductions import rref
+    from panchi.primitives.matrix import Matrix
+    from panchi.primitives.vector_space import VectorSpace
 
     if not isinstance(space, VectorSpace):
         raise TypeError(
@@ -138,7 +143,9 @@ def orthogonal_complement(space: VectorSpace) -> VectorSpace:
     n = space.ambient_dims
 
     if not basis_vectors:
-        return VectorSpace([Vector([1 if i == j else 0 for j in range(n)]) for i in range(n)])
+        return VectorSpace(
+            [Vector([1 if i == j else 0 for j in range(n)]) for i in range(n)]
+        )
 
     row_matrix = Matrix([v.to_list() for v in basis_vectors])
     reduction = rref(row_matrix)
@@ -195,7 +202,9 @@ def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
     >>> print(vector_projection(v, a))
     [2.0, 0.0]
     """
-    scalar_projection = dot(projected_vector, axis_vector) / dot(axis_vector, axis_vector)
+    scalar_projection = dot(projected_vector, axis_vector) / dot(
+        axis_vector, axis_vector
+    )
     return scalar_projection * axis_vector
 
 

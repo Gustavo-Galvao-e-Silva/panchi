@@ -1,6 +1,6 @@
 from fractions import Fraction
 
-from panchi import Vector, Matrix
+from panchi import Matrix, Vector
 from panchi.types import parse_scalar
 
 
@@ -32,21 +32,21 @@ class TestParseScalarBoolRejected:
     def test_true_raises(self):
         try:
             parse_scalar(True)
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass
 
     def test_false_raises(self):
         try:
             parse_scalar(False)
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass
 
     def test_error_is_informative(self):
         try:
             parse_scalar(True)
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError as exc:
             assert "bool" in str(exc)
             assert "1 or 0" in str(exc)
@@ -54,13 +54,13 @@ class TestParseScalarBoolRejected:
     def test_vector_rejects_bools(self):
         try:
             Vector([True, False])
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass
 
     def test_matrix_rejects_bools(self):
         try:
             Matrix([[True, False], [False, True]])
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass

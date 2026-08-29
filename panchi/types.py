@@ -27,7 +27,7 @@ def parse_scalar(value) -> int | float | Fraction:
             raise TypeError(
                 f"Cannot convert string '{value}' to a number. "
                 f"Expected a numeric string or a fraction like '1/3'."
-            )
+            ) from None
     raise TypeError(
         f"Cannot convert {type(value).__name__} to a number. "
         f"Expected int, float, Fraction, or a string like '1/3'."

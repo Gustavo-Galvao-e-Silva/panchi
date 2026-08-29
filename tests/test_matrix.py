@@ -49,17 +49,17 @@ class TestMatrixInitialization:
         assert m.shape == (3, 1)
 
     def test_invalid_jagged_matrix(self):
-        print(f"\n✓ Jagged matrix [[1,2],[3,4,5]] → raises ValueError")
+        print("\n✓ Jagged matrix [[1,2],[3,4,5]] → raises ValueError")
         with pytest.raises(ValueError):
             Matrix([[1, 2], [3, 4, 5]])
 
     def test_invalid_type_not_list(self):
-        print(f"\n✓ Matrix('not a matrix') → raises TypeError")
+        print("\n✓ Matrix('not a matrix') → raises TypeError")
         with pytest.raises(TypeError):
             Matrix("not a matrix")
 
     def test_invalid_type_in_matrix(self):
-        print(f"\n✓ Matrix with strings → raises TypeError")
+        print("\n✓ Matrix with strings → raises TypeError")
         with pytest.raises(TypeError):
             Matrix([[1, 2], ["a", "b"]])
 
@@ -91,7 +91,7 @@ class TestMatrixIndexing:
 
     def test_invalid_index_type(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ m[1.5] → raises TypeError")
+        print("\n✓ m[1.5] → raises TypeError")
         with pytest.raises(TypeError):
             _ = m[1.5]
 
@@ -101,7 +101,7 @@ class TestMatrixSetItem:
 
     def test_setitem_with_string_fraction(self):
         m = Matrix([[1, 2], [3, 4]])
-        m[0] = ['1/3', '2/3']
+        m[0] = ["1/3", "2/3"]
         assert m[0] == [Fraction(1, 3), Fraction(2, 3)]
 
     def test_setitem_with_integer_strings(self):
@@ -139,15 +139,15 @@ class TestMatrixAddition:
     def test_add_different_dimensions(self):
         m1 = Matrix([[1, 2]])
         m2 = Matrix([[1], [2]])
-        print(f"\n✓ (1x2) + (2x1) → raises ValueError")
+        print("\n✓ (1x2) + (2x1) → raises ValueError")
         with pytest.raises(ValueError):
             _ = m1 + m2
 
     def test_add_non_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ Matrix + scalar → raises TypeError")
+        print("\n✓ Matrix + scalar → raises TypeError")
         with pytest.raises(TypeError):
-            result = m + 5
+            m + 5
 
 
 class TestMatrixSubtraction:
@@ -172,7 +172,7 @@ class TestMatrixSubtraction:
     def test_subtract_different_dimensions(self):
         m1 = Matrix([[1, 2]])
         m2 = Matrix([[1], [2]])
-        print(f"\n✓ (1x2) - (2x1) → raises ValueError")
+        print("\n✓ (1x2) - (2x1) → raises ValueError")
         with pytest.raises(ValueError):
             _ = m1 - m2
 
@@ -208,7 +208,7 @@ class TestMatrixMultiplication:
     def test_multiply_incompatible_dimensions(self):
         m1 = Matrix([[1, 2, 3]])  # 1x3
         m2 = Matrix([[1, 2], [3, 4]])  # 2x2
-        print(f"\n✓ (1x3) * (2x2) → raises ValueError (incompatible)")
+        print("\n✓ (1x3) * (2x2) → raises ValueError (incompatible)")
         with pytest.raises(ValueError):
             _ = m1 @ m2
 
@@ -221,7 +221,7 @@ class TestMatrixMultiplication:
 
     def test_matmul_by_non_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ Matrix @ string → raises TypeError")
+        print("\n✓ Matrix @ string → raises TypeError")
         with pytest.raises(TypeError):
             _ = m @ "hello"
 
@@ -265,7 +265,10 @@ class TestMatrixScalarMultiplication:
         m = Matrix([[2, 4], [6, 8]])
         result = m * Fraction(1, 2)
         print(f"\n✓ M * 1/2 = {result.data}")
-        assert result.data == [[Fraction(1, 1), Fraction(2, 1)], [Fraction(3, 1), Fraction(4, 1)]]
+        assert result.data == [
+            [Fraction(1, 1), Fraction(2, 1)],
+            [Fraction(3, 1), Fraction(4, 1)],
+        ]
 
     def test_right_multiply_equals_left(self):
         m = Matrix([[1, 2], [3, 4]])
@@ -280,27 +283,27 @@ class TestMatrixEquality:
         m2 = Matrix([[1, 2], [3, 4]])
         result = m1 == m2
         print(f"\n✓ M1 == M2 → {result} (expected True)")
-        assert result == True
+        assert result
 
     def test_unequal_matrices_values(self):
         m1 = Matrix([[1, 2], [3, 4]])
         m2 = Matrix([[1, 2], [3, 5]])
         result = m1 == m2
         print(f"\n✓ [[1,2],[3,4]] == [[1,2],[3,5]] → {result} (expected False)")
-        assert result == False
+        assert not result
 
     def test_unequal_matrices_dimensions(self):
         m1 = Matrix([[1, 2]])
         m2 = Matrix([[1], [2]])
         result = m1 == m2
         print(f"\n✓ (1x2) == (2x1) → {result} (expected False)")
-        assert result == False
+        assert not result
 
     def test_equal_with_non_matrix(self):
         m = Matrix([[1, 2], [3, 4]])
         result = m == [[1, 2], [3, 4]]
         print(f"\n✓ Matrix == list → {result} (expected False)")
-        assert result == False
+        assert not result
 
 
 class TestMatrixTranspose:
@@ -393,19 +396,19 @@ class TestMatrixPower:
 
     def test_power_non_square(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        print(f"\n✓ Non-square matrix power → raises ValueError")
+        print("\n✓ Non-square matrix power → raises ValueError")
         with pytest.raises(ValueError):
             _ = m**2
 
     def test_power_negative(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ M^(-1) → raises ValueError")
+        print("\n✓ M^(-1) → raises ValueError")
         with pytest.raises(ValueError):
             _ = m**-1
 
     def test_power_non_integer(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ M^2.5 → raises TypeError")
+        print("\n✓ M^2.5 → raises TypeError")
         with pytest.raises(TypeError):
             _ = m**2.5
 
@@ -421,7 +424,8 @@ class TestMatrixNegation:
 
     def test_double_negation(self):
         m = Matrix([[1, 2], [3, 4]])
-        result = -(-m)
+        negated = -m
+        result = -negated
         print(f"\n✓ -(-M) = {result.data} (expected [[1,2],[3,4]])")
         assert result.data == [[1, 2], [3, 4]]
 
@@ -446,7 +450,7 @@ class TestMatrixTrace:
 
     def test_trace_non_square(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        print(f"\n✓ trace(non-square) → raises ValueError")
+        print("\n✓ trace(non-square) → raises ValueError")
         with pytest.raises(ValueError):
             _ = m.trace
 
@@ -549,7 +553,7 @@ class TestMatrixDeterminant:
 
     def test_determinant_non_square_raises(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        print(f"\n✓ det(non-square) → raises ValueError")
+        print("\n✓ det(non-square) → raises ValueError")
         with pytest.raises(ValueError):
             _ = m.determinant
 
@@ -576,13 +580,13 @@ class TestMatrixDeterminant:
 
     def test_determinant_transpose_equal(self):
         m = Matrix([[1, 2, 3], [0, 4, 5], [1, 0, 6]])
-        print(f"\n✓ det(M) == det(M.T)")
+        print("\n✓ det(M) == det(M.T)")
         assert m.determinant == m.T.determinant
 
     def test_determinant_product_rule(self):
         m1 = Matrix([[1, 2], [3, 4]])
         m2 = Matrix([[5, 6], [7, 8]])
-        print(f"\n✓ det(M1 @ M2) == det(M1) * det(M2)")
+        print("\n✓ det(M1 @ M2) == det(M1) * det(M2)")
         assert abs((m1 @ m2).determinant - (m1.determinant * m2.determinant)) < 1e-10
 
 
@@ -592,7 +596,7 @@ class TestMatrixRowCol:
     def test_row_returns_vectors(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
         rows = m.row_vectors
-        print(f"\n✓ row_vectors returns list of Vectors")
+        print("\n✓ row_vectors returns list of Vectors")
         assert all(isinstance(r, Vector) for r in rows)
 
     def test_row_values(self):
@@ -612,13 +616,15 @@ class TestMatrixRowCol:
 
     def test_row_count(self):
         m = Matrix([[1, 2], [3, 4], [5, 6]])
-        print(f"\n✓ row_vectors returns {m.rows} vectors for a {m.rows}×{m.cols} matrix")
+        print(
+            f"\n✓ row_vectors returns {m.rows} vectors for a {m.rows}×{m.cols} matrix"
+        )
         assert len(m.row_vectors) == m.rows
 
     def test_col_returns_vectors(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
         cols = m.col_vectors
-        print(f"\n✓ col_vectors returns list of Vectors")
+        print("\n✓ col_vectors returns list of Vectors")
         assert all(isinstance(c, Vector) for c in cols)
 
     def test_col_values(self):
@@ -638,7 +644,9 @@ class TestMatrixRowCol:
 
     def test_col_count(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
-        print(f"\n✓ col_vectors returns {m.cols} vectors for a {m.rows}×{m.cols} matrix")
+        print(
+            f"\n✓ col_vectors returns {m.cols} vectors for a {m.rows}×{m.cols} matrix"
+        )
         assert len(m.col_vectors) == m.cols
 
 
@@ -654,7 +662,7 @@ class TestMatrixTransform:
 
     def test_transform_non_vector(self):
         m = Matrix([[1, 2], [3, 4]])
-        print(f"\n✓ transform(non-vector) → raises TypeError")
+        print("\n✓ transform(non-vector) → raises TypeError")
         with pytest.raises(TypeError):
             _ = m.transform([1, 2])
 
@@ -691,13 +699,13 @@ class TestMatrixIdentityProperties:
     def test_left_identity_multiplication(self):
         m = Matrix([[1, 2], [3, 4]])
         result = m.left_identity @ m
-        print(f"\n✓ I_left * M = M")
+        print("\n✓ I_left * M = M")
         assert result.data == m.data
 
     def test_right_identity_multiplication(self):
         m = Matrix([[1, 2], [3, 4]])
         result = m @ m.right_identity
-        print(f"\n✓ M * I_right = M")
+        print("\n✓ M * I_right = M")
         assert result.data == m.data
 
 
@@ -778,7 +786,7 @@ class TestMatrixIterator:
 
     def test_iteration(self):
         m = Matrix([[1, 2], [3, 4]])
-        result = [row for row in m]
+        result = list(m)
         print(f"\n✓ Iterating over matrix: {result} (expected [[1,2],[3,4]])")
         assert result == [[1, 2], [3, 4]]
 
@@ -804,9 +812,9 @@ class TestMatrixProperties:
     def test_is_square_true(self):
         m = Matrix([[1, 2], [3, 4]])
         print(f"\n✓ 2x2 is_square = {m.is_square} (expected True)")
-        assert m.is_square == True
+        assert m.is_square
 
     def test_is_square_false(self):
         m = Matrix([[1, 2, 3], [4, 5, 6]])
         print(f"\n✓ 2x3 is_square = {m.is_square} (expected False)")
-        assert m.is_square == False
+        assert not m.is_square
