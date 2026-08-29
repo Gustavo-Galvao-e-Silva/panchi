@@ -13,6 +13,11 @@ from panchi.algorithms import (
     contains,
     same_subspace,
     orthogonal_complement,
+    span,
+    standard_basis,
+    column_space,
+    row_space,
+    null_space,
 )
 ```
 
@@ -192,6 +197,33 @@ vs_r2 = VectorSpace([Vector([1, 0])])
 vs_r3 = VectorSpace([Vector([1, 0, 0])])
 same_subspace(vs_r2, vs_r3)  # ValueError — different ambient dimensions
 ```
+
+## Constructing subspaces
+
+Rather than assembling spaces by hand, panchi provides the textbook constructors. `span` is a
+readable alias for the constructor, and `standard_basis(n)` builds all of Rⁿ:
+
+```python
+span([Vector([1, 0]), Vector([0, 1])])   # VectorSpace(ambient=2, generators=2)
+rank(standard_basis(3))                   # 3 — the standard basis spans R³
+```
+
+The three fundamental subspaces of a matrix are one call each. The `column_space` (the span of the
+columns) and `row_space` both have dimension `rank(A)`; the `null_space` (the kernel) has dimension
+`nullity(A)`:
+
+```python
+A = Matrix([[1, 2, 3], [4, 5, 6]])
+
+rank(column_space(A))   # 2 == rank(A)
+rank(row_space(A))      # 2 == rank(A)
+rank(null_space(A))     # 1 == nullity(A)
+
+# every null-space vector is annihilated by A
+all(A @ v == Vector([0, 0]) for v in null_space(A))  # True
+```
+
+When `A` has full column rank the null space is trivial — represented by the zero vector (rank 0).
 
 ## Orthogonal complement
 

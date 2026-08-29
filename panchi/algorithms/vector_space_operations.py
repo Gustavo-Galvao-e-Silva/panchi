@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from panchi.algorithms.matrix_operations import solve
+from panchi.algorithms.matrix_operations import _null_space_basis, rank, solve
 from panchi.algorithms.reductions import ref, rref
+from panchi.primitives.factories import unit_vector, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -45,38 +46,6 @@ def basis(space: VectorSpace) -> list[Vector]:
         result.append(space.data[pivot_col])
 
     return result
-
-
-def rank(space: VectorSpace) -> int:
-    """
-    Return the rank of a space — the dimension of its span.
-
-    The rank equals the number of vectors in a basis, i.e. the number of
-    linearly independent directions the spanning set covers. It is the
-    dimension of the subspace, so ``rank(space) == len(basis(space))``.
-
-    The name ``rank`` (rather than "dimension") is deliberate: it names the
-    quantity precisely and avoids confusion with ``Vector.dims`` and
-    ``VectorSpace.ambient_dims``, which both count *components* (the n in
-    R^n) rather than independent directions.
-
-    Parameters
-    ----------
-    space : VectorSpace
-        The space whose rank to compute.
-
-    Returns
-    -------
-    int
-        The number of linearly independent vectors in the space's basis.
-
-    Examples
-    --------
-    >>> vs = VectorSpace([Vector([1, 0]), Vector([0, 1]), Vector([1, 1])])
-    >>> rank(vs)
-    2
-    """
-    return len(basis(space))
 
 
 def is_full_rank(space: VectorSpace) -> bool:
@@ -213,13 +182,146 @@ def same_subspace(a: VectorSpace, b: VectorSpace) -> bool:
     return all(contains(b, v) for v in basis(a))
 
 
+def span(vectors: list[Vector]) -> VectorSpace:
+    """
+    Construct the vector space spanned by a list of vectors.
+
+    A readable alias for ``VectorSpace(vectors)`` — the span is the set of all
+    linear combinations of the given vectors.
+
+    Parameters
+    ----------
+    vectors : list[Vector]
+        The spanning vectors.
+
+    Returns
+    -------
+    VectorSpace
+        The space these vectors span.
+
+    Examples
+    --------
+    >>> span([Vector([1, 0]), Vector([0, 1])])
+    VectorSpace(ambient=2, generators=2)
+    """
+    return VectorSpace(vectors)
+
+
+def standard_basis(n: int) -> VectorSpace:
+    """
+    Construct the standard basis of R^n as a vector space.
+
+    The standard basis is ``{e_1, ..., e_n}``, where ``e_i`` has a 1 in
+    position i and 0 elsewhere. The resulting space is all of R^n.
+
+    Parameters
+    ----------
+    n : int
+        The dimension of the ambient space.
+
+    Returns
+    -------
+    VectorSpace
+        The full space R^n, spanned by the standard basis vectors.
+
+    Examples
+    --------
+    >>> rank(standard_basis(3))
+    3
+    """
+    return VectorSpace([unit_vector(n, i) for i in range(n)])
+
+
+def column_space(matrix: Matrix) -> VectorSpace:
+    """
+    Construct the column space of a matrix.
+
+    The column space is the span of the matrix's columns — the set of all
+    vectors reachable as ``matrix @ x``. Its dimension equals ``rank(matrix)``.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose column space to build.
+
+    Returns
+    -------
+    VectorSpace
+        The span of the matrix's columns.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 2], [3, 6]])
+    >>> rank(column_space(A))
+    1
+    """
+    return VectorSpace(matrix.col_vectors)
+
+
+def row_space(matrix: Matrix) -> VectorSpace:
+    """
+    Construct the row space of a matrix.
+
+    The row space is the span of the matrix's rows, equivalently the column
+    space of its transpose. Its dimension equals ``rank(matrix)``.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose row space to build.
+
+    Returns
+    -------
+    VectorSpace
+        The span of the matrix's rows.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 2], [3, 6]])
+    >>> rank(row_space(A))
+    1
+    """
+    return column_space(matrix.transpose())
+
+
+def null_space(matrix: Matrix) -> VectorSpace:
+    """
+    Construct the null space (kernel) of a matrix.
+
+    The null space is the set of all vectors x with ``matrix @ x == 0``. Its
+    basis is extracted parametrically from the reduced row echelon form: one
+    basis vector per free column. When the matrix has full column rank the
+    null space is trivial and is represented by the zero vector (rank 0).
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose null space to build.
+
+    Returns
+    -------
+    VectorSpace
+        The kernel of the matrix. ``rank(null_space(A)) == nullity(A)``.
+
+    Examples
+    --------
+    >>> A = Matrix([[1, 1], [1, 1]])
+    >>> rank(null_space(A))
+    1
+    """
+    null_vectors = _null_space_basis(rref(matrix))
+    if not null_vectors:
+        return VectorSpace([zero_vector(matrix.cols)])
+    return VectorSpace(null_vectors)
+
+
 def orthogonal_complement(space: VectorSpace) -> VectorSpace:
     """
     Compute the orthogonal complement of a vector space.
 
     The orthogonal complement of a subspace W of R^n is the set of all
-    vectors in R^n that are orthogonal to every vector in W. It is computed
-    as the null space of the matrix whose rows are the basis vectors of W.
+    vectors in R^n that are orthogonal to every vector in W. It is exactly
+    the null space of the matrix whose rows are the basis vectors of W.
 
     Parameters
     ----------
@@ -256,28 +358,8 @@ def orthogonal_complement(space: VectorSpace) -> VectorSpace:
         )
 
     basis_vectors = basis(space)
-    n = space.ambient_dims
-
     if not basis_vectors:
-        return VectorSpace(
-            [Vector([1 if i == j else 0 for j in range(n)]) for i in range(n)]
-        )
+        return standard_basis(space.ambient_dims)
 
     row_matrix = Matrix([v.to_list() for v in basis_vectors])
-    reduction = rref(row_matrix)
-
-    pivot_cols = {col for _, col in reduction.pivots}
-    free_cols = [j for j in range(n) if j not in pivot_cols]
-
-    if not free_cols:
-        return VectorSpace([Vector([0] * n)])
-
-    null_vectors = []
-    for j in free_cols:
-        components = [0] * n
-        components[j] = 1
-        for row, col in reduction.pivots:
-            components[col] = -reduction.result[row][j]
-        null_vectors.append(Vector(components))
-
-    return VectorSpace(null_vectors)
+    return null_space(row_matrix)

@@ -37,11 +37,15 @@ from panchi.algorithms.vector_operations import (
 )
 from panchi.algorithms.vector_space_operations import (
     basis,
-    rank,
     is_full_rank,
     contains,
     same_subspace,
     orthogonal_complement,
+    span,
+    standard_basis,
+    column_space,
+    row_space,
+    null_space,
 )
 from panchi.algorithms.matrix_operations import (
     inverse,
@@ -49,6 +53,10 @@ from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
     eigen,
+    rank,
+    nullity,
+    is_invertible,
+    is_symmetric,
 )
 from panchi.algorithms.decompositions import qr_decomposition
 
@@ -78,10 +86,18 @@ __all__ = [
     "gram_schmidt",
     "basis",
     "rank",
+    "nullity",
+    "is_invertible",
+    "is_symmetric",
     "is_full_rank",
     "contains",
     "same_subspace",
     "orthogonal_complement",
+    "span",
+    "standard_basis",
+    "column_space",
+    "row_space",
+    "null_space",
     "inverse",
     "solve",
     "determinant",

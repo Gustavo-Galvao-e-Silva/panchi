@@ -7,7 +7,7 @@ from matplotlib.patches import FancyArrowPatch
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.algorithms.vector_space_operations import basis as compute_basis
-from panchi.algorithms.vector_space_operations import rank
+from panchi.algorithms.matrix_operations import rank
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.matplotlib_base import (
     ADDITION_COLORS,

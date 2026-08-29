@@ -95,6 +95,31 @@ property — it is an algorithm, so it lives in `panchi.algorithms` rather than 
 print(pan.determinant(A))  # -2  — cofactor expansion, exact (square only)
 ```
 
+## Rank, invertibility, and symmetry
+
+Rank and its companions are free functions too. `rank` counts the linearly independent rows
+(equivalently columns) of a matrix; `nullity` is the dimension of its null space; together they
+satisfy the rank–nullity theorem, `rank(A) + nullity(A) == A.cols`:
+
+```python
+A = pan.Matrix([[1, 2, 3], [4, 5, 6]])
+
+print(pan.rank(A))       # 2
+print(pan.nullity(A))    # 1   — and 2 + 1 == A.cols
+```
+
+`is_invertible` and `is_symmetric` answer the two most common structural questions. `is_invertible`
+is decided by rank (square and full rank), which avoids the O(n!) cofactor determinant:
+
+```python
+print(pan.is_invertible(pan.Matrix([[1, 2], [3, 4]])))  # True
+print(pan.is_invertible(pan.Matrix([[1, 2], [2, 4]])))  # False — singular
+print(pan.is_symmetric(pan.Matrix([[1, 2], [2, 1]])))   # True
+```
+
+`rank` is deliberately one function for both matrices and vector spaces — a subspace's rank *is*
+the rank of its generating matrix, so `rank(pan.column_space(A)) == rank(A)`.
+
 ## Identity matrices
 
 Every matrix has a left and right identity — the square identity matrices of the appropriate size for multiplication on each side:

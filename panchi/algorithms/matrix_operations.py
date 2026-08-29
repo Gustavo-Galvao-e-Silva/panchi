@@ -1,10 +1,11 @@
 from panchi.types import Scalar
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.primitives.vector_space import VectorSpace
 from panchi.primitives.factories import identity, zero_vector
 from panchi.algorithms.row_operations import RowOperation, RowSwap
 from panchi.algorithms.results import InverseResult, Reduction, Solution, EigenResult
-from panchi.algorithms.reductions import rref
+from panchi.algorithms.reductions import ref, rref
 from panchi.algorithms.decompositions import lu, qr_decomposition
 
 
@@ -333,6 +334,145 @@ def determinant(matrix: Matrix) -> Scalar:
     return det
 
 
+def rank(obj: Matrix | VectorSpace) -> int:
+    """
+    Return the rank of a matrix or vector space.
+
+    Rank is fundamentally a matrix property: the number of linearly
+    independent rows (equivalently, columns) of a matrix, computed as the
+    number of pivots in its reduced row echelon form. A ``VectorSpace``'s
+    rank is *defined* as the rank of the matrix whose rows are its spanning
+    vectors — so the same function answers both, and
+    ``rank(m) == rank(VectorSpace(m.col_vectors))``.
+
+    Parameters
+    ----------
+    obj : Matrix or VectorSpace
+        The matrix, or the vector space whose generators to rank.
+
+    Returns
+    -------
+    int
+        The number of linearly independent rows/vectors.
+
+    Examples
+    --------
+    >>> rank(Matrix([[1, 2], [2, 4]]))
+    1
+    >>> rank(VectorSpace([Vector([1, 0]), Vector([0, 1]), Vector([1, 1])]))
+    2
+    """
+    if isinstance(obj, VectorSpace):
+        matrix = Matrix([v.to_list() for v in obj.data])
+    else:
+        matrix = obj
+    return ref(matrix).rank
+
+
+def nullity(matrix: Matrix) -> int:
+    """
+    Return the nullity of a matrix — the dimension of its null space.
+
+    By the rank–nullity theorem, ``rank(matrix) + nullity(matrix)`` equals
+    the number of columns of the matrix.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose nullity to compute.
+
+    Returns
+    -------
+    int
+        The dimension of the null space (number of free columns).
+
+    Examples
+    --------
+    >>> nullity(Matrix([[1, 2, 3], [4, 5, 6]]))
+    1
+    """
+    return ref(matrix).nullity
+
+
+def is_invertible(matrix: Matrix) -> bool:
+    """
+    Return True if the matrix is square and invertible (full rank).
+
+    A matrix is invertible exactly when it is square and its rank equals its
+    number of rows (equivalently, its determinant is non-zero). This uses the
+    rank via RREF rather than the O(n!) cofactor determinant.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to test.
+
+    Returns
+    -------
+    bool
+        True if the matrix is square and full rank, False otherwise.
+
+    Examples
+    --------
+    >>> is_invertible(Matrix([[1, 2], [3, 4]]))
+    True
+    >>> is_invertible(Matrix([[1, 2], [2, 4]]))
+    False
+    """
+    return matrix.is_square and rank(matrix) == matrix.rows
+
+
+def is_symmetric(matrix: Matrix) -> bool:
+    """
+    Return True if the matrix equals its own transpose.
+
+    Only square matrices can be symmetric. A symmetric matrix satisfies
+    ``A == Aᵀ`` entrywise.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to test.
+
+    Returns
+    -------
+    bool
+        True if the matrix is square and equal to its transpose.
+
+    Examples
+    --------
+    >>> is_symmetric(Matrix([[1, 2], [2, 1]]))
+    True
+    >>> is_symmetric(Matrix([[1, 2], [3, 4]]))
+    False
+    """
+    return matrix.is_square and matrix == matrix.transpose()
+
+
+def _null_space_basis(reduction: Reduction) -> list[Vector]:
+    """
+    Extract a parametric basis for the null space from an RREF reduction.
+
+    For each free (non-pivot) column, builds the null-space basis vector that
+    sets that free variable to 1 and solves for the pivot variables. Returns
+    an empty list when the reduction has full column rank.
+    """
+    n = reduction.original.cols
+    pivot_cols = {col for _, col in reduction.pivots}
+    pivot_map = {col: row for row, col in reduction.pivots}
+    free_cols = [j for j in range(n) if j not in pivot_cols]
+
+    null_vectors = []
+    for fc in free_cols:
+        components: list[Scalar] = [0] * n
+        components[fc] = 1
+        for pc, pr in pivot_map.items():
+            components[pc] = -reduction.result[pr][fc]
+        null_vectors.append(Vector(components))
+
+    return null_vectors
+
+
 def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
     """
     Solve the linear system Ax = b.
@@ -409,20 +549,9 @@ def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
-        from panchi.primitives.vector_space import VectorSpace
-
         n = A.cols
-        pivot_cols = {col for _, col in matrix_rref.pivots}
         pivot_map = {col: row for row, col in matrix_rref.pivots}
-        free_cols = [j for j in range(n) if j not in pivot_cols]
-
-        null_vectors = []
-        for fc in free_cols:
-            components: list[Scalar] = [0] * n
-            components[fc] = 1
-            for pc, pr in pivot_map.items():
-                components[pc] = -matrix_rref.result[pr][fc]
-            null_vectors.append(Vector(components))
+        null_vectors = _null_space_basis(matrix_rref)
 
         particular_components: list[Scalar] = [0] * n
         for pc, pr in pivot_map.items():

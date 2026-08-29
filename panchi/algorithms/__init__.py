@@ -26,6 +26,10 @@ from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
     eigen,
+    rank,
+    nullity,
+    is_invertible,
+    is_symmetric,
 )
 from panchi.algorithms.vector_operations import (
     dot,
@@ -35,11 +39,15 @@ from panchi.algorithms.vector_operations import (
 )
 from panchi.algorithms.vector_space_operations import (
     basis,
-    rank,
     is_full_rank,
     contains,
     same_subspace,
     orthogonal_complement,
+    span,
+    standard_basis,
+    column_space,
+    row_space,
+    null_space,
 )
 
 __all__ = [
@@ -61,14 +69,22 @@ __all__ = [
     "determinant",
     "determinant_lu",
     "eigen",
+    "rank",
+    "nullity",
+    "is_invertible",
+    "is_symmetric",
     "dot",
     "cross",
     "vector_projection",
     "gram_schmidt",
     "basis",
-    "rank",
     "is_full_rank",
     "contains",
     "same_subspace",
     "orthogonal_complement",
+    "span",
+    "standard_basis",
+    "column_space",
+    "row_space",
+    "null_space",
 ]

@@ -1,10 +1,10 @@
 import pytest
 
+from panchi.algorithms.matrix_operations import rank
 from panchi.algorithms.vector_space_operations import (
     basis,
     contains,
     is_full_rank,
-    rank,
     same_subspace,
 )
 from panchi.primitives import Vector
