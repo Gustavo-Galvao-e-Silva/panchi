@@ -358,7 +358,8 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
         if dim == 0:
             _setup_coordinate_plane(ax, (-3, 3), (-3, 3), grid)
-            ax.plot(0, 0, "ko", markersize=8, zorder=5)
+            ax.plot(0, 0, "ko", markersize=8, zorder=5, label="span = {0}")
+            ax.legend(loc="upper left", fontsize=10)
             self._finalize_figure(fig, name)
             return
 
@@ -379,7 +380,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                     linewidth=3,
                     alpha=0.4,
                     zorder=1,
-                    label="span",
+                    label="span = line (R¹)",
                 )
         elif dim == 2:
             xlo, xhi = axis_range
