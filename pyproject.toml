@@ -101,7 +101,8 @@ target-version = "py310"
 
 [tool.ruff.lint]
 select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501", "B008"]
+# E741: single-letter math names (l, I, O) are intentional in a linear-algebra library
+ignore = ["E501", "B008", "E741"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
