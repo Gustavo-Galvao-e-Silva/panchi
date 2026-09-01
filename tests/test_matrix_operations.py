@@ -11,7 +11,6 @@ from panchi.algorithms import (
 )
 from panchi.primitives import Matrix, Vector, identity
 
-
 # ==================== INVERSE TESTS ====================
 
 

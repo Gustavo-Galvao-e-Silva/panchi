@@ -127,7 +127,9 @@ class TestVectorSpaceBasis:
         v3 = Vector([7, 8, 9])  # v3 = 2*v2 - v1
         vs = VectorSpace([v1, v2, v3])
         computed = basis(vs)
-        print(f"\n✓ basis([v1,v2,v3]) with v3 dependent → {len(computed)} vectors (expected 2)")
+        print(
+            f"\n✓ basis([v1,v2,v3]) with v3 dependent → {len(computed)} vectors (expected 2)"
+        )
         assert len(computed) == 2
 
     def test_basis_returns_vectors_from_original_set(self):
@@ -419,27 +421,27 @@ class TestVectorSpaceIsFullRank:
 
     def test_full_rank_standard_basis_2d(self):
         vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
-        print(f"\n✓ standard R² basis is full rank")
+        print("\n✓ standard R² basis is full rank")
         assert is_full_rank(vs) is True
 
     def test_full_rank_standard_basis_3d(self):
         vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
-        print(f"\n✓ standard R³ basis is full rank")
+        print("\n✓ standard R³ basis is full rank")
         assert is_full_rank(vs) is True
 
     def test_not_full_rank_subspace(self):
         vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
-        print(f"\n✓ plane in R³ is not full rank")
+        print("\n✓ plane in R³ is not full rank")
         assert is_full_rank(vs) is False
 
     def test_not_full_rank_single_vector_in_3d(self):
         vs = VectorSpace([Vector([1, 2, 3])])
-        print(f"\n✓ line in R³ is not full rank")
+        print("\n✓ line in R³ is not full rank")
         assert is_full_rank(vs) is False
 
     def test_not_full_rank_with_dependent_vectors(self):
         vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([1, 1, 0])])
-        print(f"\n✓ dependent spanning set in R³ does not become full rank")
+        print("\n✓ dependent spanning set in R³ does not become full rank")
         assert is_full_rank(vs) is False
 
 
@@ -450,27 +452,27 @@ class TestVectorSpaceContains:
         v1 = Vector([1, 0])
         v2 = Vector([0, 1])
         vs = VectorSpace([v1, v2])
-        print(f"\n✓ basis vector is contained in its own space")
+        print("\n✓ basis vector is contained in its own space")
         assert contains(vs, v1) is True
 
     def test_contains_linear_combination(self):
         vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
-        print(f"\n✓ [3, 4] is in span of standard R² basis")
+        print("\n✓ [3, 4] is in span of standard R² basis")
         assert contains(vs, Vector([3, 4])) is True
 
     def test_not_contains_out_of_plane(self):
         vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
-        print(f"\n✓ [0, 0, 1] is not in the xy-plane subspace")
+        print("\n✓ [0, 0, 1] is not in the xy-plane subspace")
         assert contains(vs, Vector([0, 0, 1])) is False
 
     def test_contains_vector_in_line(self):
         vs = VectorSpace([Vector([1, 2])])
-        print(f"\n✓ [3, 6] = 3*[1,2] is in the span")
+        print("\n✓ [3, 6] = 3*[1,2] is in the span")
         assert contains(vs, Vector([3, 6])) is True
 
     def test_not_contains_off_line(self):
         vs = VectorSpace([Vector([1, 2])])
-        print(f"\n✓ [1, 3] is not a multiple of [1, 2]")
+        print("\n✓ [1, 3] is not a multiple of [1, 2]")
         assert contains(vs, Vector([1, 3])) is False
 
     def test_contains_invalid_type(self):

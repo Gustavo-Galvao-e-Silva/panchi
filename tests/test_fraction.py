@@ -1,11 +1,10 @@
 from fractions import Fraction
 
-import panchi as pan
-from panchi import determinant
 from panchi import (
     Matrix,
     Vector,
     cross,
+    determinant,
     determinant_lu,
     dot,
     exact_matrix,
