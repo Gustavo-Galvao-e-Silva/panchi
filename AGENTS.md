@@ -57,6 +57,13 @@ docs/                 # mkdocs-material sources
 - **Informative errors.** Error messages should explain what went wrong and why,
   including the offending value/type — they are a teaching tool.
 - **Type hints and guards** everywhere; validate inputs (`TypeError`/`ValueError`).
+- **Rich display is additive.** A new displayable type gets a `_repr_latex_` (reusing the
+  builders in `panchi/_latex.py`) for Jupyter; `__str__`/`__repr__` stay terminal-first and
+  unchanged. The core adds no display dependency — the LaTeX only renders when a notebook asks.
+- **Collections of vectors are passed as a single `list[Vector]`**, never varargs —
+  `plot_vectors([v1, v2])`, `VectorSpace([v1, v2])`, `gram_schmidt([v1, v2])`. This mirrors
+  `Vector([...])` / `Matrix([[...]])` and the numpy/pandas sequence idiom. Don't add `*vectors`
+  parameters to new public functions.
 - **Minimal comments.** If you need many comments to explain code, refactor it
   instead. No debug `print()` statements.
 - **Dependencies:** the core library (primitives + algorithms) uses only the

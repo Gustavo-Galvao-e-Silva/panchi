@@ -1,6 +1,14 @@
 import pytest
 
-from panchi.algorithms import InverseResult, Solution, determinant_lu, inverse, solve
+from panchi.algorithms import (
+    InverseResult,
+    Solution,
+    determinant,
+    determinant_lu,
+    inverse,
+    rank,
+    solve,
+)
 from panchi.primitives import Matrix, Vector, identity
 
 # ==================== INVERSE TESTS ====================
@@ -136,7 +144,7 @@ class TestDeterminantLuCorrectness:
 
     def test_matches_cofactor_expansion(self):
         m = Matrix([[1, 2, 0], [3, 4, 5], [6, 0, 7]])
-        assert determinant_lu(m) == pytest.approx(m.determinant, abs=1e-9)
+        assert determinant_lu(m) == pytest.approx(determinant(m), abs=1e-9)
 
     def test_product_rule(self):
         m1 = Matrix([[1, 2], [3, 4]])
@@ -339,7 +347,7 @@ class TestSolveInfinite:
         A = Matrix([[1, 2, 3], [4, 5, 6]])
         b = Vector([7, 8])
         result = solve(A, b)
-        assert result.null_space.dims == 1
+        assert rank(result.null_space) == 1
 
     def test_rank_deficient_square(self):
         A = Matrix([[1, 2], [2, 4]])
@@ -347,7 +355,7 @@ class TestSolveInfinite:
         result = solve(A, b)
         assert result.particular is not None
         assert A @ result.particular == b
-        assert result.null_space.dims == 1
+        assert rank(result.null_space) == 1
 
     def test_homogeneous_particular_is_zero(self):
         A = Matrix([[1, 2, 3], [4, 5, 6]])
@@ -376,7 +384,7 @@ class TestSolveInfinite:
         A = Matrix([[1, 2, 3, 4], [5, 6, 7, 8]])
         b = Vector([9, 10])
         result = solve(A, b)
-        assert result.null_space.dims == 2
+        assert rank(result.null_space) == 2
         assert result.particular is not None
         assert A @ result.particular == b
         zero = Vector([0, 0])
@@ -390,7 +398,7 @@ class TestSolveInfinite:
         A = Matrix([[1, 0, 1, 0, 1]])
         b = Vector([1])
         result = solve(A, b)
-        assert result.null_space.dims == 4
+        assert rank(result.null_space) == 4
         s = str(result)
         assert "t1·" in s
         assert "t4·" in s
@@ -412,7 +420,7 @@ class TestSolveTolerance:
         result = solve(A, Vector([0.0, 0.0]), tolerance=1e-6)
         assert result.status == "infinite"
         assert result.null_space is not None
-        assert result.null_space.dims == 1
+        assert rank(result.null_space) == 1
 
     def test_tolerance_does_not_change_exact_systems(self):
         # A genuinely non-singular system solves the same with a small tolerance.

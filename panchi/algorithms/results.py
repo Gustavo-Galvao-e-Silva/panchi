@@ -2,6 +2,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from panchi._latex import (
+    matrix_to_latex,
+    row_op_to_latex,
+    scalar_to_latex,
+    vector_to_latex,
+)
 from panchi.algorithms.row_operations import RowOperation
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
@@ -153,6 +159,18 @@ class Reduction:
 
         return f"{summary}\n{self.result}"
 
+    def _repr_latex_(self) -> str:
+        """Render the reduction as a stacked LaTeX arrow sequence."""
+        current = self.original.copy()
+        lines = [f"& {matrix_to_latex(current)}"]
+        for step in self.steps:
+            current = step.apply(current)
+            lines.append(
+                f"&\\xrightarrow{{{row_op_to_latex(step)}}} {matrix_to_latex(current)}"
+            )
+        body = " \\\\\n".join(lines)
+        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+
 
 class LUDecomposition:
     """
@@ -278,6 +296,22 @@ class LUDecomposition:
             f"steps={len(self.steps)})"
         )
 
+    def _repr_latex_(self) -> str:
+        """Render the factorization ``A = LU`` (or ``PA = LU`` when pivoted)."""
+        n = self.permutation.rows
+        is_identity = all(
+            self.permutation[i, j] == (1 if i == j else 0)
+            for i in range(n)
+            for j in range(n)
+        )
+        rhs = f"{matrix_to_latex(self.lower)}\\,{matrix_to_latex(self.upper)}"
+        if is_identity:
+            return f"$${matrix_to_latex(self.original)} = {rhs}$$"
+        return (
+            f"$$P\\,{matrix_to_latex(self.original)} = {rhs}, \\quad "
+            f"P = {matrix_to_latex(self.permutation)}$$"
+        )
+
 
 class QRDecomposition:
     """
@@ -375,6 +409,13 @@ class QRDecomposition:
             f"steps={len(self.steps)})"
         )
 
+    def _repr_latex_(self) -> str:
+        """Render the factorization ``A = QR`` in LaTeX."""
+        return (
+            f"$${matrix_to_latex(self.original)} = "
+            f"{matrix_to_latex(self.q)}\\,{matrix_to_latex(self.r)}$$"
+        )
+
 
 class InverseResult:
     """
@@ -463,6 +504,13 @@ class InverseResult:
         )
 
         return f"{summary}\n{self.inverse}"
+
+    def _repr_latex_(self) -> str:
+        """Render ``A^{-1} = ...`` in LaTeX."""
+        return (
+            f"$${matrix_to_latex(self.original)}^{{-1}} = "
+            f"{matrix_to_latex(self.inverse)}$$"
+        )
 
 
 class Solution:
@@ -565,7 +613,7 @@ class Solution:
         return header
 
     def _format_general_solution(self) -> str:
-        basis = self.null_space.basis
+        basis = list(self.null_space)
         n = len(basis)
 
         if n == 1:
@@ -605,6 +653,34 @@ class Solution:
             f"status={self.status}, "
             f"solution={self.solution})"
         )
+
+    def _repr_latex_(self) -> str:
+        """Render the solution (unique vector or general solution) in LaTeX."""
+        if self.solution is not None:
+            return f"$x = {vector_to_latex(self.solution)}$"
+        if self.particular is not None and self.null_space is not None:
+            return f"$${self._general_solution_latex()}$$"
+        return "$\\text{No solution (inconsistent system).}$"
+
+    def _general_solution_latex(self) -> str:
+        basis = list(self.null_space)
+        n = len(basis)
+        if n == 1:
+            params = ["t"]
+        elif n == 2:
+            params = ["s", "t"]
+        else:
+            params = [f"t_{{{i + 1}}}" for i in range(n)]
+
+        is_zero = all(self.particular[i] == 0 for i in range(self.particular.dims))
+
+        parts = []
+        if not is_zero:
+            parts.append(vector_to_latex(self.particular))
+        for param, vec in zip(params, basis, strict=False):
+            parts.append(f"{param}\\,{vector_to_latex(vec)}")
+
+        return "x = " + " + ".join(parts)
 
 
 class EigenResult:
@@ -726,3 +802,20 @@ class EigenResult:
             f"iterations={self.iterations}, "
             f"converged={self.converged})"
         )
+
+    def _repr_latex_(self) -> str:
+        """Render the eigenvalue/eigenvector pairs in LaTeX."""
+        values = ",\\; ".join(scalar_to_latex(round(v, 6)) for v in self.eigenvalues)
+        if not self.eigenvectors:
+            body = f"\\lambda \\in \\left\\{{ {values} \\right\\}}"
+            if not self.converged:
+                body = "\\text{did not converge; } " + body
+            return f"${body}$"
+        lines = []
+        for i, (value, vector) in enumerate(self.pairs):
+            lines.append(
+                f"\\lambda_{{{i + 1}}} = {scalar_to_latex(round(value, 6))}, "
+                f"\\quad v_{{{i + 1}}} = {vector_to_latex(vector)}"
+            )
+        body = " \\\\\n".join(lines)
+        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"

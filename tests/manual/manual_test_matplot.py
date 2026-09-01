@@ -18,31 +18,29 @@ def test_basic_functionality():
 
     print("\n[1] Single vector")
     v = Vector([2, 3])
-    animator.plot_vectors(v, labels=["v"])
+    animator.plot_vectors([v], labels=["v"])
 
     print("\n[2] Two vectors")
     v1 = Vector([1, 2])
     v2 = Vector([2, 1])
-    animator.plot_vectors(v1, v2, labels=["v1", "v2"])
+    animator.plot_vectors([v1, v2], labels=["v1", "v2"])
 
     print("\n[3] Five vectors")
     vectors = [Vector([i, 5 - i]) for i in range(5)]
-    animator.plot_vectors(*vectors, labels=[f"v{i}" for i in range(5)])
+    animator.plot_vectors(vectors, labels=[f"v{i}" for i in range(5)])
 
     print("\n[4] Custom colors")
     v1 = Vector([2, 1])
     v2 = Vector([1, 2])
     v3 = Vector([-1, 1])
     animator.plot_vectors(
-        v1,
-        v2,
-        v3,
+        [v1, v2, v3],
         colors=["#FF0000", "#00FF00", "#0000FF"],
         labels=["red", "green", "blue"],
     )
 
     print("\n[5] No grid")
-    animator.plot_vectors(v1, v2, grid=False, labels=["v1", "v2"])
+    animator.plot_vectors([v1, v2], grid=False, labels=["v1", "v2"])
 
 
 def test_animations():
@@ -92,6 +90,12 @@ def test_transforms():
     print("\n[5] Singular matrix (projection onto x-axis)")
     animator.animate_transform(Matrix([[1, 0], [0, 0]]))
 
+    print("\n[6] Custom vectors transformed")
+    animator.animate_transform(
+        Matrix([[2, 1], [0, 1]]),
+        vectors=[Vector([1, 0]), Vector([1, 2]), Vector([-1, 1])],
+    )
+
 
 def test_spans():
     """Test span visualization."""
@@ -102,17 +106,23 @@ def test_spans():
     animator = Animator2D(backend="matplotlib")
 
     print("\n[1] 1D span (single vector)")
-    animator.plot_span(Vector([1, 2]))
+    animator.plot_span([Vector([1, 2])])
 
     print("\n[2] 1D span (linearly dependent vectors)")
-    animator.plot_span(Vector([1, 2]), Vector([2, 4]))
+    animator.plot_span([Vector([1, 2]), Vector([2, 4])])
 
     print("\n[3] 2D span (two independent vectors)")
-    animator.plot_span(Vector([1, 0]), Vector([0, 1]))
+    animator.plot_span([Vector([1, 0]), Vector([0, 1])])
 
     print("\n[4] 2D span from VectorSpace")
     space = VectorSpace([Vector([1, 1]), Vector([1, -1])])
     animator.plot_span(space, labels=["v1", "v2"])
+
+    print("\n[5] Multiple spans compared (color-coded + legend)")
+    animator.plot_span(
+        [[Vector([1, 1])], [Vector([1, -1])], VectorSpace([Vector([2, 1])])],
+        labels=["A", "B", "C"],
+    )
 
 
 def test_error_handling():
@@ -125,7 +135,7 @@ def test_error_handling():
 
     print("\n[1] Non-2D vector (should raise ValueError)")
     try:
-        animator.plot_vectors(Vector([1, 2, 3]))
+        animator.plot_vectors([Vector([1, 2, 3])])
         print("  FAIL: Should have raised ValueError")
     except ValueError as e:
         print(f"  OK: {e}")

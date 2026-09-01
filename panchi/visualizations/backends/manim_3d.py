@@ -17,6 +17,8 @@ from manim import (
     Write,
 )
 
+from panchi.algorithms.matrix_operations import rank
+from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -30,7 +32,6 @@ from panchi.visualizations.backends.manim_base import (
     ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
-    GUIDE_COLOR,
     MATRIX_HUD_COLOR,
     PARALLELOGRAM_COLOR,
     SCALING_COLORS,
@@ -40,6 +41,7 @@ from panchi.visualizations.backends.manim_base import (
     _BuilderSceneMixin,
     _ManimBackendBase,
     _resolve_colors,
+    _resolve_n_colors,
 )
 
 CAMERA_PHI = 70 * DEGREES
@@ -235,17 +237,22 @@ class _ManimBackend3D(_ManimBackendBase):
     def animate_transform(
         self,
         matrix: Matrix,
-        frames: int,
-        interval: int,
-        name: str,
+        vectors: list[Vector] | None = None,
+        frames: int = 60,
+        interval: int = 30,
+        name: str = "animate_transform",
         colors: list[str] | None = None,
     ) -> None:
-        basis_colors = _resolve_colors(colors, TRANSFORM_COLORS_3D)
+        vecs = (
+            [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
+            if vectors
+            else [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+        )
+        vec_colors = _resolve_n_colors(colors, len(vecs), TRANSFORM_COLORS_3D)
         target = [[float(matrix[i][j]) for j in range(3)] for i in range(3)]
-        basis = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
 
         def build(scene: _VectorScene3D) -> None:
-            image = [apply_3x3(target, v) for v in CUBE_VERTS]
+            image = [apply_3x3(target, v) for v in vecs] + list(vecs)
             coords = [c for corner in image for c in corner]
             range_val = max(_axis_range(coords) if coords else 2, 2)
             axis_range = (-range_val, range_val)
@@ -264,41 +271,22 @@ class _ManimBackend3D(_ManimBackendBase):
             scene.add_fixed_in_frame_mobjects(matrix_tex)
             scene.play(Write(matrix_tex), run_time=0.6)
 
-            def cube_group(m):
-                group = VGroup()
-                for i, j in CUBE_EDGES:
-                    p1 = apply_3x3(m, CUBE_VERTS[i])
-                    p2 = apply_3x3(m, CUBE_VERTS[j])
-                    group.add(
-                        Line3D(
-                            scene.axes.c2p(*p1),
-                            scene.axes.c2p(*p2),
-                            color=GUIDE_COLOR,
-                            thickness=0.015,
-                        )
-                    )
-                return group
-
-            identity = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-            cube = cube_group(identity)
             arrows = [
-                Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*b), color=color)
-                for b, color in zip(basis, basis_colors, strict=False)
+                Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*v), color=color)
+                for v, color in zip(vecs, vec_colors, strict=False)
             ]
-            scene.play(Create(cube), *[Create(a) for a in arrows], run_time=1.2)
+            scene.play(*[Create(a) for a in arrows], run_time=1.2)
             scene.wait(0.4)
 
-            cube_target = cube_group(target)
             arrow_targets = [
                 Arrow3D(
                     scene.axes.c2p(0, 0, 0),
-                    scene.axes.c2p(*apply_3x3(target, b)),
+                    scene.axes.c2p(*apply_3x3(target, v)),
                     color=color,
                 )
-                for b, color in zip(basis, basis_colors, strict=False)
+                for v, color in zip(vecs, vec_colors, strict=False)
             ]
             scene.play(
-                Transform(cube, cube_target),
                 *[
                     Transform(a, at)
                     for a, at in zip(arrows, arrow_targets, strict=False)
@@ -311,80 +299,103 @@ class _ManimBackend3D(_ManimBackendBase):
 
     def plot_span(
         self,
-        space: VectorSpace,
+        spaces: list[VectorSpace],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
-        color_list = colors or DEFAULT_COLORS[: len(basis)]
-        label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
-        span_color = span_color or SPAN_COLOR
+        per_space = [(compute_basis(s), rank(s)) for s in spaces]
+        all_basis = [v for basis, _ in per_space for v in basis]
+        single = len(per_space) == 1
+
+        if single:
+            basis0 = per_space[0][0]
+            fill_colors = [span_color or SPAN_COLOR]
+            arrow_color_sets = [colors or DEFAULT_COLORS[: len(basis0)]]
+            arrow_label_sets = [
+                labels or [f"b_{{{i + 1}}}" for i in range(len(basis0))]
+            ]
+        else:
+            fill_colors = _resolve_n_colors(colors, len(per_space), DEFAULT_COLORS)
+            arrow_color_sets = [
+                [fill_colors[i]] * len(basis) for i, (basis, _) in enumerate(per_space)
+            ]
+            arrow_label_sets = [
+                [labels[i] if labels and i < len(labels) else f"span_{{{i + 1}}}"]
+                + [None] * (len(basis) - 1)
+                for i, (basis, _) in enumerate(per_space)
+            ]
 
         def build(scene: _VectorScene3D) -> None:
-            if dim == 0:
-                scene.setup_axes((-3, 3), (-3, 3), (-3, 3))
-                dot = Dot3D(scene.axes.c2p(0, 0, 0), color=manim.WHITE)
-                scene.play(Create(dot))
-                scene.wait(1)
-                return
-
-            range_val = _axis_range(c for v in basis for c in (v[0], v[1], v[2]))
+            if all_basis:
+                range_val = _axis_range(
+                    c for v in all_basis for c in (v[0], v[1], v[2])
+                )
+            else:
+                range_val = 3
             axis_range = (-range_val, range_val)
             scene.setup_axes(axis_range, axis_range, axis_range)
 
-            if dim == 1:
-                b = basis[0]
-                scale = range_val / max(abs(b[0]), abs(b[1]), abs(b[2]), _EPSILON) * 1.4
-                line = Line3D(
-                    scene.axes.c2p(-b[0] * scale, -b[1] * scale, -b[2] * scale),
-                    scene.axes.c2p(b[0] * scale, b[1] * scale, b[2] * scale),
-                    color=span_color,
-                )
-                scene.play(Create(line))
-            elif dim == 2:
-                b1, b2 = basis[0], basis[1]
-                max_comp = max(
-                    abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2])
-                )
-                f = range_val / max(max_comp, _EPSILON) * 1.3
-
-                def corner(sa, sb):
-                    return scene.axes.c2p(
-                        *(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
+            for idx, (basis, dim) in enumerate(per_space):
+                fill = fill_colors[idx]
+                if dim == 0:
+                    dot = Dot3D(scene.axes.c2p(0, 0, 0), color=fill)
+                    scene.play(Create(dot))
+                elif dim == 1:
+                    b = basis[0]
+                    scale = (
+                        range_val / max(abs(b[0]), abs(b[1]), abs(b[2]), _EPSILON) * 1.4
                     )
+                    line = Line3D(
+                        scene.axes.c2p(-b[0] * scale, -b[1] * scale, -b[2] * scale),
+                        scene.axes.c2p(b[0] * scale, b[1] * scale, b[2] * scale),
+                        color=fill,
+                    )
+                    scene.play(Create(line))
+                elif dim == 2:
+                    b1, b2 = basis[0], basis[1]
+                    max_comp = max(
+                        abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2])
+                    )
+                    f = range_val / max(max_comp, _EPSILON) * 1.3
 
-                plane = Polygon(
-                    corner(-1, -1),
-                    corner(1, -1),
-                    corner(1, 1),
-                    corner(-1, 1),
-                    color=span_color,
-                    fill_opacity=0.25,
-                    stroke_opacity=0.4,
-                )
-                scene.play(FadeIn(plane))
-            else:  # dim == 3
-                h = range_val * 0.7
-                verts = [tuple((2 * c - 1) * h for c in v) for v in CUBE_VERTS]
-                edges = VGroup(
-                    *[
-                        Line3D(
-                            scene.axes.c2p(*verts[i]),
-                            scene.axes.c2p(*verts[j]),
-                            color=span_color,
-                            thickness=0.01,
+                    def corner(sa, sb, b1=b1, b2=b2, f=f):
+                        return scene.axes.c2p(
+                            *(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
                         )
-                        for i, j in CUBE_EDGES
-                    ]
-                )
-                scene.play(Create(edges))
 
-            for vec, color, label in zip(basis, color_list, label_list, strict=False):
-                scene.add_vector((vec[0], vec[1], vec[2]), color, label)
+                    plane = Polygon(
+                        corner(-1, -1),
+                        corner(1, -1),
+                        corner(1, 1),
+                        corner(-1, 1),
+                        color=fill,
+                        fill_opacity=0.25,
+                        stroke_opacity=0.4,
+                    )
+                    scene.play(FadeIn(plane))
+                else:  # dim == 3
+                    h = range_val * 0.7
+                    verts = [tuple((2 * c - 1) * h for c in v) for v in CUBE_VERTS]
+                    edges = VGroup(
+                        *[
+                            Line3D(
+                                scene.axes.c2p(*verts[i]),
+                                scene.axes.c2p(*verts[j]),
+                                color=fill,
+                                thickness=0.01,
+                            )
+                            for i, j in CUBE_EDGES
+                        ]
+                    )
+                    scene.play(Create(edges))
+
+                for vec, color, label in zip(
+                    basis, arrow_color_sets[idx], arrow_label_sets[idx], strict=False
+                ):
+                    scene.add_vector((vec[0], vec[1], vec[2]), color, label)
 
             scene.wait(1.5)
 

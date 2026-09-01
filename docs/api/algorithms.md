@@ -5,7 +5,9 @@ from panchi.algorithms import ref, rref, lu, qr_decomposition
 from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
 from panchi.algorithms import InverseResult, Solution, EigenResult
-from panchi.algorithms import inverse, solve, determinant_lu, eigen
+from panchi.algorithms import inverse, solve, determinant, determinant_lu, eigen
+from panchi.algorithms import rank, nullity, is_invertible, is_symmetric
+from panchi.algorithms import span, standard_basis, column_space, row_space, null_space
 from panchi.algorithms import dot, cross, orthogonal_complement
 from panchi.algorithms import gram_schmidt, vector_projection
 ```
@@ -40,15 +42,47 @@ from panchi.algorithms import gram_schmidt, vector_projection
 
 ::: panchi.algorithms.solve
 
+::: panchi.algorithms.determinant
+
 ::: panchi.algorithms.determinant_lu
 
+## Matrix properties
+
+::: panchi.algorithms.rank
+
+::: panchi.algorithms.nullity
+
+::: panchi.algorithms.is_invertible
+
+::: panchi.algorithms.is_symmetric
+
 ## Vector space operations
+
+::: panchi.algorithms.basis
+
+::: panchi.algorithms.is_full_rank
+
+::: panchi.algorithms.contains
+
+::: panchi.algorithms.same_subspace
 
 ::: panchi.algorithms.orthogonal_complement
 
 ::: panchi.algorithms.gram_schmidt
 
 ::: panchi.algorithms.vector_projection
+
+## Subspace factories
+
+::: panchi.algorithms.span
+
+::: panchi.algorithms.standard_basis
+
+::: panchi.algorithms.column_space
+
+::: panchi.algorithms.row_space
+
+::: panchi.algorithms.null_space
 
 ## Result types
 

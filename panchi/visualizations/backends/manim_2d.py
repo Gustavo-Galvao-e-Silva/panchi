@@ -18,6 +18,8 @@ from manim import (
     Write,
 )
 
+from panchi.algorithms.matrix_operations import rank
+from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -36,6 +38,7 @@ from panchi.visualizations.backends.manim_base import (
     _BuilderSceneMixin,
     _ManimBackendBase,
     _resolve_colors,
+    _resolve_n_colors,
 )
 
 _USABLE_WIDTH = 12.0
@@ -329,12 +332,18 @@ class _ManimBackend2D(_ManimBackendBase):
     def animate_transform(
         self,
         matrix: Matrix,
-        frames: int,
-        interval: int,
-        name: str,
+        vectors: list[Vector] | None = None,
+        frames: int = 60,
+        interval: int = 30,
+        name: str = "animate_transform",
         colors: list[str] | None = None,
     ) -> None:
-        color_e1, color_e2 = _resolve_colors(colors, TRANSFORM_COLORS)
+        vecs = (
+            [(float(v[0]), float(v[1])) for v in vectors]
+            if vectors
+            else [(1.0, 0.0), (0.0, 1.0)]
+        )
+        vec_colors = _resolve_n_colors(colors, len(vecs), TRANSFORM_COLORS)
 
         mat = [
             [float(matrix[0][0]), float(matrix[0][1])],
@@ -364,107 +373,124 @@ class _ManimBackend2D(_ManimBackendBase):
             matrix_tex.to_corner(manim.UR, buff=0.5)
             scene.play(Write(matrix_tex), run_time=0.8)
 
-            arrow_e1 = _arrow(plane, (0, 0), (1, 0), color_e1, 7, tip_ratio=0.2)
-            arrow_e2 = _arrow(plane, (0, 0), (0, 1), color_e2, 7, tip_ratio=0.2)
-
-            label_e1 = MathTex(r"\hat{e}_1", color=color_e1).scale(0.8)
-            label_e1.next_to(arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2)
-            label_e2 = MathTex(r"\hat{e}_2", color=color_e2).scale(0.8)
-            label_e2.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
+            arrows = [
+                _arrow(plane, (0, 0), (vx, vy), color, 7, tip_ratio=0.2)
+                for (vx, vy), color in zip(vecs, vec_colors, strict=False)
+            ]
+            labels = [
+                MathTex(f"[{vx:.3g}, {vy:.3g}]", color=color).scale(0.7)
+                for (vx, vy), color in zip(vecs, vec_colors, strict=False)
+            ]
+            for arrow, label in zip(arrows, labels, strict=False):
+                label.next_to(arrow.get_end(), manim.UR, buff=0.2)
 
             scene.play(
-                GrowArrow(arrow_e1),
-                GrowArrow(arrow_e2),
-                Write(label_e1),
-                Write(label_e2),
+                *[GrowArrow(a) for a in arrows],
+                *[Write(lab) for lab in labels],
                 run_time=1,
             )
             scene.wait(0.5)
 
-            label_e1.add_updater(
-                lambda m: m.next_to(
-                    arrow_e1.get_end(), manim.DOWN + manim.RIGHT, buff=0.2
+            for arrow, label in zip(arrows, labels, strict=False):
+                label.add_updater(
+                    lambda m, a=arrow: m.next_to(a.get_end(), manim.UR, buff=0.2)
                 )
-            )
-            label_e2.add_updater(
-                lambda m: m.next_to(arrow_e2.get_end(), manim.UP + manim.LEFT, buff=0.2)
-            )
 
             scene.play(
                 plane.animate.apply_matrix(mat),
-                arrow_e1.animate.put_start_and_end_on(
-                    plane.c2p(0, 0),
-                    plane.c2p(mat[0][0], mat[1][0]),
-                ),
-                arrow_e2.animate.put_start_and_end_on(
-                    plane.c2p(0, 0),
-                    plane.c2p(mat[0][1], mat[1][1]),
-                ),
+                *[
+                    arrow.animate.put_start_and_end_on(
+                        plane.c2p(0, 0),
+                        plane.c2p(
+                            mat[0][0] * vx + mat[0][1] * vy,
+                            mat[1][0] * vx + mat[1][1] * vy,
+                        ),
+                    )
+                    for arrow, (vx, vy) in zip(arrows, vecs, strict=False)
+                ],
                 run_time=3,
             )
 
-            label_e1.clear_updaters()
-            label_e2.clear_updaters()
+            for label in labels:
+                label.clear_updaters()
             scene.wait(2)
 
         self._render(name, build)
 
     def plot_span(
         self,
-        space: VectorSpace,
+        spaces: list[VectorSpace],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
-        color_list = colors or DEFAULT_COLORS[: len(basis)]
-        label_list = labels or [f"b_{{{i + 1}}}" for i in range(len(basis))]
-        span_color = span_color or SPAN_COLOR
+        per_space = [(compute_basis(s), rank(s)) for s in spaces]
+        all_basis = [v for basis, _ in per_space for v in basis]
+        single = len(per_space) == 1
+
+        if single:
+            basis0 = per_space[0][0]
+            fill_colors = [span_color or SPAN_COLOR]
+            arrow_color_sets = [colors or DEFAULT_COLORS[: len(basis0)]]
+            arrow_label_sets = [
+                labels or [f"b_{{{i + 1}}}" for i in range(len(basis0))]
+            ]
+        else:
+            fill_colors = _resolve_n_colors(colors, len(per_space), DEFAULT_COLORS)
+            arrow_color_sets = [
+                [fill_colors[i]] * len(basis) for i, (basis, _) in enumerate(per_space)
+            ]
+            arrow_label_sets = [
+                [labels[i] if labels and i < len(labels) else f"span_{{{i + 1}}}"]
+                + [None] * (len(basis) - 1)
+                for i, (basis, _) in enumerate(per_space)
+            ]
 
         def build(scene: _VectorScene) -> None:
-            if dim == 0:
-                scene.setup_axes((-3, 3), (-3, 3))
-                dot = manim.Dot(scene.axes.c2p(0, 0), color=manim.WHITE, radius=0.08)
-                scene.play(Create(dot))
-                scene.wait(1)
-                return
-
-            range_val = _axis_range(c for v in basis for c in (v[0], v[1]))
+            if all_basis:
+                range_val = _axis_range(c for v in all_basis for c in (v[0], v[1]))
+            else:
+                range_val = 3
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
 
-            if dim == 1:
-                bx, by = float(basis[0][0]), float(basis[0][1])
-                extent = range_val * 2
-                scale = (
-                    extent / max(abs(bx), abs(by))
-                    if max(abs(bx), abs(by)) > _EPSILON
-                    else 1
-                )
-                span_line = Line(
-                    scene.axes.c2p(-bx * scale, -by * scale),
-                    scene.axes.c2p(bx * scale, by * scale),
-                    color=span_color,
-                    stroke_width=3,
-                    stroke_opacity=0.5,
-                )
-                scene.play(Create(span_line), run_time=0.8)
+            for idx, (basis, dim) in enumerate(per_space):
+                fill = fill_colors[idx]
+                if dim == 0:
+                    dot = manim.Dot(scene.axes.c2p(0, 0), color=fill, radius=0.08)
+                    scene.play(Create(dot))
+                elif dim == 1:
+                    bx, by = float(basis[0][0]), float(basis[0][1])
+                    extent = range_val * 2
+                    scale = (
+                        extent / max(abs(bx), abs(by))
+                        if max(abs(bx), abs(by)) > _EPSILON
+                        else 1
+                    )
+                    span_line = Line(
+                        scene.axes.c2p(-bx * scale, -by * scale),
+                        scene.axes.c2p(bx * scale, by * scale),
+                        color=fill,
+                        stroke_width=3,
+                        stroke_opacity=0.5,
+                    )
+                    scene.play(Create(span_line), run_time=0.8)
+                elif dim == 2:
+                    rect = Rectangle(
+                        width=range_val * 2 * scene.axes.x_axis.get_unit_size(),
+                        height=range_val * 2 * scene.axes.y_axis.get_unit_size(),
+                        color=fill,
+                        fill_opacity=0.1,
+                        stroke_width=0,
+                    )
+                    rect.move_to(scene.axes.c2p(0, 0))
+                    scene.play(FadeIn(rect), run_time=0.8)
 
-            elif dim == 2:
-                rect = Rectangle(
-                    width=range_val * 2 * scene.axes.x_axis.get_unit_size(),
-                    height=range_val * 2 * scene.axes.y_axis.get_unit_size(),
-                    color=span_color,
-                    fill_opacity=0.1,
-                    stroke_width=0,
-                )
-                rect.move_to(scene.axes.c2p(0, 0))
-                scene.play(FadeIn(rect), run_time=0.8)
-
-            for vec, color, label in zip(basis, color_list, label_list, strict=False):
-                scene.add_vector((vec[0], vec[1]), color, label)
+                for vec, color, label in zip(
+                    basis, arrow_color_sets[idx], arrow_label_sets[idx], strict=False
+                ):
+                    scene.add_vector((vec[0], vec[1]), color, label)
 
             scene.wait(1.5)
 

@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d  # noqa: F401  (registers the "3d" projection)
 from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
+from panchi.algorithms.matrix_operations import rank
+from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -16,13 +18,14 @@ from panchi.visualizations.backends.matplotlib_base import (
     _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
-    GRID_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS_3D,
     _calculate_axis_range,
+    _InlineAnimation,
     _MatplotlibBackendBase,
     _resolve_colors,
+    _resolve_n_colors,
     _smooth_step,
 )
 
@@ -126,7 +129,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
         result = v1 + v2
@@ -218,7 +221,9 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def animate_scaling(
         self,
@@ -228,7 +233,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
 
         scaled = scale_factor * vector
@@ -265,39 +270,34 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def animate_transform(
         self,
         matrix: Matrix,
-        frames: int,
-        interval: int,
-        name: str,
+        vectors: list[Vector] | None = None,
+        frames: int = 60,
+        interval: int = 30,
+        name: str = "animate_transform",
         colors: list[str] | None = None,
-    ) -> None:
-        basis_colors = _resolve_colors(colors, TRANSFORM_COLORS_3D)
+    ) -> _InlineAnimation | None:
+        vecs = (
+            [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
+            if vectors
+            else [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+        )
+        vec_colors = _resolve_n_colors(colors, len(vecs), TRANSFORM_COLORS_3D)
         target = [[float(matrix[i][j]) for j in range(3)] for i in range(3)]
 
         fig = plt.figure(figsize=self.figsize)
         ax = fig.add_subplot(projection="3d")
 
-        image = [apply_3x3(target, v) for v in CUBE_VERTS]
+        image = [apply_3x3(target, v) for v in vecs] + list(vecs)
         coords = [c for corner in image for c in corner]
         rng = max(max((abs(c) for c in coords), default=1.0) * 1.3, 1.5)
         _setup_coordinate_space_3d(ax, (-rng, rng), grid=False)
-
-        def cube_segments(m):
-            pts = [apply_3x3(m, v) for v in CUBE_VERTS]
-            return [[pts[i], pts[j]] for i, j in CUBE_EDGES]
-
-        identity = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
-        cube = Line3DCollection(
-            cube_segments(identity),
-            colors=GRID_COLOR,
-            linewidths=1.4,
-            alpha=0.8,
-        )
-        ax.add_collection3d(cube)
 
         matrix_text = "\n".join(
             "[" + "  ".join(f"{target[i][j]:+.2g}" for j in range(3)) + "]"
@@ -314,7 +314,6 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
             color=HUD_COLOR,
         )
 
-        basis = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
         state = {"arrows": []}
 
         def animate_frame(frame: int) -> tuple:
@@ -327,45 +326,98 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
                 for i in range(3)
             ]
 
-            cube.set_segments(cube_segments(current))
-
             for arrow in state["arrows"]:
                 arrow.remove()
             state["arrows"] = [
-                _draw_arrow_3d(ax, (0, 0, 0), apply_3x3(current, b), color, linewidth=3)
-                for b, color in zip(basis, basis_colors, strict=False)
+                _draw_arrow_3d(ax, (0, 0, 0), apply_3x3(current, v), color, linewidth=3)
+                for v, color in zip(vecs, vec_colors, strict=False)
             ]
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def plot_span(
         self,
-        space: VectorSpace,
+        spaces: list[VectorSpace],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
-        span_color = span_color or SPAN_COLOR
+        per_space = [(compute_basis(s), rank(s)) for s in spaces]
+        all_basis = [v for basis, _ in per_space for v in basis]
 
         fig = plt.figure(figsize=self.figsize)
         ax = fig.add_subplot(projection="3d")
-
-        if dim == 0:
-            _setup_coordinate_space_3d(ax, (-3, 3), grid)
-            ax.scatter([0], [0], [0], color="black", s=40, zorder=5)
-            _span_annotation(ax, "span = {0}")
-            self._finalize_figure(fig, name)
-            return
-
-        axis_range = _calculate_axis_range(basis)
+        axis_range = _calculate_axis_range(all_basis) if all_basis else (-3.0, 3.0)
         _setup_coordinate_space_3d(ax, axis_range, grid)
+
+        if len(per_space) == 1:
+            basis, dim = per_space[0]
+            dim_labels = {
+                0: "span = {0}",
+                1: "span = line",
+                2: "span = plane",
+                3: "span = R³",
+            }
+            arrow_colors = colors or DEFAULT_COLORS[: len(basis)]
+            arrow_labels = labels or [f"b{i + 1}" for i in range(len(basis))]
+            self._draw_span_3d(
+                ax,
+                basis,
+                dim,
+                axis_range,
+                fill_color=span_color or SPAN_COLOR,
+                arrow_colors=arrow_colors,
+                arrow_labels=arrow_labels,
+            )
+            _span_annotation(ax, dim_labels.get(dim, "span"))
+        else:
+            span_colors = _resolve_n_colors(colors, len(per_space), DEFAULT_COLORS)
+            for i, (basis, dim) in enumerate(per_space):
+                self._draw_span_3d(
+                    ax,
+                    basis,
+                    dim,
+                    axis_range,
+                    fill_color=span_colors[i],
+                    arrow_colors=[span_colors[i]] * len(basis),
+                    arrow_labels=[None] * len(basis),
+                )
+            for i in range(len(per_space)):
+                label = labels[i] if labels and i < len(labels) else f"span {i + 1}"
+                ax.text2D(
+                    0.02,
+                    0.98 - i * 0.05,
+                    label,
+                    transform=ax.transAxes,
+                    va="top",
+                    fontsize=11,
+                    fontweight="bold",
+                    color=span_colors[i],
+                )
+
+        self._finalize_figure(fig, name)
+
+    def _draw_span_3d(
+        self,
+        ax,
+        basis: list[Vector],
+        dim: int,
+        axis_range: tuple[float, float],
+        *,
+        fill_color: str,
+        arrow_colors: list[str],
+        arrow_labels: list[str | None],
+    ) -> None:
         hi = axis_range[1]
+        if dim == 0:
+            ax.scatter([0], [0], [0], color=fill_color, s=40, zorder=5)
+            return
 
         if dim == 1:
             b = basis[0]
@@ -374,11 +426,10 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
                 [-b[0] * scale, b[0] * scale],
                 [-b[1] * scale, b[1] * scale],
                 [-b[2] * scale, b[2] * scale],
-                color=span_color,
+                color=fill_color,
                 linewidth=3,
                 alpha=0.55,
             )
-            span_label = "span = line"
         elif dim == 2:
             b1, b2 = basis[0], basis[1]
             max_comp = max(abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2]))
@@ -389,35 +440,25 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             patch = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)]
             ax.add_collection3d(
-                Poly3DCollection([patch], facecolor=span_color, alpha=0.22)
+                Poly3DCollection([patch], facecolor=fill_color, alpha=0.22)
             )
-            span_label = "span = plane"
         else:  # dim == 3
             h = hi * 0.7
             verts = [tuple((2 * c - 1) * h for c in v) for v in CUBE_VERTS]
             segments = [[verts[i], verts[j]] for i, j in CUBE_EDGES]
             ax.add_collection3d(
-                Line3DCollection(segments, colors=span_color, alpha=0.4, linewidths=1.2)
+                Line3DCollection(segments, colors=fill_color, alpha=0.4, linewidths=1.2)
             )
-            span_label = "span = R³"
 
-        _span_annotation(ax, span_label)
-
-        if colors is None:
-            colors = DEFAULT_COLORS[: len(basis)]
-        if labels is None:
-            labels = [f"b{i + 1}" for i in range(len(basis))]
-
-        for vec, color, label in zip(basis, colors, labels, strict=False):
+        for vec, color, label in zip(basis, arrow_colors, arrow_labels, strict=False):
             _draw_arrow_3d(ax, (0, 0, 0), (vec[0], vec[1], vec[2]), color, linewidth=3)
-            ax.text(
-                vec[0] * 1.05,
-                vec[1] * 1.05,
-                vec[2] * 1.05,
-                label,
-                color=color,
-                fontsize=12,
-                fontweight="bold",
-            )
-
-        self._finalize_figure(fig, name)
+            if label:
+                ax.text(
+                    vec[0] * 1.05,
+                    vec[1] * 1.05,
+                    vec[2] * 1.05,
+                    label,
+                    color=color,
+                    fontsize=12,
+                    fontweight="bold",
+                )

@@ -84,10 +84,41 @@ print(A.transpose()) # equivalent method
 ```python
 A = pan.Matrix([[1, 2], [3, 4]])
 
-print(A.trace)        # 5       — sum of diagonal (square only)
-print(A.determinant)  # -2      — cofactor expansion (square only)
-print(A.is_square)    # True
+print(A.trace)      # 5       — sum of diagonal (square only)
+print(A.is_square)  # True
 ```
+
+The determinant is a free function (like `solve`, `inverse`, and `determinant_lu`), not a
+property — it is an algorithm, so it lives in `panchi.algorithms` rather than on the matrix:
+
+```python
+print(pan.determinant(A))  # -2  — cofactor expansion, exact (square only)
+```
+
+## Rank, invertibility, and symmetry
+
+Rank and its companions are free functions too. `rank` counts the linearly independent rows
+(equivalently columns) of a matrix; `nullity` is the dimension of its null space; together they
+satisfy the rank–nullity theorem, `rank(A) + nullity(A) == A.cols`:
+
+```python
+A = pan.Matrix([[1, 2, 3], [4, 5, 6]])
+
+print(pan.rank(A))       # 2
+print(pan.nullity(A))    # 1   — and 2 + 1 == A.cols
+```
+
+`is_invertible` and `is_symmetric` answer the two most common structural questions. `is_invertible`
+is decided by rank (square and full rank), which avoids the O(n!) cofactor determinant:
+
+```python
+print(pan.is_invertible(pan.Matrix([[1, 2], [3, 4]])))  # True
+print(pan.is_invertible(pan.Matrix([[1, 2], [2, 4]])))  # False — singular
+print(pan.is_symmetric(pan.Matrix([[1, 2], [2, 1]])))   # True
+```
+
+`rank` is deliberately one function for both matrices and vector spaces — a subspace's rank *is*
+the rank of its generating matrix, so `rank(pan.column_space(A)) == rank(A)`.
 
 ## Identity matrices
 
@@ -102,6 +133,26 @@ print(A.right_identity)  # 3×3 identity
 # These satisfy:
 assert A.left_identity @ A == A
 assert A @ A.right_identity == A
+```
+
+## Indexing and element access
+
+Index a single element with a `(row, column)` pair, and assign to it the same way. Element assignment is validated exactly like the constructor — string fractions are parsed, and non-numbers are rejected:
+
+```python
+A = pan.Matrix([[1, 2], [3, 4]])
+
+A[0, 1]          # 2  — read one element
+A[1, 0] = "1/2"  # write one element (parsed to Fraction(1, 2))
+A[-1, -1]        # 4  — negative indices work
+```
+
+Indexing a single row returns a **copy** of that row, so mutating it never changes the matrix — assign single elements through `A[i, j] = value` instead:
+
+```python
+A[0]             # [1, 2]  — a copy of row 0
+A[0][0] = 99     # modifies the copy, NOT the matrix
+A[0, 0]          # still 1
 ```
 
 ## Row and column access

@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from panchi._latex import vector_to_latex
 from panchi.primitives.vector import Vector
 from panchi.types import Scalar
-
-if TYPE_CHECKING:
-    from panchi.primitives.vector_space import VectorSpace
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> Scalar:
@@ -91,80 +87,6 @@ def cross(vector_1: Vector, vector_2: Vector) -> Vector:
     z = (vector_1[0] * vector_2[1]) - (vector_1[1] * vector_2[0])
 
     return Vector([x, y, z])
-
-
-def orthogonal_complement(space: VectorSpace) -> VectorSpace:
-    """
-    Compute the orthogonal complement of a vector space.
-
-    The orthogonal complement of a subspace W of R^n is the set of all
-    vectors in R^n that are orthogonal to every vector in W. It is computed
-    as the null space of the matrix whose rows are the basis vectors of W.
-
-    Parameters
-    ----------
-    space : VectorSpace
-        The subspace whose orthogonal complement is to be computed.
-
-    Returns
-    -------
-    VectorSpace
-        A VectorSpace representing the orthogonal complement. If the input
-        space spans all of R^n, returns a VectorSpace containing only the
-        zero vector (dimension 0).
-
-    Raises
-    ------
-    TypeError
-        If space is not a VectorSpace.
-
-    Examples
-    --------
-    >>> v1 = Vector([1, 0, 0])
-    >>> v2 = Vector([0, 1, 0])
-    >>> vs = VectorSpace([v1, v2])
-    >>> comp = orthogonal_complement(vs)
-    >>> comp.dims
-    1
-    >>> comp.basis[0]
-    Vector([0, 0, 1])
-    """
-    from panchi.algorithms.reductions import rref
-    from panchi.primitives.matrix import Matrix
-    from panchi.primitives.vector_space import VectorSpace
-
-    if not isinstance(space, VectorSpace):
-        raise TypeError(
-            f"orthogonal_complement() requires a VectorSpace. "
-            f"Got {type(space).__name__}."
-        )
-
-    basis_vectors = space.basis
-    n = space.ambient_dims
-
-    if not basis_vectors:
-        return VectorSpace(
-            [Vector([1 if i == j else 0 for j in range(n)]) for i in range(n)]
-        )
-
-    row_matrix = Matrix([v.to_list() for v in basis_vectors])
-    reduction = rref(row_matrix)
-
-    pivot_cols = {col for _, col in reduction.pivots}
-    free_cols = [j for j in range(n) if j not in pivot_cols]
-
-    if not free_cols:
-        return VectorSpace([Vector([0] * n)])
-
-    null_vectors = []
-    for j in free_cols:
-        components = [0] * n
-        components[j] = 1
-        for row, col in reduction.pivots:
-            components[col] = -reduction.result[row][j]
-        null_vectors.append(Vector(components))
-
-    return VectorSpace(null_vectors)
 
 
 def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
@@ -252,6 +174,18 @@ class GramSchmidtStep:
         lines.append(f"  orthogonal: {self.orthogonal}")
         lines.append(f"  normalize -> q{self.index}: {self.orthonormal}")
         return "\n".join(lines)
+
+    def _repr_latex_(self) -> str:
+        """Render the Gram-Schmidt derivation of this vector in LaTeX."""
+        lines = [f"& v_{{{self.index}}} = {vector_to_latex(self.original)}"]
+        for j, projection in enumerate(self.projections):
+            lines.append(
+                f"&\\text{{remove proj onto }} q_{{{j}}}: {vector_to_latex(projection)}"
+            )
+        lines.append(f"&\\text{{orthogonal}}: {vector_to_latex(self.orthogonal)}")
+        lines.append(f"& q_{{{self.index}}} = {vector_to_latex(self.orthonormal)}")
+        body = " \\\\\n".join(lines)
+        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
 
 
 def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:

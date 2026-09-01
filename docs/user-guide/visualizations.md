@@ -48,7 +48,7 @@ v1 = Vector([3, 2])
 v2 = Vector([-1, 3])
 v3 = Vector([2, -1])
 
-animator.plot_vectors(v1, v2, v3, labels=["v1", "v2", "v3"])
+animator.plot_vectors([v1, v2, v3], labels=["v1", "v2", "v3"])
 ```
 
 Pass any number of 2D vectors as positional arguments. Optional parameters:
@@ -121,13 +121,22 @@ animator.animate_transform(Matrix([[1, 0], [0, 0]]))
 
 The animation shows:
 
-1. The standard basis vectors e1 (red) and e2 (blue) on a coordinate grid
+1. The standard basis vectors e1 and e2 on a coordinate grid
 2. The entire grid smoothly morphing from the identity to the target transformation
-3. Labels updating to show the final column vectors of the matrix
+3. Labels updating to show each vector's coordinates after the transformation
+
+By default the standard basis is transformed. Pass `vectors` to watch your own vectors slide from `v` to `matrix @ v` — useful for seeing where a specific vector lands:
+
+```python
+animator.animate_transform(
+    Matrix([[2, 1], [0, 1]]),
+    vectors=[Vector([1, 0]), Vector([1, 2]), Vector([-1, 1])],
+)
+```
 
 Only 2x2 matrices are supported — a `ValueError` is raised for other shapes.
 
-Optional parameters: `frames`, `interval`, `name`, and `colors` (up to two, for the basis arrows `[e1, e2]`).
+Optional parameters: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_shear.gif" alt="Example output: a coordinate grid shearing">
@@ -141,9 +150,9 @@ Optional parameters: `frames`, `interval`, `name`, and `colors` (up to two, for 
 `plot_span` draws the subspace spanned by a set of vectors, with a shaded region and basis vector arrows.
 
 ```python
-# From individual vectors
-animator.plot_span(Vector([1, 2]))                        # 1D span (line)
-animator.plot_span(Vector([1, 0]), Vector([0, 1]))        # 2D span (full plane)
+# From a list of vectors
+animator.plot_span([Vector([1, 2])])                      # 1D span (line)
+animator.plot_span([Vector([1, 0]), Vector([0, 1])])      # 2D span (full plane)
 
 # From a VectorSpace object
 space = VectorSpace([Vector([1, 1]), Vector([1, -1])])
@@ -159,7 +168,7 @@ If you pass linearly dependent vectors, panchi computes the actual basis automat
 
 ```python
 # These two vectors are parallel — the span is still 1D
-animator.plot_span(Vector([1, 2]), Vector([2, 4]))
+animator.plot_span([Vector([1, 2]), Vector([2, 4])])
 ```
 
 <figure class="viz" markdown="span">
@@ -167,7 +176,24 @@ animator.plot_span(Vector([1, 2]), Vector([2, 4]))
   <figcaption>Example output — two independent vectors spanning R².</figcaption>
 </figure>
 
-Optional parameters: `colors`, `labels`, `grid`, `name`, and `span_color` (the shade of the span region).
+### Comparing several spans
+
+Pass a **list of spans** — each a list of vectors or a `VectorSpace` — to draw them together, each in its own color with a legend. This makes relationships between subspaces visible, such as two distinct lines or a plane against an axis:
+
+```python
+animator.plot_span(
+    [
+        [Vector([1, 1])],              # one line
+        [Vector([1, -1])],            # a different line
+        VectorSpace([Vector([2, 1])]),  # a third, from a VectorSpace
+    ],
+    labels=["A", "B", "C"],
+)
+```
+
+With multiple spans, `colors` gives one color per span and `labels` names them in the legend; `span_color` applies to the single-span case only.
+
+Optional parameters: `colors`, `labels`, `grid`, `name`, and `span_color` (the shade of the span region, single span only).
 
 ---
 
@@ -178,7 +204,7 @@ When `save_path` is set, every method saves its output to that directory:
 ```python
 animator = Animator2D(save_path="./output")
 
-animator.plot_vectors(Vector([1, 2]), name="my_vectors")
+animator.plot_vectors([Vector([1, 2])], name="my_vectors")
 # → ./output/my_vectors.png
 
 animator.animate_transform(Matrix([[0, -1], [1, 0]]), name="rotation")
@@ -227,9 +253,7 @@ All vectors passed to `Animator3D` must be 3D; a 2D vector raises a `ValueError`
 
 ```python
 animator.plot_vectors(
-    Vector([3, 2, 1]),
-    Vector([-1, 2, 3]),
-    Vector([1, -2, 2]),
+    [Vector([3, 2, 1]), Vector([-1, 2, 3]), Vector([1, -2, 2])],
     labels=["v1", "v2", "v3"],
 )
 ```
@@ -274,9 +298,16 @@ The vector stretches, shrinks, or flips in R³ exactly as in the 2D case. Option
 animator.animate_transform(Matrix([[1, -1, 0], [1, 1, 0], [0, 0, 1]]))
 ```
 
-The 3D analogue of the grid deformation: the unit cube smoothly morphs from the identity into the **parallelepiped** spanned by the matrix columns, with the three basis vectors following along and the matrix shown as an overlay.
+The 3D analogue: each vector slides from `v` to `matrix @ v`, with the matrix shown as an overlay. By default the three standard basis vectors are transformed (their images are the columns of the matrix). Pass `vectors` to transform your own instead:
 
-Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `frames`, `interval`, `name`, and `colors` (up to three, for the basis arrows `[e1, e2, e3]`).
+```python
+animator.animate_transform(
+    Matrix([[2, 0, 0], [0, 1, 0], [0, 1, 1]]),
+    vectors=[Vector([1, 1, 0]), Vector([0, 1, 2])],
+)
+```
+
+Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_3d.gif" alt="Example output: the unit cube morphing under a 3x3 matrix">
@@ -286,7 +317,7 @@ Only **3x3** matrices are supported — a `ValueError` is raised for other shape
 ### Visualizing spans
 
 ```python
-animator.plot_span(Vector([1, 0, 1]), Vector([0, 1, 1]), labels=["v1", "v2"])
+animator.plot_span([Vector([1, 0, 1]), Vector([0, 1, 1])], labels=["v1", "v2"])
 ```
 
 `plot_span` adapts to the dimension of the subspace:
@@ -295,7 +326,19 @@ animator.plot_span(Vector([1, 0, 1]), Vector([0, 1, 1]), labels=["v1", "v2"])
 - **dim 2** — a shaded plane patch through the origin
 - **dim 3** — a translucent cube indicating the span fills all of R³
 
-As in 2D, linearly dependent vectors are reduced to the true basis automatically, so the drawn dimension reflects the real span. Options: `colors`, `labels`, `grid`, `name`, and `span_color`.
+As in 2D, linearly dependent vectors are reduced to the true basis automatically, so the drawn dimension reflects the real span. You can also pass a **list of spans** to compare several subspaces at once — each drawn in its own color with a legend (e.g. a plane against an axis):
+
+```python
+animator.plot_span(
+    [
+        [Vector([1, 0, 0]), Vector([0, 1, 0])],  # the xy-plane
+        VectorSpace([Vector([0, 0, 1])]),         # the z-axis
+    ],
+    labels=["plane", "axis"],
+)
+```
+
+Options: `colors`, `labels`, `grid`, `name`, and `span_color`.
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/span_plane_3d.png" alt="Example output: two 3D vectors shading the plane they span">

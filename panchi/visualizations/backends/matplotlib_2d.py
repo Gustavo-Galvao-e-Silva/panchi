@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.patches import FancyArrowPatch
 
+from panchi.algorithms.matrix_operations import rank
+from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -16,8 +18,10 @@ from panchi.visualizations.backends.matplotlib_base import (
     SPAN_COLOR,
     TRANSFORM_COLORS,
     _calculate_axis_range,
+    _InlineAnimation,
     _MatplotlibBackendBase,
     _resolve_colors,
+    _resolve_n_colors,
     _smooth_step,
 )
 
@@ -123,7 +127,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
@@ -196,7 +200,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             return arrow_v2_from_v1, arrow_result, text_result
 
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_scaling(
         self,
@@ -206,7 +210,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
@@ -245,24 +249,31 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             return arrow, text
 
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_transform(
         self,
         matrix: Matrix,
-        frames: int,
-        interval: int,
-        name: str,
+        vectors: list[Vector] | None = None,
+        frames: int = 60,
+        interval: int = 30,
+        name: str = "animate_transform",
         colors: list[str] | None = None,
-    ) -> None:
-        color_e1, color_e2 = _resolve_colors(colors, TRANSFORM_COLORS)
+    ) -> _InlineAnimation | None:
+        vecs = (
+            [(float(v[0]), float(v[1])) for v in vectors]
+            if vectors
+            else [(1.0, 0.0), (0.0, 1.0)]
+        )
+        vec_colors = _resolve_n_colors(colors, len(vecs), TRANSFORM_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
 
         a, b = float(matrix[0][0]), float(matrix[0][1])
         c, d = float(matrix[1][0]), float(matrix[1][1])
 
-        max_coord = max(abs(a), abs(b), abs(c), abs(d), 1.0) * 1.5
+        coords = [abs(x) for v in vecs for x in v]
+        max_coord = max(abs(a), abs(b), abs(c), abs(d), *coords, 1.0) * 1.5
         grid_range = max(int(max_coord) + 2, 6)
 
         _setup_coordinate_plane(
@@ -294,17 +305,21 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         )
         ax.add_collection(grid_collection)
 
-        arrow_e1 = _create_vector_arrow((0, 0), (1, 0), color_e1, linewidth=3.5)
-        arrow_e2 = _create_vector_arrow((0, 0), (0, 1), color_e2, linewidth=3.5)
-        ax.add_patch(arrow_e1)
-        ax.add_patch(arrow_e2)
-
-        label_e1 = ax.text(
-            1.15, 0.15, "e₁", fontsize=13, fontweight="bold", color=color_e1
-        )
-        label_e2 = ax.text(
-            0.15, 1.15, "e₂", fontsize=13, fontweight="bold", color=color_e2
-        )
+        arrows = []
+        labels = []
+        for (vx, vy), color in zip(vecs, vec_colors, strict=False):
+            arrow = _create_vector_arrow((0, 0), (vx, vy), color, linewidth=3.5)
+            ax.add_patch(arrow)
+            label = ax.text(
+                vx + 0.15,
+                vy + 0.15,
+                f"[{vx:.3g}, {vy:.3g}]",
+                fontsize=12,
+                fontweight="bold",
+                color=color,
+            )
+            arrows.append(arrow)
+            labels.append(label)
 
         def animate_frame(frame: int) -> tuple:
             t = _smooth_step(frame / frames)
@@ -323,50 +338,84 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             grid_collection.set_segments(transformed_lines)
 
-            e1_x = mt_a * 1 + mt_b * 0
-            e1_y = mt_c * 1 + mt_d * 0
-            e2_x = mt_a * 0 + mt_b * 1
-            e2_y = mt_c * 0 + mt_d * 1
+            for (vx, vy), arrow, label in zip(vecs, arrows, labels, strict=False):
+                tx = mt_a * vx + mt_b * vy
+                ty = mt_c * vx + mt_d * vy
+                arrow.set_positions((0, 0), (tx, ty))
+                label.set_position((tx + 0.15, ty + 0.15))
+                if t > 0.9:
+                    label.set_text(f"[{tx:.3g}, {ty:.3g}]")
 
-            arrow_e1.set_positions((0, 0), (e1_x, e1_y))
-            arrow_e2.set_positions((0, 0), (e2_x, e2_y))
+            return (grid_collection, *arrows, *labels)
 
-            label_e1.set_position((e1_x + 0.15, e1_y + 0.15))
-            label_e2.set_position((e2_x + 0.15, e2_y + 0.15))
-
-            if t > 0.9:
-                label_e1.set_text(f"[{a:.3g}, {c:.3g}]")
-                label_e2.set_text(f"[{b:.3g}, {d:.3g}]")
-
-            return grid_collection, arrow_e1, arrow_e2, label_e1, label_e2
-
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def plot_span(
         self,
-        space: VectorSpace,
+        spaces: list[VectorSpace],
         colors: list[str] | None,
         labels: list[str] | None,
         grid: bool,
         name: str,
         span_color: str | None = None,
     ) -> None:
-        basis = space.basis
-        dim = space.dims
+        per_space = [(compute_basis(s), rank(s)) for s in spaces]
+        all_basis = [v for basis, _ in per_space for v in basis]
 
         fig, ax = plt.subplots(figsize=self.figsize)
-
-        if dim == 0:
-            _setup_coordinate_plane(ax, (-3, 3), (-3, 3), grid)
-            ax.plot(0, 0, "ko", markersize=8, zorder=5, label="span = {0}")
-            ax.legend(loc="upper left", fontsize=10)
-            self._finalize_figure(fig, name)
-            return
-
-        axis_range = _calculate_axis_range(basis)
+        axis_range = _calculate_axis_range(all_basis) if all_basis else (-3.0, 3.0)
         _setup_coordinate_plane(ax, axis_range, axis_range, grid)
 
-        span_color = span_color or SPAN_COLOR
+        if len(per_space) == 1:
+            basis, dim = per_space[0]
+            dim_labels = {0: "span = {0}", 1: "span = line (R¹)", 2: "span = R²"}
+            arrow_colors = colors or DEFAULT_COLORS[: len(basis)]
+            arrow_labels = labels or [f"b{i + 1}" for i in range(len(basis))]
+            self._draw_span_2d(
+                ax,
+                basis,
+                dim,
+                axis_range,
+                fill_color=span_color or SPAN_COLOR,
+                arrow_colors=arrow_colors,
+                arrow_labels=arrow_labels,
+                shade_label=dim_labels.get(dim, "span"),
+            )
+        else:
+            span_colors = _resolve_n_colors(colors, len(per_space), DEFAULT_COLORS)
+            for i, (basis, dim) in enumerate(per_space):
+                label = labels[i] if labels and i < len(labels) else f"span {i + 1}"
+                self._draw_span_2d(
+                    ax,
+                    basis,
+                    dim,
+                    axis_range,
+                    fill_color=span_colors[i],
+                    arrow_colors=[span_colors[i]] * len(basis),
+                    arrow_labels=[None] * len(basis),
+                    shade_label=label,
+                )
+
+        ax.legend(loc="upper left", fontsize=10)
+        self._finalize_figure(fig, name)
+
+    def _draw_span_2d(
+        self,
+        ax: plt.Axes,
+        basis: list[Vector],
+        dim: int,
+        axis_range: tuple[float, float],
+        *,
+        fill_color: str,
+        arrow_colors: list[str],
+        arrow_labels: list[str | None],
+        shade_label: str,
+    ) -> None:
+        if dim == 0:
+            ax.plot(
+                0, 0, "o", color=fill_color, markersize=8, zorder=5, label=shade_label
+            )
+            return
 
         if dim == 1:
             bx, by = float(basis[0][0]), float(basis[0][1])
@@ -376,11 +425,11 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                 ax.plot(
                     [-bx * scale, bx * scale],
                     [-by * scale, by * scale],
-                    color=span_color,
+                    color=fill_color,
                     linewidth=3,
                     alpha=0.4,
                     zorder=1,
-                    label="span = line (R¹)",
+                    label=shade_label,
                 )
         elif dim == 2:
             xlo, xhi = axis_range
@@ -389,24 +438,19 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                 (xlo, ylo),
                 xhi - xlo,
                 yhi - ylo,
-                color=span_color,
+                color=fill_color,
                 alpha=0.12,
                 zorder=1,
-                label="span = R²",
+                label=shade_label,
             )
             ax.add_patch(rect)
 
-        if colors is None:
-            colors = DEFAULT_COLORS[: len(basis)]
-        if labels is None:
-            labels = [f"b{i + 1}" for i in range(len(basis))]
-
-        for vec, color, label in zip(basis, colors, labels, strict=False):
+        for vec, color, label in zip(basis, arrow_colors, arrow_labels, strict=False):
             arrow = _create_vector_arrow((0, 0), (vec[0], vec[1]), color, linewidth=3)
             ax.add_patch(arrow)
-            offset_x = 0.15 if vec[0] >= 0 else -0.15
-            offset_y = 0.15 if vec[1] >= 0 else -0.15
-            _add_vector_label(ax, (vec[0], vec[1]), label, color, (offset_x, offset_y))
-
-        ax.legend(loc="upper left", fontsize=10)
-        self._finalize_figure(fig, name)
+            if label:
+                offset_x = 0.15 if vec[0] >= 0 else -0.15
+                offset_y = 0.15 if vec[1] >= 0 else -0.15
+                _add_vector_label(
+                    ax, (vec[0], vec[1]), label, color, (offset_x, offset_y)
+                )

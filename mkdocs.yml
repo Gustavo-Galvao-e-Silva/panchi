@@ -63,6 +63,7 @@ nav:
     - Decompositions: user-guide/decompositions.md
     - Solving Systems: user-guide/solving-systems.md
     - Visualizations: user-guide/visualizations.md
+    - Rich Display: user-guide/rich-display.md
   - API Reference:
     - panchi: api/panchi.md
     - panchi.algorithms: api/algorithms.md

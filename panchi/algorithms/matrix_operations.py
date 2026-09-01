@@ -1,10 +1,11 @@
 from panchi.algorithms.decompositions import lu, qr_decomposition
-from panchi.algorithms.reductions import rref
+from panchi.algorithms.reductions import ref, rref
 from panchi.algorithms.results import EigenResult, InverseResult, Reduction, Solution
 from panchi.algorithms.row_operations import RowOperation, RowSwap
 from panchi.primitives.factories import identity, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.primitives.vector_space import VectorSpace
 from panchi.types import Scalar
 
 
@@ -210,7 +211,7 @@ def determinant_lu(matrix: Matrix) -> float:
 
     See Also
     --------
-    Matrix.determinant : Determinant via cofactor expansion.
+    determinant : Determinant via cofactor expansion.
     """
     if not isinstance(matrix, Matrix):
         raise TypeError(
@@ -227,6 +228,249 @@ def determinant_lu(matrix: Matrix) -> float:
     parity = _swap_parity(matrix_lu.steps)
     upper_diagonal_product = _main_diagonal_product(matrix_lu.upper)
     return parity * upper_diagonal_product
+
+
+def _submatrix(matrix: Matrix, excluded_row: int, excluded_col: int) -> Matrix:
+    """
+    Return the submatrix formed by deleting one row and one column.
+
+    Used when computing cofactors for the determinant.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to take the submatrix of.
+    excluded_row : int
+        The index of the row to remove.
+    excluded_col : int
+        The index of the column to remove.
+
+    Returns
+    -------
+    Matrix
+        The (n-1)×(n-1) submatrix with the specified row and column removed.
+    """
+    result = []
+    for i in range(matrix.rows):
+        if i == excluded_row:
+            continue
+        row = []
+        for j in range(matrix.cols):
+            if j == excluded_col:
+                continue
+            row.append(matrix[i][j])
+        result.append(row)
+
+    return Matrix(result)
+
+
+def determinant(matrix: Matrix) -> Scalar:
+    """
+    Compute the determinant of a square matrix using cofactor expansion.
+
+    The determinant is a scalar that encodes properties of the matrix,
+    including whether it is invertible (det ≠ 0) and how it scales areas or
+    volumes under transformation. Only defined for square matrices.
+
+    Computed by expanding along the first row: for each entry in the first
+    row, multiply it by its cofactor (the signed determinant of the submatrix
+    formed by removing that entry's row and column), then sum the results.
+    Unlike ``determinant_lu``, this preserves exact ``int``/``Fraction``
+    arithmetic, at the cost of O(n!) work.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose determinant will be computed. Must be square.
+
+    Returns
+    -------
+    int | float | Fraction
+        The determinant of the matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> determinant(Matrix([[1, 2], [3, 4]]))
+    -2
+    >>> determinant(Matrix([[6]]))
+    6
+
+    See Also
+    --------
+    determinant_lu : Determinant via LU decomposition (float, O(n³)).
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Determinant is only defined for Matrix objects."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot calculate determinant of non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}. "
+            f"Determinants are only defined for square matrices (n×n)."
+        )
+
+    if matrix.rows == 1:
+        return matrix[0][0]
+
+    if matrix.rows == 2:
+        return (matrix[0][0] * matrix[1][1]) - (matrix[0][1] * matrix[1][0])
+
+    det = 0
+    for j in range(matrix.cols):
+        entry = matrix[0][j]
+        if entry != 0:
+            sign = (-1) ** j
+            det += sign * entry * determinant(_submatrix(matrix, 0, j))
+
+    return det
+
+
+def rank(obj: Matrix | VectorSpace) -> int:
+    """
+    Return the rank of a matrix or vector space.
+
+    Rank is fundamentally a matrix property: the number of linearly
+    independent rows (equivalently, columns) of a matrix, computed as the
+    number of pivots in its reduced row echelon form. A ``VectorSpace``'s
+    rank is *defined* as the rank of the matrix whose rows are its spanning
+    vectors — so the same function answers both, and
+    ``rank(m) == rank(VectorSpace(m.col_vectors))``.
+
+    Parameters
+    ----------
+    obj : Matrix or VectorSpace
+        The matrix, or the vector space whose generators to rank.
+
+    Returns
+    -------
+    int
+        The number of linearly independent rows/vectors.
+
+    Examples
+    --------
+    >>> rank(Matrix([[1, 2], [2, 4]]))
+    1
+    >>> rank(VectorSpace([Vector([1, 0]), Vector([0, 1]), Vector([1, 1])]))
+    2
+    """
+    if isinstance(obj, VectorSpace):
+        matrix = Matrix([v.to_list() for v in obj.data])
+    else:
+        matrix = obj
+    return ref(matrix).rank
+
+
+def nullity(matrix: Matrix) -> int:
+    """
+    Return the nullity of a matrix — the dimension of its null space.
+
+    By the rank–nullity theorem, ``rank(matrix) + nullity(matrix)`` equals
+    the number of columns of the matrix.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix whose nullity to compute.
+
+    Returns
+    -------
+    int
+        The dimension of the null space (number of free columns).
+
+    Examples
+    --------
+    >>> nullity(Matrix([[1, 2, 3], [4, 5, 6]]))
+    1
+    """
+    return ref(matrix).nullity
+
+
+def is_invertible(matrix: Matrix) -> bool:
+    """
+    Return True if the matrix is square and invertible (full rank).
+
+    A matrix is invertible exactly when it is square and its rank equals its
+    number of rows (equivalently, its determinant is non-zero). This uses the
+    rank via RREF rather than the O(n!) cofactor determinant.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to test.
+
+    Returns
+    -------
+    bool
+        True if the matrix is square and full rank, False otherwise.
+
+    Examples
+    --------
+    >>> is_invertible(Matrix([[1, 2], [3, 4]]))
+    True
+    >>> is_invertible(Matrix([[1, 2], [2, 4]]))
+    False
+    """
+    return matrix.is_square and rank(matrix) == matrix.rows
+
+
+def is_symmetric(matrix: Matrix) -> bool:
+    """
+    Return True if the matrix equals its own transpose.
+
+    Only square matrices can be symmetric. A symmetric matrix satisfies
+    ``A == Aᵀ`` entrywise.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The matrix to test.
+
+    Returns
+    -------
+    bool
+        True if the matrix is square and equal to its transpose.
+
+    Examples
+    --------
+    >>> is_symmetric(Matrix([[1, 2], [2, 1]]))
+    True
+    >>> is_symmetric(Matrix([[1, 2], [3, 4]]))
+    False
+    """
+    return matrix.is_square and matrix == matrix.transpose()
+
+
+def _null_space_basis(reduction: Reduction) -> list[Vector]:
+    """
+    Extract a parametric basis for the null space from an RREF reduction.
+
+    For each free (non-pivot) column, builds the null-space basis vector that
+    sets that free variable to 1 and solves for the pivot variables. Returns
+    an empty list when the reduction has full column rank.
+    """
+    n = reduction.original.cols
+    pivot_cols = {col for _, col in reduction.pivots}
+    pivot_map = {col: row for row, col in reduction.pivots}
+    free_cols = [j for j in range(n) if j not in pivot_cols]
+
+    null_vectors = []
+    for fc in free_cols:
+        components: list[Scalar] = [0] * n
+        components[fc] = 1
+        for pc, pr in pivot_map.items():
+            components[pc] = -reduction.result[pr][fc]
+        null_vectors.append(Vector(components))
+
+    return null_vectors
 
 
 def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
@@ -305,20 +549,9 @@ def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
         return Solution(A, b, "inconsistent", None, steps)
 
     if matrix_rref.nullity > 0:
-        from panchi.primitives.vector_space import VectorSpace
-
         n = A.cols
-        pivot_cols = {col for _, col in matrix_rref.pivots}
         pivot_map = {col: row for row, col in matrix_rref.pivots}
-        free_cols = [j for j in range(n) if j not in pivot_cols]
-
-        null_vectors = []
-        for fc in free_cols:
-            components: list[Scalar] = [0] * n
-            components[fc] = 1
-            for pc, pr in pivot_map.items():
-                components[pc] = -matrix_rref.result[pr][fc]
-            null_vectors.append(Vector(components))
+        null_vectors = _null_space_basis(matrix_rref)
 
         particular_components: list[Scalar] = [0] * n
         for pc, pr in pivot_map.items():
@@ -364,7 +597,7 @@ def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
 
     if solution.null_space is None:
         return None
-    return solution.null_space.basis[0].normalize()
+    return solution.null_space[0].normalize()
 
 
 def eigen(

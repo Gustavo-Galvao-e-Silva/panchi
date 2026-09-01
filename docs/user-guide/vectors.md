@@ -64,11 +64,13 @@ The magnitude of a vector is its Euclidean length — the square root of the sum
 
 ```python
 v = pan.Vector([3, 4])
-print(v.magnitude)   # 5.0
+print(v.magnitude)   # 5
 print(v.normalize()) # [0.6, 0.8]
 ```
 
 `normalize()` returns the unit vector pointing in the same direction. It raises `ZeroDivisionError` if the vector has zero magnitude.
+
+`magnitude_squared` skips the square root entirely, so it stays exact for integer and `Fraction` vectors — use it for length comparisons or orthogonality checks. `magnitude` and `normalize()` are exact too when the length is rational (a `[3, 4]` vector has length `5`), falling back to `float` only for irrational lengths like `[1, 1]`. See [Exact arithmetic](exact-arithmetic.md#length-and-normalization) for details.
 
 ## Dot product
 

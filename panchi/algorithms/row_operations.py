@@ -541,7 +541,7 @@ class RowScale(RowOperation):
         self._validate_scalar()
 
         grid: Matrix = identity(n)
-        grid[self.row][self.row] = self.scalar
+        grid[self.row, self.row] = self.scalar
 
         return grid
 
@@ -770,7 +770,7 @@ class RowAdd(RowOperation):
         self._validate_scalar()
 
         grid: Matrix = identity(n)
-        grid[self.target][self.source] = self.scalar
+        grid[self.target, self.source] = self.scalar
 
         return grid
 

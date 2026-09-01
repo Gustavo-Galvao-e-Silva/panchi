@@ -2,8 +2,26 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from fractions import Fraction
+from math import isqrt
 
+from panchi._latex import vector_to_latex
 from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
+
+
+def _exact_or_float_sqrt(value: Scalar) -> Scalar:
+    """Return the square root as an exact int/Fraction when rational, else float."""
+    if isinstance(value, float):
+        return value**0.5
+    if isinstance(value, Fraction):
+        num_root = isqrt(value.numerator)
+        den_root = isqrt(value.denominator)
+        if num_root**2 == value.numerator and den_root**2 == value.denominator:
+            return Fraction(num_root, den_root)
+        return float(value) ** 0.5
+    root = isqrt(value)
+    if root**2 == value:
+        return root
+    return value**0.5
 
 
 class Vector:
@@ -457,6 +475,10 @@ class Vector:
         """
         return f"Vector({self.data})"
 
+    def _repr_latex_(self) -> str:
+        """Render as a LaTeX column vector for Jupyter/Colab display."""
+        return f"${vector_to_latex(self)}$"
+
     @property
     def dims(self) -> int:
         """
@@ -476,35 +498,58 @@ class Vector:
         return self.shape[0]
 
     @property
-    def magnitude(self) -> float:
+    def magnitude_squared(self) -> Scalar:
         """
-        Calculate the magnitude (length) of the vector.
+        Calculate the squared magnitude (squared Euclidean norm).
 
-        The magnitude is the Euclidean norm, computed as the square root
-        of the sum of squared components.
+        The sum of the squared components. Unlike ``magnitude`` this never
+        takes a square root, so it stays exact for integer and ``Fraction``
+        vectors — useful for length comparisons and orthogonality checks
+        that do not need the actual length.
 
         Returns
         -------
-        float
+        int | float | Fraction
+            The squared magnitude of the vector.
+
+        Examples
+        --------
+        >>> Vector([3, 4]).magnitude_squared
+        25
+        """
+        return sum(val**2 for val in self.data)
+
+    @property
+    def magnitude(self) -> Scalar:
+        """
+        Calculate the magnitude (length) of the vector.
+
+        The Euclidean norm — the square root of ``magnitude_squared``. The
+        result stays exact (an ``int`` or ``Fraction``) when that square root
+        is rational, and is a ``float`` only when the length is irrational.
+
+        Returns
+        -------
+        int | float | Fraction
             The magnitude of the vector.
 
         Examples
         --------
-        >>> v = Vector([3, 4])
-        >>> v.magnitude
-        5.0
-        >>> v2 = Vector([1, 0, 0])
-        >>> v2.magnitude
-        1.0
+        >>> Vector([3, 4]).magnitude
+        5
+        >>> Vector([1, 1]).magnitude
+        1.4142135623730951
         """
-        return (sum(val**2 for val in self.data)) ** 0.5
+        return _exact_or_float_sqrt(self.magnitude_squared)
 
     def normalize(self) -> Vector:
         """
         Compute the unit vector in the same direction.
 
         A unit vector has magnitude 1 and points in the same direction
-        as the original vector.
+        as the original vector. Exactness is preserved when the length is
+        rational: an exact vector whose magnitude is an integer or
+        ``Fraction`` normalizes to exact components.
 
         Returns
         -------
@@ -522,8 +567,8 @@ class Vector:
         >>> normalized = v.normalize()
         >>> print(normalized)
         [0.6, 0.8]
-        >>> normalized.magnitude
-        1.0
+        >>> exact_vector([3, 4]).normalize()
+        Vector([Fraction(3, 5), Fraction(4, 5)])
         """
         return self / self.magnitude
 

@@ -14,7 +14,7 @@ pip install panchi
 import panchi as pan
 
 v = pan.Vector([3, 4])
-print(v.magnitude)    # 5.0
+print(v.magnitude)    # 5
 print(v.normalize())  # [0.6, 0.8]
 
 u = pan.Vector([1, 2, 3])
@@ -33,8 +33,8 @@ B = pan.Matrix([[5, 6], [7, 8]])
 
 print(A @ B)          # matrix multiplication
 print(A.T)            # transpose
-print(A.trace)        # 5
-print(A.determinant)  # -2
+print(A.trace)             # 5
+print(pan.determinant(A))  # -2
 ```
 
 `@` is matrix multiplication, `*` is scalar multiplication — consistent with standard Python convention.
@@ -88,7 +88,7 @@ from panchi.visualizations import Animator2D
 animator = Animator2D()
 
 # Plot vectors
-animator.plot_vectors(pan.Vector([3, 2]), pan.Vector([-1, 3]), labels=["v1", "v2"])
+animator.plot_vectors([pan.Vector([3, 2]), pan.Vector([-1, 3])], labels=["v1", "v2"])
 
 # Animate a linear transformation (grid morph)
 animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))

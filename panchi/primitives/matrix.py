@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from fractions import Fraction
 from typing import overload
 
+from panchi._latex import matrix_to_latex
 from panchi.primitives.vector import Vector
 from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
 
@@ -127,112 +128,117 @@ class Matrix:
         else:
             return Matrix(result)
 
-    def _get_submatrix(self, excluded_row: int, excluded_col: int) -> Matrix:
-        """
-        Return the submatrix formed by deleting one row and one column.
+    def _validate_element_index(self, index: tuple) -> tuple[int, int]:
+        """Validate an (i, j) element index and return it as a pair of ints."""
+        if len(index) != 2 or not all(isinstance(k, int) for k in index):
+            raise TypeError(
+                f"Element indices must be an (int, int) pair. Got {index!r}."
+            )
+        return index
 
-        Used internally when computing cofactors for the determinant.
+    def __getitem__(self, index: int | tuple[int, int]) -> list[Scalar] | Scalar:
+        """
+        Access a row (``m[i]``) or a single element (``m[i, j]``).
+
+        Row access returns a *copy* of the row, so mutating it never changes
+        the matrix — assign single elements through ``m[i, j] = value``, which
+        is validated exactly like the constructor.
 
         Parameters
         ----------
-        excluded_row : int
-            The index of the row to remove.
-        excluded_col : int
-            The index of the column to remove.
+        index : int or tuple[int, int]
+            A row index ``i``, or an ``(i, j)`` pair selecting one element.
+            Negative indices are supported.
 
         Returns
         -------
-        Matrix
-            The (n-1)×(n-1) submatrix with the specified row and column removed.
-        """
-        result = []
-        for i in range(self.rows):
-            if i == excluded_row:
-                continue
-            row = []
-            for j in range(self.cols):
-                if j == excluded_col:
-                    continue
-                row.append(self.data[i][j])
-            result.append(row)
-
-        return Matrix(result)
-
-    def __getitem__(self, index: int) -> list[Scalar]:
-        """
-        Access a row of the matrix by index.
-
-        Parameters
-        ----------
-        index : int
-            The row index (0-based). Negative indices are supported.
-
-        Returns
-        -------
-        list[int | float | Fraction]
-            The row at the specified index.
+        list[int | float | Fraction] or int | float | Fraction
+            A copy of the row for ``m[i]``, or the element for ``m[i, j]``.
 
         Raises
         ------
         TypeError
-            If index is not an integer.
+            If the index is not an int or an (int, int) pair.
         IndexError
-            If index is out of range (raised by Python).
+            If a row or column index is out of range (raised by Python).
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> m[0]
         [1, 2]
-        >>> m[1][1]
+        >>> m[1, 1]
         4
         >>> m[-1]
         [3, 4]
         """
+        if isinstance(index, tuple):
+            i, j = self._validate_element_index(index)
+            return self.data[i][j]
+
         if not isinstance(index, int):
             raise TypeError(
-                f"Matrix row indices must be integers. Got {type(index).__name__}."
+                f"Matrix indices must be an integer or an (int, int) pair. "
+                f"Got {type(index).__name__}."
             )
 
-        return self.data[index]
+        return list(self.data[index])
 
-    def __setitem__(self, index: int, new_row: list[Scalar]) -> None:
+    def __setitem__(
+        self, index: int | tuple[int, int], value: list[Scalar] | Scalar
+    ) -> None:
         """
-        Replace a row of the matrix at a given index.
+        Replace a whole row (``m[i] = [...]``) or one element (``m[i, j] = x``).
 
-        Allows direct row assignment using index notation. The replacement
-        row must be a list of numbers with the same length as the existing
-        rows in this matrix.
+        Both paths validate their input like the constructor: elements are
+        parsed with ``parse_scalar`` (so string fractions such as ``"1/2"``
+        become ``Fraction``) and must be numbers. ``m[i, j] = x`` is the way to
+        set a single element — ``m[i]`` returns a copy, so ``m[i][j] = x`` would
+        not change the matrix.
 
         Parameters
         ----------
-        index : int
-            The row index (0-based). Negative indices are supported.
-        new_row : list[int | float | Fraction]
-            The new row to assign. Must contain only numbers and have the
-            same length as the other rows in this matrix.
+        index : int or tuple[int, int]
+            A row index ``i`` for whole-row assignment, or an ``(i, j)`` pair
+            for a single element. Negative indices are supported.
+        value : list[int | float | Fraction | str] or int | float | Fraction | str
+            A row (list) for ``m[i]``, or a single scalar for ``m[i, j]``.
 
         Raises
         ------
         TypeError
-            If index is not an integer, new_row is not a list, or new_row
-            contains non-numeric elements.
+            If the index is malformed, a row is not a list, or an element is
+            not a number.
         ValueError
-            If new_row has a different length than the existing rows.
+            If a replacement row has a different length than the matrix width.
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> m[0] = [5, 6]
+        >>> m[1, 0] = "1/2"
         >>> print(m)
         [[5, 6],
-         [3, 4]]
+         [1/2, 4]]
         """
+        if isinstance(index, tuple):
+            i, j = self._validate_element_index(index)
+            try:
+                self.data[i][j] = parse_scalar(value)
+            except TypeError:
+                raise TypeError(
+                    f"Matrix elements must be numbers (int, float, or Fraction). "
+                    f"Got {type(value).__name__}."
+                ) from None
+            return
+
         if not isinstance(index, int):
             raise TypeError(
-                f"Matrix row indices must be integers. Got {type(index).__name__}."
+                f"Matrix indices must be an integer or an (int, int) pair. "
+                f"Got {type(index).__name__}."
             )
 
+        new_row = value
         if not isinstance(new_row, list):
             raise TypeError(f"Row must be a list. Got {type(new_row).__name__}.")
 
@@ -288,7 +294,7 @@ class Matrix:
         [1, 2]
         [3, 4]
         """
-        return iter(self.data)
+        return iter([list(row) for row in self.data])
 
     def __add__(self, other: Matrix) -> Matrix:
         """
@@ -590,7 +596,7 @@ class Matrix:
         if exponent < 0:
             raise ValueError(
                 f"Matrix exponent cannot be negative. Got {exponent}. "
-                f"For matrix inversion, use the inverse() method instead."
+                f"For matrix inversion, use inverse() from panchi.algorithms instead."
             )
 
         if not self.is_square:
@@ -713,6 +719,10 @@ class Matrix:
         'Matrix([[1, 2], [3, 4]])'
         """
         return f"Matrix({self.data})"
+
+    def _repr_latex_(self) -> str:
+        """Render as a LaTeX matrix for Jupyter/Colab display."""
+        return f"${matrix_to_latex(self)}$"
 
     @property
     def T(self) -> Matrix:
@@ -844,64 +854,6 @@ class Matrix:
         """
         n = self.cols
         return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
-
-    @property
-    def determinant(self) -> float:
-        """
-        Calculate the determinant of the matrix using cofactor expansion.
-
-        The determinant is a scalar value that encodes certain properties
-        of the matrix, including whether it's invertible (det ≠ 0) and
-        how it scales areas or volumes under transformation. Only defined
-        for square matrices.
-
-        Computed by expanding along the first row: for each entry in the
-        first row, multiply it by its cofactor (the signed determinant of
-        the submatrix formed by removing that entry's row and column), then
-        sum the results.
-
-        Returns
-        -------
-        float
-            The determinant of the matrix.
-
-        Raises
-        ------
-        ValueError
-            If the matrix is not square.
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4]])
-        >>> m.determinant
-        -2
-        >>> Matrix([[6]]).determinant
-        6
-        """
-        if not self.is_square:
-            raise ValueError(
-                f"Cannot calculate determinant of non-square matrix. "
-                f"Your matrix is {self.rows}×{self.cols}. "
-                f"Determinants are only defined for square matrices (n×n)."
-            )
-
-        if self.rows == 1:
-            return self.data[0][0]
-
-        if self.rows == 2:
-            return (self.data[0][0] * self.data[1][1]) - (
-                self.data[0][1] * self.data[1][0]
-            )
-
-        det = 0
-        for j in range(self.cols):
-            entry = self.data[0][j]
-            if entry != 0:
-                sign = (-1) ** j
-                submatrix = self._get_submatrix(0, j)
-                det += sign * entry * submatrix.determinant
-
-        return det
 
     @property
     def trace(self) -> Scalar:
@@ -1105,8 +1057,8 @@ class Matrix:
         --------
         >>> m1 = Matrix([[1, 2], [3, 4]])
         >>> m2 = m1.copy()
-        >>> m2[0][0] = 99
-        >>> print(m1[0][0])
+        >>> m2[0, 0] = 99
+        >>> print(m1[0, 0])
         1
         """
         return Matrix([row.copy() for row in self.data])

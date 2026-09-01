@@ -4,6 +4,7 @@ from panchi import (
     Matrix,
     Vector,
     cross,
+    determinant,
     determinant_lu,
     dot,
     exact_matrix,
@@ -180,7 +181,7 @@ class TestFractionAlgorithms:
 
     def test_determinant_exact(self):
         m = exact_matrix([[1, 2], [3, 4]])
-        det = m.determinant
+        det = determinant(m)
         assert det == Fraction(-2)
 
     def test_inverse_exact(self):

@@ -127,8 +127,24 @@ print(result.solution)  # [1, -1]
 
 ```python
 A = pan.exact_matrix([[1, 2], [3, 4]])
-print(A.determinant)  # -2
+print(pan.determinant(A))  # -2
 ```
+
+## Length and normalization
+
+`magnitude_squared` is the sum of the squared components. It never takes a square root, so it stays exact for integer and `Fraction` vectors — reach for it whenever you're comparing lengths or checking orthogonality and don't need the actual length.
+
+```python
+pan.exact_vector([3, 4]).magnitude_squared  # Fraction(25, 1)
+```
+
+`magnitude` — and `normalize()`, which divides by it — stays exact when the length is *rational*. A Pythagorean vector like `[3, 4]` has length `5`, so it normalizes exactly:
+
+```python
+pan.exact_vector([3, 4]).normalize()  # [3/5, 4/5], every component a Fraction
+```
+
+When the length is irrational (e.g. `[1, 1]`, whose length is $\sqrt{2}$), `magnitude` falls back to `float` — unavoidable, since the value has no exact rational form. Orthonormalization pipelines (`gram_schmidt`, `qr_decomposition`) inherit this behavior: exact in, exact out whenever every length involved is rational.
 
 ## When to use exact arithmetic
 
@@ -141,7 +157,7 @@ print(A.determinant)  # -2
 
 **Stick with floats when:**
 
-- You need `normalize()` or `magnitude` (these involve square roots, which are irrational)
+- You need the length of a vector that has none exactly — `magnitude` / `normalize()` on something like `[1, 1]` ($\sqrt{2}$) must return a float
 - You're working with measured/experimental data
 - Performance matters for large matrices
 

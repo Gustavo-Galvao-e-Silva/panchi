@@ -43,7 +43,7 @@ def run_tests():
     v3 = Vector([-2, 1])
     try:
         animator.plot_vectors(
-            v1, v2, v3, labels=[r"v_1", r"v_2", r"v_3"], name="vectors"
+            [v1, v2, v3], labels=[r"v_1", r"v_2", r"v_3"], name="vectors"
         )
         print("  OK: vectors rendered")
     except Exception as e:
@@ -103,9 +103,7 @@ def run_tests():
     try:
         animator_3d = Animator3D(backend="manim", save_path=output_dir)
         animator_3d.plot_vectors(
-            Vector([3, 2, 1]),
-            Vector([-2, 3, 2]),
-            Vector([1, -1, 3]),
+            [Vector([3, 2, 1]), Vector([-2, 3, 2]), Vector([1, -1, 3])],
             labels=[r"a", r"b", r"c"],
             name="vectors_3d",
         )
@@ -147,12 +145,47 @@ def run_tests():
     print("\n[3D] Span visualization (Animator3D)")
     try:
         animator_3d.plot_span(
-            Vector([1, 0, 0]),
-            Vector([0, 1, 1]),
+            [Vector([1, 0, 0]), Vector([0, 1, 1])],
             labels=[r"b_1", r"b_2"],
             name="span_3d",
         )
         print("  OK: 3D span rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[2D] Transform with custom vectors (Animator2D)")
+    try:
+        animator.animate_transform(
+            Matrix([[2, 1], [0, 1]]),
+            vectors=[Vector([1, 0]), Vector([1, 2]), Vector([-1, 1])],
+            name="transform_vectors_2d",
+        )
+        print("  OK: 2D transform with custom vectors rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[2D] Multiple spans compared (Animator2D)")
+    try:
+        animator.plot_span(
+            [[Vector([1, 1])], [Vector([1, -1])], VectorSpace([Vector([2, 1])])],
+            labels=[r"A", r"B", r"C"],
+            name="spans_multi_2d",
+        )
+        print("  OK: 2D multi-span rendered")
+    except Exception as e:
+        print(f"  FAIL: {e}")
+        return False
+
+    print("\n[3D] Multiple spans compared (Animator3D)")
+    try:
+        animator_3d.plot_span(
+            [[Vector([1, 0, 0]), Vector([0, 1, 0])], VectorSpace([Vector([0, 0, 1])])],
+            labels=[r"plane", r"axis"],
+            name="spans_multi_3d",
+        )
+        print("  OK: 3D multi-span rendered")
     except Exception as e:
         print(f"  FAIL: {e}")
         return False
@@ -169,7 +202,7 @@ def main():
     if not check_manim():
         return
 
-    print("\nThis will render 12 videos to ./manim_test_output/")
+    print("\nThis will render 15 videos to ./manim_test_output/")
     print("Estimated time: ~7-15 minutes\n")
 
     response = input("Continue? [y/N]: ").strip().lower()

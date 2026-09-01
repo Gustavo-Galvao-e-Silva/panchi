@@ -17,13 +17,13 @@ Basic usage with matplotlib (default):
 >>> v1 = Vector([3, 2])
 >>> v2 = Vector([1, 3])
 >>>
->>> animator.plot_vectors(v1, v2, labels=["v1", "v2"])
+>>> animator.plot_vectors([v1, v2], labels=["v1", "v2"])
 >>> animator.animate_addition(v1, v2)
 
 With Manim backend (requires ``pip install panchi[manim]``):
 
 >>> animator = Animator2D(backend="manim", save_path="./videos")
->>> animator.plot_vectors(v1, v2)
+>>> animator.plot_vectors([v1, v2])
 
 Animate a linear transformation:
 
@@ -35,7 +35,7 @@ The same methods work in three dimensions with ``Animator3D``:
 >>> from panchi.visualizations import Animator3D
 >>>
 >>> animator = Animator3D()
->>> animator.plot_vectors(Vector([3, 2, 1]), Vector([1, 3, 2]))
+>>> animator.plot_vectors([Vector([3, 2, 1]), Vector([1, 3, 2])])
 >>> animator.animate_transform(Matrix([[1, -1, 0], [1, 1, 0], [0, 0, 1]]))
 """
 
