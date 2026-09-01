@@ -228,3 +228,61 @@ class TestValidate3D:
         print("\n✓ Mixed 3D + 2D → raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
             animator.plot_vectors([Vector([1, 2, 3]), Vector([1, 2])])
+
+
+# ==================== INLINE NOTEBOOK PLAYBACK ====================
+
+
+class TestInlineNotebookPlayback3D:
+    """animate_* returns an inline-playable object under a notebook backend."""
+
+    @staticmethod
+    def _force_notebook(monkeypatch):
+        import matplotlib.pyplot as plt
+
+        monkeypatch.setattr(
+            plt, "get_backend", lambda: "module://matplotlib_inline.backend_inline"
+        )
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        import matplotlib.pyplot as plt
+
+        yield
+        plt.close("all")
+
+    def _assert_inline(self, result):
+        html = result._repr_html_()
+        assert isinstance(html, str)
+        assert html and "<" in html
+
+    def test_addition_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator3D()
+        result = animator.animate_addition(
+            Vector([1, 0, 0]), Vector([0, 1, 0]), frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_scaling_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator3D()
+        result = animator.animate_scaling(
+            Vector([1, 1, 1]), scale_factor=2.0, frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_transform_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator3D()
+        result = animator.animate_transform(
+            Matrix([[0, -1, 0], [1, 0, 0], [0, 0, 1]]), frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_non_notebook_returns_none(self):
+        animator = Animator3D()
+        result = animator.animate_addition(
+            Vector([1, 0, 0]), Vector([0, 1, 0]), frames=5, interval=100
+        )
+        assert result is None

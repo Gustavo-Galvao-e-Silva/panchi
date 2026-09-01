@@ -23,6 +23,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     SPAN_COLOR,
     TRANSFORM_COLORS_3D,
     _calculate_axis_range,
+    _InlineAnimation,
     _MatplotlibBackendBase,
     _resolve_colors,
     _smooth_step,
@@ -128,7 +129,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
         result = v1 + v2
@@ -220,7 +221,9 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def animate_scaling(
         self,
@@ -230,7 +233,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
 
         scaled = scale_factor * vector
@@ -267,7 +270,9 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def animate_transform(
         self,
@@ -276,7 +281,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         basis_colors = _resolve_colors(colors, TRANSFORM_COLORS_3D)
         target = [[float(matrix[i][j]) for j in range(3)] for i in range(3)]
 
@@ -340,7 +345,9 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
             return ()
 
-        self._run_animation(fig, animate_frame, frames, interval, name, blit=False)
+        return self._run_animation(
+            fig, animate_frame, frames, interval, name, blit=False
+        )
 
     def plot_span(
         self,

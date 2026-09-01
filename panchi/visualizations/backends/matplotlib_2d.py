@@ -18,6 +18,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     SPAN_COLOR,
     TRANSFORM_COLORS,
     _calculate_axis_range,
+    _InlineAnimation,
     _MatplotlibBackendBase,
     _resolve_colors,
     _smooth_step,
@@ -125,7 +126,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
@@ -198,7 +199,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             return arrow_v2_from_v1, arrow_result, text_result
 
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_scaling(
         self,
@@ -208,7 +209,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
@@ -247,7 +248,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             return arrow, text
 
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def animate_transform(
         self,
@@ -256,7 +257,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         color_e1, color_e2 = _resolve_colors(colors, TRANSFORM_COLORS)
 
         fig, ax = plt.subplots(figsize=self.figsize)
@@ -342,7 +343,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             return grid_collection, arrow_e1, arrow_e2, label_e1, label_e2
 
-        self._run_animation(fig, animate_frame, frames, interval, name)
+        return self._run_animation(fig, animate_frame, frames, interval, name)
 
     def plot_span(
         self,

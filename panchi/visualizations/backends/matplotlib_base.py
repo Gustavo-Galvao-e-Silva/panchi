@@ -53,6 +53,27 @@ def _smooth_step(t: float) -> float:
     return t * t * (3 - 2 * t)
 
 
+def _in_notebook() -> bool:
+    """True when matplotlib is using an inline/notebook backend (Jupyter, Colab)."""
+    backend = plt.get_backend().lower()
+    return "inline" in backend or "nbagg" in backend or "ipympl" in backend
+
+
+class _InlineAnimation:
+    """Play a matplotlib animation inline in a notebook.
+
+    Holds the JS player HTML that matplotlib's own ``to_jshtml`` produced, so
+    Jupyter renders the animation via ``_repr_html_`` — no IPython import and no
+    global rcParams mutation. Outside a notebook this object is simply ignored.
+    """
+
+    def __init__(self, html: str) -> None:
+        self._html = html
+
+    def _repr_html_(self) -> str:
+        return self._html
+
+
 class _MatplotlibBackendBase(_BaseBackend):
     """Shared scaffolding for matplotlib backends, independent of dimension.
 
@@ -88,7 +109,7 @@ class _MatplotlibBackendBase(_BaseBackend):
         interval: int,
         name: str,
         blit: bool = True,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         """Build a ``FuncAnimation`` from ``frame_fn`` and finalize it.
 
         Short pauses hold the first and last frames, so each loop opens on the
@@ -110,14 +131,14 @@ class _MatplotlibBackendBase(_BaseBackend):
             blit=blit,
             repeat=True,
         )
-        self._finalize_animation(anim, name, interval)
+        return self._finalize_animation(anim, name, interval)
 
     def _finalize_animation(
         self,
         anim: animation.FuncAnimation,
         name: str,
         interval: int,
-    ) -> None:
+    ) -> _InlineAnimation | None:
         plt.tight_layout()
         if self.save_path:
             self.save_path.mkdir(parents=True, exist_ok=True)
@@ -127,5 +148,10 @@ class _MatplotlibBackendBase(_BaseBackend):
                 fps=1000 // interval,
             )
             plt.close(anim._fig)
-        else:
-            plt.show()
+            return None
+        if _in_notebook():
+            html = anim.to_jshtml()
+            plt.close(anim._fig)
+            return _InlineAnimation(html)
+        plt.show()
+        return None

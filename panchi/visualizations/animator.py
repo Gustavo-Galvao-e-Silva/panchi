@@ -135,7 +135,7 @@ class Animator2D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate the addition of two 2D vectors.
 
         Parameters
@@ -155,7 +155,7 @@ class Animator2D:
             keeps its default. ``None`` uses the default palette.
         """
         self._validate_2d([v1, v2])
-        self._backend.animate_addition(
+        return self._backend.animate_addition(
             v1,
             v2,
             frames=frames,
@@ -172,7 +172,7 @@ class Animator2D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate scalar multiplication of a 2D vector.
 
         Parameters
@@ -192,7 +192,7 @@ class Animator2D:
             keeps its default. ``None`` uses the default palette.
         """
         self._validate_2d([vector])
-        self._backend.animate_scaling(
+        return self._backend.animate_scaling(
             vector,
             scale_factor,
             frames=frames,
@@ -208,7 +208,7 @@ class Animator2D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate a 2x2 linear transformation with full grid deformation.
 
         Shows the standard basis vectors and coordinate grid morphing
@@ -229,7 +229,7 @@ class Animator2D:
             role keeps its default. ``None`` uses the default palette.
         """
         self._validate_2x2(matrix)
-        self._backend.animate_transform(
+        return self._backend.animate_transform(
             matrix,
             frames=frames,
             interval=interval,
@@ -404,7 +404,7 @@ class Animator3D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate the addition of two 3D vectors.
 
         Parameters
@@ -424,7 +424,7 @@ class Animator3D:
             keeps its default. ``None`` uses the default palette.
         """
         self._validate_3d([v1, v2])
-        self._backend.animate_addition(
+        return self._backend.animate_addition(
             v1,
             v2,
             frames=frames,
@@ -441,7 +441,7 @@ class Animator3D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate scalar multiplication of a 3D vector.
 
         Parameters
@@ -461,7 +461,7 @@ class Animator3D:
             keeps its default. ``None`` uses the default palette.
         """
         self._validate_3d([vector])
-        self._backend.animate_scaling(
+        return self._backend.animate_scaling(
             vector,
             scale_factor,
             frames=frames,
@@ -477,7 +477,7 @@ class Animator3D:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> object | None:
         """Animate a 3x3 linear transformation of R³.
 
         Shows the standard basis vectors and the unit cube morphing smoothly
@@ -499,7 +499,7 @@ class Animator3D:
             omitted role keeps its default. ``None`` uses the default palette.
         """
         self._validate_3x3(matrix)
-        self._backend.animate_transform(
+        return self._backend.animate_transform(
             matrix,
             frames=frames,
             interval=interval,

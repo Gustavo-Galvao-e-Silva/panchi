@@ -359,3 +359,70 @@ class TestAnimationColors:
         resolved = _resolve_colors(None, TRANSFORM_COLORS)
         print(f"\n✓ None colors → default palette {resolved}")
         assert resolved == list(TRANSFORM_COLORS)
+
+
+# ==================== INLINE NOTEBOOK PLAYBACK ====================
+
+
+class TestInlineNotebookPlayback2D:
+    """animate_* returns an inline-playable object under a notebook backend."""
+
+    @staticmethod
+    def _force_notebook(monkeypatch):
+        import matplotlib.pyplot as plt
+
+        monkeypatch.setattr(
+            plt, "get_backend", lambda: "module://matplotlib_inline.backend_inline"
+        )
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        import matplotlib.pyplot as plt
+
+        yield
+        plt.close("all")
+
+    def _assert_inline(self, result):
+        html = result._repr_html_()
+        assert isinstance(html, str)
+        assert html and "<" in html
+
+    def test_addition_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator2D()
+        result = animator.animate_addition(
+            Vector([1, 0]), Vector([0, 1]), frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_scaling_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator2D()
+        result = animator.animate_scaling(
+            Vector([1, 1]), scale_factor=2.0, frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_transform_returns_inline_html(self, monkeypatch):
+        self._force_notebook(monkeypatch)
+        animator = Animator2D()
+        result = animator.animate_transform(
+            Matrix([[0, -1], [1, 0]]), frames=5, interval=100
+        )
+        self._assert_inline(result)
+
+    def test_non_notebook_returns_none(self):
+        animator = Animator2D()
+        result = animator.animate_addition(
+            Vector([1, 0]), Vector([0, 1]), frames=5, interval=100
+        )
+        assert result is None
+
+    def test_saving_still_returns_none(self, monkeypatch, tmp_path):
+        self._force_notebook(monkeypatch)
+        animator = Animator2D(save_path=tmp_path)
+        result = animator.animate_addition(
+            Vector([1, 0]), Vector([0, 1]), frames=5, interval=100
+        )
+        assert result is None
+        assert (tmp_path / "animate_addition.gif").exists()
