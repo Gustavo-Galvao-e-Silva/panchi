@@ -127,81 +127,117 @@ class Matrix:
         else:
             return Matrix(result)
 
-    def __getitem__(self, index: int) -> list[Scalar]:
+    def _validate_element_index(self, index: tuple) -> tuple[int, int]:
+        """Validate an (i, j) element index and return it as a pair of ints."""
+        if len(index) != 2 or not all(isinstance(k, int) for k in index):
+            raise TypeError(
+                f"Element indices must be an (int, int) pair. Got {index!r}."
+            )
+        return index
+
+    def __getitem__(self, index: int | tuple[int, int]) -> list[Scalar] | Scalar:
         """
-        Access a row of the matrix by index.
+        Access a row (``m[i]``) or a single element (``m[i, j]``).
+
+        Row access returns a *copy* of the row, so mutating it never changes
+        the matrix — assign single elements through ``m[i, j] = value``, which
+        is validated exactly like the constructor.
 
         Parameters
         ----------
-        index : int
-            The row index (0-based). Negative indices are supported.
+        index : int or tuple[int, int]
+            A row index ``i``, or an ``(i, j)`` pair selecting one element.
+            Negative indices are supported.
 
         Returns
         -------
-        list[int | float | Fraction]
-            The row at the specified index.
+        list[int | float | Fraction] or int | float | Fraction
+            A copy of the row for ``m[i]``, or the element for ``m[i, j]``.
 
         Raises
         ------
         TypeError
-            If index is not an integer.
+            If the index is not an int or an (int, int) pair.
         IndexError
-            If index is out of range (raised by Python).
+            If a row or column index is out of range (raised by Python).
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> m[0]
         [1, 2]
-        >>> m[1][1]
+        >>> m[1, 1]
         4
         >>> m[-1]
         [3, 4]
         """
+        if isinstance(index, tuple):
+            i, j = self._validate_element_index(index)
+            return self.data[i][j]
+
         if not isinstance(index, int):
             raise TypeError(
-                f"Matrix row indices must be integers. Got {type(index).__name__}."
+                f"Matrix indices must be an integer or an (int, int) pair. "
+                f"Got {type(index).__name__}."
             )
 
-        return self.data[index]
+        return list(self.data[index])
 
-    def __setitem__(self, index: int, new_row: list[Scalar]) -> None:
+    def __setitem__(
+        self, index: int | tuple[int, int], value: list[Scalar] | Scalar
+    ) -> None:
         """
-        Replace a row of the matrix at a given index.
+        Replace a whole row (``m[i] = [...]``) or one element (``m[i, j] = x``).
 
-        Allows direct row assignment using index notation. The replacement
-        row must be a list of numbers with the same length as the existing
-        rows in this matrix.
+        Both paths validate their input like the constructor: elements are
+        parsed with ``parse_scalar`` (so string fractions such as ``"1/2"``
+        become ``Fraction``) and must be numbers. ``m[i, j] = x`` is the way to
+        set a single element — ``m[i]`` returns a copy, so ``m[i][j] = x`` would
+        not change the matrix.
 
         Parameters
         ----------
-        index : int
-            The row index (0-based). Negative indices are supported.
-        new_row : list[int | float | Fraction]
-            The new row to assign. Must contain only numbers and have the
-            same length as the other rows in this matrix.
+        index : int or tuple[int, int]
+            A row index ``i`` for whole-row assignment, or an ``(i, j)`` pair
+            for a single element. Negative indices are supported.
+        value : list[int | float | Fraction | str] or int | float | Fraction | str
+            A row (list) for ``m[i]``, or a single scalar for ``m[i, j]``.
 
         Raises
         ------
         TypeError
-            If index is not an integer, new_row is not a list, or new_row
-            contains non-numeric elements.
+            If the index is malformed, a row is not a list, or an element is
+            not a number.
         ValueError
-            If new_row has a different length than the existing rows.
+            If a replacement row has a different length than the matrix width.
 
         Examples
         --------
         >>> m = Matrix([[1, 2], [3, 4]])
         >>> m[0] = [5, 6]
+        >>> m[1, 0] = "1/2"
         >>> print(m)
         [[5, 6],
-         [3, 4]]
+         [1/2, 4]]
         """
+        if isinstance(index, tuple):
+            i, j = self._validate_element_index(index)
+            try:
+                self.data[i][j] = parse_scalar(value)
+            except TypeError:
+                raise TypeError(
+                    f"Matrix elements must be numbers (int, float, or Fraction). "
+                    f"Got {type(value).__name__}."
+                ) from None
+            return
+
         if not isinstance(index, int):
             raise TypeError(
-                f"Matrix row indices must be integers. Got {type(index).__name__}."
+                f"Matrix indices must be an integer or an (int, int) pair. "
+                f"Got {type(index).__name__}."
             )
 
+        new_row = value
         if not isinstance(new_row, list):
             raise TypeError(f"Row must be a list. Got {type(new_row).__name__}.")
 
@@ -257,7 +293,7 @@ class Matrix:
         [1, 2]
         [3, 4]
         """
-        return iter(self.data)
+        return iter([list(row) for row in self.data])
 
     def __add__(self, other: Matrix) -> Matrix:
         """
@@ -1016,8 +1052,8 @@ class Matrix:
         --------
         >>> m1 = Matrix([[1, 2], [3, 4]])
         >>> m2 = m1.copy()
-        >>> m2[0][0] = 99
-        >>> print(m1[0][0])
+        >>> m2[0, 0] = 99
+        >>> print(m1[0, 0])
         1
         """
         return Matrix([row.copy() for row in self.data])

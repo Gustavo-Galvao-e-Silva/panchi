@@ -2,9 +2,9 @@ from fractions import Fraction
 
 import pytest
 
-from panchi.primitives import Matrix, Vector
 from panchi.algorithms import determinant
 from panchi.algorithms.matrix_operations import _submatrix
+from panchi.primitives import Matrix, Vector
 
 # ==================== MATRIX TESTS ====================
 
@@ -96,6 +96,53 @@ class TestMatrixIndexing:
         print("\n✓ m[1.5] → raises TypeError")
         with pytest.raises(TypeError):
             _ = m[1.5]
+
+
+class TestMatrixElementAccess:
+    """Test cases for element access and assignment via m[i, j]."""
+
+    def test_element_read(self):
+        m = Matrix([[1, 2], [3, 4]])
+        assert m[0, 0] == 1
+        assert m[0, 1] == 2
+        assert m[1, 0] == 3
+        assert m[-1, -1] == 4
+
+    def test_element_assignment(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m[0, 1] = 99
+        assert m[0, 1] == 99
+
+    def test_element_assignment_parses_string_fraction(self):
+        m = Matrix([[1, 2], [3, 4]])
+        m[0, 1] = "1/2"
+        assert m[0, 1] == Fraction(1, 2)
+        assert isinstance(m.data[0][1], Fraction)
+
+    def test_element_assignment_rejects_non_numeric(self):
+        m = Matrix([[1, 2], [3, 4]])
+        with pytest.raises(TypeError):
+            m[0, 0] = "hello"
+
+    def test_bad_tuple_index_raises(self):
+        m = Matrix([[1, 2], [3, 4]])
+        with pytest.raises(TypeError):
+            _ = m[0, 1, 2]
+        with pytest.raises(TypeError):
+            m[0, 1, 2] = 5
+
+    def test_row_access_returns_copy(self):
+        m = Matrix([[1, 2], [3, 4]])
+        row = m[0]
+        row[0] = 99
+        assert m[0, 0] == 1
+
+    def test_iteration_yields_copies(self):
+        m = Matrix([[1, 2], [3, 4]])
+        for row in m:
+            row[0] = 99
+        assert m[0, 0] == 1
+        assert m[1, 0] == 3
 
 
 class TestMatrixSetItem:
@@ -482,7 +529,9 @@ class TestMatrixDeterminant:
 
     def test_determinant_2x2_zero(self):
         m = Matrix([[1, 2], [2, 4]])
-        print(f"\n✓ det([[1,2],[2,4]]) = {determinant(m)} (expected 0, singular matrix)")
+        print(
+            f"\n✓ det([[1,2],[2,4]]) = {determinant(m)} (expected 0, singular matrix)"
+        )
         assert determinant(m) == 0
 
     def test_determinant_2x2_identity(self):
@@ -582,13 +631,13 @@ class TestMatrixDeterminant:
 
     def test_determinant_transpose_equal(self):
         m = Matrix([[1, 2, 3], [0, 4, 5], [1, 0, 6]])
-        print(f"\n✓ det(M) == det(M.T)")
+        print("\n✓ det(M) == det(M.T)")
         assert determinant(m) == determinant(m.T)
 
     def test_determinant_product_rule(self):
         m1 = Matrix([[1, 2], [3, 4]])
         m2 = Matrix([[5, 6], [7, 8]])
-        print(f"\n✓ det(M1 @ M2) == det(M1) * det(M2)")
+        print("\n✓ det(M1 @ M2) == det(M1) * det(M2)")
         assert abs(determinant(m1 @ m2) - (determinant(m1) * determinant(m2))) < 1e-10
 
 
@@ -775,12 +824,12 @@ class TestMatrixCopy:
     def test_copy_independence(self):
         m1 = Matrix([[1, 2], [3, 4]])
         m2 = m1.copy()
-        m2[0][0] = 99
+        m2[0, 0] = 99
         print(
-            f"\n✓ Modifying copy doesn't affect original: m1[0][0] = {m1[0][0]} (expected 1)"
+            f"\n✓ Modifying copy doesn't affect original: m1[0, 0] = {m1[0, 0]} (expected 1)"
         )
-        assert m1[0][0] == 1
-        assert m2[0][0] == 99
+        assert m1[0, 0] == 1
+        assert m2[0, 0] == 99
 
 
 class TestMatrixIterator:

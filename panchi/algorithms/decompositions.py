@@ -34,7 +34,7 @@ def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
     l = identity(n)
     for step in steps:
         if isinstance(step, RowAdd):
-            l[step.target][step.source] = -step.scalar
+            l[step.target, step.source] = -step.scalar
 
     return l
 

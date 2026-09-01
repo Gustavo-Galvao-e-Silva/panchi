@@ -135,6 +135,26 @@ assert A.left_identity @ A == A
 assert A @ A.right_identity == A
 ```
 
+## Indexing and element access
+
+Index a single element with a `(row, column)` pair, and assign to it the same way. Element assignment is validated exactly like the constructor — string fractions are parsed, and non-numbers are rejected:
+
+```python
+A = pan.Matrix([[1, 2], [3, 4]])
+
+A[0, 1]          # 2  — read one element
+A[1, 0] = "1/2"  # write one element (parsed to Fraction(1, 2))
+A[-1, -1]        # 4  — negative indices work
+```
+
+Indexing a single row returns a **copy** of that row, so mutating it never changes the matrix — assign single elements through `A[i, j] = value` instead:
+
+```python
+A[0]             # [1, 2]  — a copy of row 0
+A[0][0] = 99     # modifies the copy, NOT the matrix
+A[0, 0]          # still 1
+```
+
 ## Row and column access
 
 `row_vectors` and `col_vectors` mirror the mathematical operators Row(A) and Col(A), returning the row and column vectors of a matrix respectively.
