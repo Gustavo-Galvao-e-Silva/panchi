@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from panchi._latex import vector_to_latex
 from panchi.primitives.vector import Vector
 from panchi.types import Scalar
 
@@ -173,6 +174,18 @@ class GramSchmidtStep:
         lines.append(f"  orthogonal: {self.orthogonal}")
         lines.append(f"  normalize -> q{self.index}: {self.orthonormal}")
         return "\n".join(lines)
+
+    def _repr_latex_(self) -> str:
+        """Render the Gram-Schmidt derivation of this vector in LaTeX."""
+        lines = [f"& v_{{{self.index}}} = {vector_to_latex(self.original)}"]
+        for j, projection in enumerate(self.projections):
+            lines.append(
+                f"&\\text{{remove proj onto }} q_{{{j}}}: {vector_to_latex(projection)}"
+            )
+        lines.append(f"&\\text{{orthogonal}}: {vector_to_latex(self.orthogonal)}")
+        lines.append(f"& q_{{{self.index}}} = {vector_to_latex(self.orthonormal)}")
+        body = " \\\\\n".join(lines)
+        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
 
 
 def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:

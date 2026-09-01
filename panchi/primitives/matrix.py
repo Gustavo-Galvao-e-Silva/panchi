@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from fractions import Fraction
 from typing import overload
 
+from panchi._latex import matrix_to_latex
 from panchi.primitives.vector import Vector
 from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
 
@@ -718,6 +719,10 @@ class Matrix:
         'Matrix([[1, 2], [3, 4]])'
         """
         return f"Matrix({self.data})"
+
+    def _repr_latex_(self) -> str:
+        """Render as a LaTeX matrix for Jupyter/Colab display."""
+        return f"${matrix_to_latex(self)}$"
 
     @property
     def T(self) -> Matrix:

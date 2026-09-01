@@ -4,6 +4,7 @@ from collections.abc import Iterator
 from fractions import Fraction
 from math import isqrt
 
+from panchi._latex import vector_to_latex
 from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
@@ -473,6 +474,10 @@ class Vector:
         'Vector([1, 2, 3])'
         """
         return f"Vector({self.data})"
+
+    def _repr_latex_(self) -> str:
+        """Render as a LaTeX column vector for Jupyter/Colab display."""
+        return f"${vector_to_latex(self)}$"
 
     @property
     def dims(self) -> int:
