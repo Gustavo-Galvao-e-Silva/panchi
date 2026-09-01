@@ -2,7 +2,7 @@ from fractions import Fraction
 
 import pytest
 
-from panchi.primitives import Vector
+from panchi.primitives import Vector, exact_vector
 
 # ==================== VECTOR TESTS ====================
 
@@ -300,6 +300,46 @@ class TestVectorMagnitude:
         print(f"\n✓ |[1, 2, 2]| = {v.magnitude} (expected {expected})")
         assert v.magnitude == expected
 
+    def test_magnitude_is_exact_int_for_perfect_square(self):
+        v = Vector([3, 4])
+        assert v.magnitude == 5
+        assert isinstance(v.magnitude, int)
+
+    def test_magnitude_is_float_for_irrational_length(self):
+        v = Vector([1, 1])
+        assert isinstance(v.magnitude, float)
+        assert abs(v.magnitude - 2**0.5) < 1e-12
+
+    def test_magnitude_is_exact_fraction_for_rational_length(self):
+        v = exact_vector([3, 4])
+        assert v.magnitude == Fraction(5)
+        assert isinstance(v.magnitude, Fraction)
+
+    def test_magnitude_falls_back_to_float_for_irrational_fraction(self):
+        v = exact_vector([1, 1])
+        assert isinstance(v.magnitude, float)
+
+
+class TestVectorMagnitudeSquared:
+    """Test cases for Vector magnitude_squared property."""
+
+    def test_int_vector_stays_int(self):
+        v = Vector([3, 4])
+        assert v.magnitude_squared == 25
+        assert isinstance(v.magnitude_squared, int)
+
+    def test_exact_vector_stays_fraction(self):
+        v = exact_vector([1, 2])
+        assert v.magnitude_squared == Fraction(5)
+        assert isinstance(v.magnitude_squared, Fraction)
+
+    def test_zero_vector(self):
+        assert Vector([0, 0, 0]).magnitude_squared == 0
+
+    def test_equals_magnitude_squared_when_length_rational(self):
+        v = exact_vector([3, 4])
+        assert v.magnitude_squared == v.magnitude**2
+
 
 class TestVectorNormalize:
     """Test cases for Vector normalization."""
@@ -316,6 +356,12 @@ class TestVectorNormalize:
         normalized = v.normalize()
         print(f"\n✓ normalize([1, 0]) = {normalized.data} (expected [1.0, 0.0])")
         assert normalized.data == [1.0, 0.0]
+
+    def test_normalize_stays_exact_when_length_rational(self):
+        unit = exact_vector([3, 4]).normalize()
+        assert unit.data == [Fraction(3, 5), Fraction(4, 5)]
+        assert all(isinstance(x, Fraction) for x in unit.data)
+        assert unit.magnitude == 1
 
     def test_normalize_preserves_original(self):
         v = Vector([3, 4])

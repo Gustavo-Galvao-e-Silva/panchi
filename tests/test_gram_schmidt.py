@@ -57,3 +57,12 @@ class TestGramSchmidt:
     def test_linearly_dependent_raises(self):
         with pytest.raises(ZeroDivisionError):
             gram_schmidt([Vector([1, 0]), Vector([2, 0])])
+
+    def test_stays_exact_when_all_lengths_rational(self):
+        from fractions import Fraction
+
+        from panchi import exact_vector
+
+        q = gram_schmidt([exact_vector([3, 4]), exact_vector([4, 3])])
+        assert all(isinstance(x, Fraction) for vec in q for x in vec.data)
+        assert q[0].to_list() == [Fraction(3, 5), Fraction(4, 5)]

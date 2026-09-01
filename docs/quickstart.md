@@ -14,7 +14,7 @@ pip install panchi
 import panchi as pan
 
 v = pan.Vector([3, 4])
-print(v.magnitude)    # 5.0
+print(v.magnitude)    # 5
 print(v.normalize())  # [0.6, 0.8]
 
 u = pan.Vector([1, 2, 3])
