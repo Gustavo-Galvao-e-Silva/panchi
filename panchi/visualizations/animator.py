@@ -34,24 +34,41 @@ def _build_backend(
     raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'.")
 
 
-def _resolve_span_input(
-    vectors_or_space: list[Vector] | VectorSpace,
+def _resolve_single_span(
+    item: list[Vector] | VectorSpace,
 ) -> tuple[list[Vector], VectorSpace]:
-    """Resolve a ``plot_span`` argument into ``(vectors, VectorSpace)``.
+    """Resolve one span (a ``VectorSpace`` or a list of ``Vector``) to a pair."""
+    if isinstance(item, VectorSpace):
+        return list(item.data), item
+    space = VectorSpace(item)
+    return list(space.data), space
 
-    Accepts either a ``VectorSpace`` or a list of ``Vector`` objects.
+
+def _resolve_span_inputs(
+    arg: list[Vector] | VectorSpace | list[list[Vector] | VectorSpace],
+) -> list[tuple[list[Vector], VectorSpace]]:
+    """Resolve a ``plot_span`` argument into a list of ``(vectors, VectorSpace)``.
+
+    Accepts a single span (a ``VectorSpace`` or a flat list of ``Vector``) or
+    several spans (a list whose items are each a ``VectorSpace`` or a list of
+    ``Vector``). A single span yields a one-element list.
     """
-    if isinstance(vectors_or_space, VectorSpace):
-        return list(vectors_or_space.data), vectors_or_space
+    if isinstance(arg, VectorSpace):
+        return [_resolve_single_span(arg)]
 
-    if not isinstance(vectors_or_space, list):
+    if not isinstance(arg, list):
         raise TypeError(
-            f"plot_span expects a list of vectors or a VectorSpace. "
-            f"Got {type(vectors_or_space).__name__}."
+            f"plot_span expects a list of vectors, a VectorSpace, or a list of "
+            f"those. Got {type(arg).__name__}."
         )
 
-    space = VectorSpace(vectors_or_space)
-    return list(space.data), space
+    if len(arg) == 0:
+        raise ValueError("plot_span requires at least one vector or span.")
+
+    if all(isinstance(item, (VectorSpace, list)) for item in arg):
+        return [_resolve_single_span(item) for item in arg]
+
+    return [_resolve_single_span(arg)]
 
 
 class Animator2D:
@@ -204,6 +221,7 @@ class Animator2D:
     def animate_transform(
         self,
         matrix: Matrix,
+        vectors: list[Vector] | None = None,
         frames: int = 60,
         interval: int = 30,
         name: str | None = None,
@@ -211,13 +229,16 @@ class Animator2D:
     ) -> object | None:
         """Animate a 2x2 linear transformation with full grid deformation.
 
-        Shows the standard basis vectors and coordinate grid morphing
-        smoothly from the identity to the given matrix.
+        The coordinate grid morphs smoothly from the identity to the given
+        matrix. Each vector in ``vectors`` slides from ``v`` to ``matrix @ v``;
+        when ``vectors`` is ``None`` the standard basis ``[e1, e2]`` is shown.
 
         Parameters
         ----------
         matrix : Matrix
             A 2x2 transformation matrix.
+        vectors : list[Vector], optional
+            2D vectors to transform. ``None`` uses the standard basis.
         frames : int
             Number of animation frames. Default ``60``.
         interval : int
@@ -225,12 +246,15 @@ class Animator2D:
         name : str, optional
             Output filename (without extension) when saving.
         colors : list[str], optional
-            Up to two colors for the basis arrows ``[e1, e2]``. Any omitted
-            role keeps its default. ``None`` uses the default palette.
+            One color per transformed vector, cycling if fewer are supplied.
+            ``None`` uses the default palette.
         """
         self._validate_2x2(matrix)
+        if vectors is not None:
+            self._validate_2d(vectors)
         return self._backend.animate_transform(
             matrix,
+            vectors=vectors,
             frames=frames,
             interval=interval,
             name=name or "animate_transform",
@@ -239,7 +263,7 @@ class Animator2D:
 
     def plot_span(
         self,
-        vectors_or_space: list[Vector] | VectorSpace,
+        vectors_or_space: list[Vector] | VectorSpace | list[list[Vector] | VectorSpace],
         *,
         colors: list[str] | None = None,
         labels: list[str] | None = None,
@@ -249,29 +273,35 @@ class Animator2D:
     ) -> None:
         """Visualize the span of vectors with a shaded region and basis arrows.
 
-        Accepts either a ``VectorSpace`` or a list of ``Vector`` objects.
-        A 1D subspace is drawn as a line through the origin; a 2D subspace
-        shades the entire plane.
+        Accepts a single span (a ``VectorSpace`` or a list of ``Vector``) or
+        several spans to compare (a list whose items are each a ``VectorSpace``
+        or a list of ``Vector``). A 1D subspace is drawn as a line through the
+        origin; a 2D subspace shades the entire plane. With multiple spans each
+        is drawn in its own color with a legend.
 
         Parameters
         ----------
-        vectors_or_space : list[Vector] or VectorSpace
-            A list of 2D ``Vector`` objects, or a ``VectorSpace``.
+        vectors_or_space : list[Vector], VectorSpace, or list of those
+            One span, or a list of spans to compare.
         colors : list[str], optional
-            Colors for the basis vectors.
+            For a single span, colors for the basis vectors; for multiple
+            spans, one color per span.
         labels : list[str], optional
-            Labels for the basis vectors.
+            For a single span, labels for the basis vectors; for multiple
+            spans, one legend label per span.
         grid : bool
             Whether to show grid lines. Default ``True``.
         name : str, optional
             Output filename (without extension) when saving.
         span_color : str, optional
-            Color of the shaded span region. ``None`` uses the default.
+            Color of the shaded region (single span only). ``None`` uses the
+            default.
         """
-        vectors, space = _resolve_span_input(vectors_or_space)
-        self._validate_2d(vectors)
+        spans = _resolve_span_inputs(vectors_or_space)
+        for vectors, _ in spans:
+            self._validate_2d(vectors)
         self._backend.plot_span(
-            space,
+            [space for _, space in spans],
             colors=colors,
             labels=labels,
             grid=grid,
@@ -473,6 +503,7 @@ class Animator3D:
     def animate_transform(
         self,
         matrix: Matrix,
+        vectors: list[Vector] | None = None,
         frames: int = 60,
         interval: int = 30,
         name: str | None = None,
@@ -480,14 +511,16 @@ class Animator3D:
     ) -> object | None:
         """Animate a 3x3 linear transformation of R³.
 
-        Shows the standard basis vectors and the unit cube morphing smoothly
-        from the identity to the given matrix; the cube's image is the
-        parallelepiped spanned by the matrix columns.
+        Each vector in ``vectors`` slides smoothly from ``v`` to ``matrix @ v``;
+        when ``vectors`` is ``None`` the standard basis ``[e1, e2, e3]`` is
+        shown (its image is the parallelepiped spanned by the matrix columns).
 
         Parameters
         ----------
         matrix : Matrix
             A 3x3 transformation matrix.
+        vectors : list[Vector], optional
+            3D vectors to transform. ``None`` uses the standard basis.
         frames : int
             Number of animation frames. Default ``60``.
         interval : int
@@ -495,12 +528,15 @@ class Animator3D:
         name : str, optional
             Output filename (without extension) when saving.
         colors : list[str], optional
-            Up to three colors for the basis arrows ``[e1, e2, e3]``. Any
-            omitted role keeps its default. ``None`` uses the default palette.
+            One color per transformed vector, cycling if fewer are supplied.
+            ``None`` uses the default palette.
         """
         self._validate_3x3(matrix)
+        if vectors is not None:
+            self._validate_3d(vectors)
         return self._backend.animate_transform(
             matrix,
+            vectors=vectors,
             frames=frames,
             interval=interval,
             name=name or "animate_transform",
@@ -509,7 +545,7 @@ class Animator3D:
 
     def plot_span(
         self,
-        vectors_or_space: list[Vector] | VectorSpace,
+        vectors_or_space: list[Vector] | VectorSpace | list[list[Vector] | VectorSpace],
         *,
         colors: list[str] | None = None,
         labels: list[str] | None = None,
@@ -519,29 +555,36 @@ class Animator3D:
     ) -> None:
         """Visualize the span of 3D vectors with a shaded region and basis arrows.
 
-        Accepts either a ``VectorSpace`` or a list of ``Vector`` objects.
-        A 1D subspace is drawn as a line through the origin, a 2D subspace as a
-        plane patch, and a 3D subspace as a translucent volume (all of R³).
+        Accepts a single span (a ``VectorSpace`` or a list of ``Vector``) or
+        several spans to compare (a list whose items are each a ``VectorSpace``
+        or a list of ``Vector``). A 1D subspace is drawn as a line through the
+        origin, a 2D subspace as a plane patch, and a 3D subspace as a
+        translucent volume. With multiple spans each is drawn in its own color
+        with a legend.
 
         Parameters
         ----------
-        vectors_or_space : list[Vector] or VectorSpace
-            A list of 3D ``Vector`` objects, or a ``VectorSpace``.
+        vectors_or_space : list[Vector], VectorSpace, or list of those
+            One span, or a list of spans to compare.
         colors : list[str], optional
-            Colors for the basis vectors.
+            For a single span, colors for the basis vectors; for multiple
+            spans, one color per span.
         labels : list[str], optional
-            Labels for the basis vectors.
+            For a single span, labels for the basis vectors; for multiple
+            spans, one legend label per span.
         grid : bool
             Whether to show grid lines. Default ``True``.
         name : str, optional
             Output filename (without extension) when saving.
         span_color : str, optional
-            Color of the shaded span region. ``None`` uses the default.
+            Color of the shaded region (single span only). ``None`` uses the
+            default.
         """
-        vectors, space = _resolve_span_input(vectors_or_space)
-        self._validate_3d(vectors)
+        spans = _resolve_span_inputs(vectors_or_space)
+        for vectors, _ in spans:
+            self._validate_3d(vectors)
         self._backend.plot_span(
-            space,
+            [space for _, space in spans],
             colors=colors,
             labels=labels,
             grid=grid,

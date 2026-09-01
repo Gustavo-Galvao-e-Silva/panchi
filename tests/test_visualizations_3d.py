@@ -158,6 +158,26 @@ class TestAnimations3D:
         with pytest.raises(ValueError, match="Only 3x3 matrices"):
             animator.animate_transform(Matrix([[1, 0], [0, 1]]), frames=6)
 
+    def test_animate_transform_custom_vectors(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[2, 0, 0], [0, 1, 0], [0, 1, 1]]),
+            vectors=[Vector([1, 1, 0]), Vector([0, 1, 2])],
+            frames=6,
+            interval=50,
+        )
+        print("\n✓ 3D transform with custom vectors saved")
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    def test_animate_transform_rejects_non_3d_vectors(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        with pytest.raises(ValueError, match="Only 3D vectors"):
+            animator.animate_transform(
+                Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
+                vectors=[Vector([1, 2])],
+                frames=6,
+            )
+
 
 class TestPlotSpan3D:
     """Test cases for Animator3D.plot_span (matplotlib backend)."""
@@ -204,8 +224,21 @@ class TestPlotSpan3D:
     def test_span_type_error(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ non-Vector → plot_span raises TypeError")
-        with pytest.raises(TypeError, match="list of vectors or a VectorSpace"):
+        with pytest.raises(TypeError, match="list of vectors, a VectorSpace"):
             animator.plot_span("not a vector")
+
+    def test_multiple_spans(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span(
+            [
+                [Vector([1, 0, 0]), Vector([0, 1, 0])],
+                VectorSpace([Vector([0, 0, 1])]),
+            ],
+            labels=["plane", "axis"],
+            name="two_spans",
+        )
+        print("\n✓ Two 3D spans drawn with a legend")
+        assert (tmp_path / "two_spans.png").exists()
 
 
 class TestValidate3D:

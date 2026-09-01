@@ -90,6 +90,12 @@ def test_transforms():
     print("\n[5] Singular matrix (projection onto x-axis)")
     animator.animate_transform(Matrix([[1, 0], [0, 0]]))
 
+    print("\n[6] Custom vectors transformed")
+    animator.animate_transform(
+        Matrix([[2, 1], [0, 1]]),
+        vectors=[Vector([1, 0]), Vector([1, 2]), Vector([-1, 1])],
+    )
+
 
 def test_spans():
     """Test span visualization."""
@@ -111,6 +117,12 @@ def test_spans():
     print("\n[4] 2D span from VectorSpace")
     space = VectorSpace([Vector([1, 1]), Vector([1, -1])])
     animator.plot_span(space, labels=["v1", "v2"])
+
+    print("\n[5] Multiple spans compared (color-coded + legend)")
+    animator.plot_span(
+        [[Vector([1, 1])], [Vector([1, -1])], VectorSpace([Vector([2, 1])])],
+        labels=["A", "B", "C"],
+    )
 
 
 def test_error_handling():

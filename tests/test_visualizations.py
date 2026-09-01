@@ -233,6 +233,24 @@ class TestAnimateTransform:
         with pytest.raises(ValueError, match="2x2"):
             animator.animate_transform(Matrix([[1, 2, 3], [4, 5, 6]]))
 
+    def test_custom_vectors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[2, 1], [0, 1]]),
+            vectors=[Vector([1, 0]), Vector([1, 2]), Vector([-1, 1])],
+            frames=5,
+            interval=100,
+        )
+        print("\n✓ Transform with custom vectors saved")
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    def test_rejects_non_2d_vectors(self):
+        animator = Animator2D()
+        with pytest.raises(ValueError, match="2D"):
+            animator.animate_transform(
+                Matrix([[1, 0], [0, 1]]), vectors=[Vector([1, 2, 3])]
+            )
+
 
 # ==================== PLOT SPAN ====================
 
@@ -284,7 +302,7 @@ class TestPlotSpan:
     def test_rejects_invalid_type(self):
         animator = Animator2D()
         print("\n✓ Invalid type → raises TypeError")
-        with pytest.raises(TypeError, match="list of vectors or a VectorSpace"):
+        with pytest.raises(TypeError, match="list of vectors, a VectorSpace"):
             animator.plot_span("not a vector")
 
     def test_rejects_empty_list(self):
@@ -298,6 +316,25 @@ class TestPlotSpan:
         animator.plot_span([Vector([1, 0]), Vector([0, 1])], span_color="#805B49")
         print("\n✓ Custom span_color accepted")
         assert (tmp_path / "plot_span.png").exists()
+
+    def test_multiple_spans_as_lists(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.plot_span(
+            [[Vector([1, 1])], [Vector([1, -1])]],
+            labels=["line A", "line B"],
+            name="two_lines",
+        )
+        print("\n✓ Two spans (lists) drawn with a legend")
+        assert (tmp_path / "two_lines.png").exists()
+
+    def test_multiple_spans_mixed(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.plot_span(
+            [VectorSpace([Vector([2, 1])]), [Vector([1, 0]), Vector([0, 1])]],
+            name="mixed_spans",
+        )
+        print("\n✓ Mixed VectorSpace + list spans drawn")
+        assert (tmp_path / "mixed_spans.png").exists()
 
 
 # ==================== CUSTOM ANIMATION COLORS ====================

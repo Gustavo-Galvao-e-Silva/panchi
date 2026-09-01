@@ -50,6 +50,12 @@ def _resolve_colors(colors: list[str] | None, defaults: tuple) -> list:
     return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
 
 
+def _resolve_n_colors(colors: list[str] | None, n: int, defaults: tuple) -> list:
+    """Return ``n`` colors, cycling the palette when more are needed than given."""
+    palette = list(colors) if colors else list(defaults) or list(DEFAULT_COLORS)
+    return [palette[i % len(palette)] for i in range(n)]
+
+
 def _axis_range(coords, padding: float = AXIS_PADDING) -> int:
     """Symmetric axis half-extent covering ``coords`` with padding."""
     return int(max(abs(c) for c in coords) * padding) + 1

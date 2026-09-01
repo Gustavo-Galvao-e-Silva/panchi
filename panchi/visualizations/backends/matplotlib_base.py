@@ -42,6 +42,18 @@ def _resolve_colors(colors: list[str] | None, defaults: tuple[str, ...]) -> list
     return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
 
 
+def _resolve_n_colors(
+    colors: list[str] | None, n: int, defaults: tuple[str, ...]
+) -> list[str]:
+    """Return ``n`` colors, cycling the palette when more are needed than given.
+
+    Supplied colors take precedence; ``defaults`` (then ``DEFAULT_COLORS``) fill
+    the rest, cycling so an arbitrary number of vectors each get a color.
+    """
+    palette = list(colors) if colors else list(defaults) or list(DEFAULT_COLORS)
+    return [palette[i % len(palette)] for i in range(n)]
+
+
 def _calculate_axis_range(vectors: list[Vector]) -> tuple[float, float]:
     coords = [v[i] for v in vectors for i in range(v.dims)]
     max_coord = max((abs(c) for c in coords), default=0.0) * AXIS_PADDING
