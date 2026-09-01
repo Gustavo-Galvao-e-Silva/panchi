@@ -82,18 +82,6 @@
   height: 64px;
 }
 
-/* Home-page centered logo (light/dark aware via .logo-light / .logo-dark) */
-figure.home-logo {
-  text-align: center;
-  margin: 0.5rem 0 1.5rem;
-}
-
-figure.home-logo img {
-  width: 280px;
-  max-width: 70%;
-  height: auto;
-}
-
 /* Documentation visualizations (panchi Animator2D output) */
 figure.viz {
   text-align: center;
@@ -110,4 +98,43 @@ figure.viz figcaption {
   font-size: 0.78rem;
   opacity: 0.75;
   margin-top: 0.45rem;
+}
+
+/* Code syntax highlighting — panchi palette (Material maps Pygments tokens
+   onto these --md-code-hl-* variables) */
+
+/* Light mode: warm ground, brown / teal / gold tokens */
+[data-md-color-scheme="default"] {
+  --md-code-bg-color: #F5EFE9;
+  --md-code-fg-color: #45423F;
+
+  --md-code-hl-keyword-color:     #805B49; /* brown  — def, for, import, return */
+  --md-code-hl-string-color:      #3E7C7B; /* teal   — string literals */
+  --md-code-hl-function-color:    #A66A2E; /* gold   — function/method names */
+  --md-code-hl-number-color:      #9C5A3C; /* rust   — numeric literals */
+  --md-code-hl-constant-color:    #9C5A3C; /* rust   — True / False / None */
+  --md-code-hl-special-color:     #805B49; /* brown  — builtins, magic */
+  --md-code-hl-name-color:        #45423F; /* identifiers */
+  --md-code-hl-variable-color:    #45423F;
+  --md-code-hl-operator-color:    #6B6560;
+  --md-code-hl-punctuation-color: #6B6560;
+  --md-code-hl-comment-color:     #9A938C; /* muted warm gray */
+}
+
+/* Dark mode: warm dark ground, peach / teal / gold tokens */
+[data-md-color-scheme="slate"] {
+  --md-code-bg-color: #322F2C;
+  --md-code-fg-color: #E8E2DC;
+
+  --md-code-hl-keyword-color:     #FFB592; /* peach */
+  --md-code-hl-string-color:      #7FB0AE; /* light teal */
+  --md-code-hl-function-color:    #E0B877; /* light gold */
+  --md-code-hl-number-color:      #E8956B; /* light rust */
+  --md-code-hl-constant-color:    #E8956B;
+  --md-code-hl-special-color:     #FFB592;
+  --md-code-hl-name-color:        #E8E2DC;
+  --md-code-hl-variable-color:    #E8E2DC;
+  --md-code-hl-operator-color:    #B8AFA8;
+  --md-code-hl-punctuation-color: #B8AFA8;
+  --md-code-hl-comment-color:     #8A817A;
 }

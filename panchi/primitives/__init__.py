@@ -2,25 +2,25 @@
 Primitive linear algebra objects: Vector, Matrix, and factory functions.
 """
 
-from panchi.primitives.vector import Vector
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.vector_space import VectorSpace
 from panchi.primitives.factories import (
-    identity,
-    zero_matrix,
-    one_matrix,
-    zero_vector,
-    one_vector,
-    unit_vector,
     diagonal,
-    random_vector,
+    exact_matrix,
+    exact_vector,
+    identity,
+    one_matrix,
+    one_vector,
     random_matrix,
+    random_vector,
     rotation_matrix_2d,
     rotation_matrix_3d,
+    unit_vector,
     vector_column_matrix,
-    exact_vector,
-    exact_matrix,
+    zero_matrix,
+    zero_vector,
 )
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
+from panchi.primitives.vector_space import VectorSpace
 
 __all__ = [
     "Vector",

@@ -3,16 +3,15 @@ from fractions import Fraction
 import panchi as pan
 from panchi import determinant
 from panchi import (
-    Vector,
     Matrix,
-    exact_vector,
-    exact_matrix,
-    dot,
+    Vector,
     cross,
-    identity,
-    solve,
-    inverse,
     determinant_lu,
+    dot,
+    exact_matrix,
+    exact_vector,
+    inverse,
+    solve,
 )
 from panchi.algorithms.reductions import rref
 
@@ -44,7 +43,7 @@ class TestVectorFractionConstruction:
     def test_invalid_string_raises(self):
         try:
             Vector(["hello"])
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass
 
@@ -72,7 +71,7 @@ class TestMatrixFractionConstruction:
     def test_invalid_string_raises(self):
         try:
             Matrix([["abc", 1], [2, 3]])
-            assert False, "Should have raised"
+            raise AssertionError("Should have raised")
         except TypeError:
             pass
 

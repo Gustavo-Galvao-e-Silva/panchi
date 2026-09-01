@@ -10,7 +10,7 @@ CUBE_EDGES = [
     (i, j)
     for i in range(8)
     for j in range(i + 1, 8)
-    if sum(a != b for a, b in zip(CUBE_VERTS[i], CUBE_VERTS[j])) == 1
+    if sum(a != b for a, b in zip(CUBE_VERTS[i], CUBE_VERTS[j], strict=False)) == 1
 ]
 
 

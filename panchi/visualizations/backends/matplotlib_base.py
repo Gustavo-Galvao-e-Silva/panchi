@@ -8,15 +8,15 @@ import matplotlib.pyplot as plt
 from panchi.primitives.vector import Vector
 from panchi.visualizations.backends.base import _BaseBackend
 
-DEFAULT_COLORS = ["#E63946", "#F77F00", "#06FFA5", "#118AB2", "#073B4C"]
+DEFAULT_COLORS = ["#805B49", "#FFB592", "#3E7C7B", "#D4A15E", "#45423F"]
 
 # Per-method default color roles, shared across dimensions. Overridable by
 # passing ``colors=`` (animations) or ``span_color=`` (spans) to the method.
-ADDITION_COLORS = ("#E63946", "#F77F00", "#06FFA5")  # v1, v2, result
-SCALING_COLORS = ("#E63946", "#118AB2")  # original, scaled
-TRANSFORM_COLORS = ("#E63946", "#118AB2")  # e1, e2 (2D)
-TRANSFORM_COLORS_3D = ("#E63946", "#118AB2", "#06FFA5")  # e1, e2, e3 (3D)
-SPAN_COLOR = "#7C3AED"
+ADDITION_COLORS = ("#805B49", "#FFB592", "#3E7C7B")  # v1, v2, result
+SCALING_COLORS = ("#805B49", "#FFB592")  # original, scaled
+TRANSFORM_COLORS = ("#805B49", "#FFB592")  # e1, e2 (2D)
+TRANSFORM_COLORS_3D = ("#805B49", "#FFB592", "#3E7C7B")  # e1, e2, e3 (3D)
+SPAN_COLOR = "#805B49"
 
 GRID_COLOR = "#CCCCCC"
 

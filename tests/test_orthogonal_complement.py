@@ -79,9 +79,7 @@ class TestOrthogonalComplement:
             orthogonal_complement(Matrix([[1, 0], [0, 1]]))
 
     def test_redundant_generators(self):
-        vs = VectorSpace(
-            [Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([1, 1, 0])]
-        )
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([1, 1, 0])])
         comp = orthogonal_complement(vs)
         assert rank(comp) == 1
         assert basis(comp)[0].to_list() == [0, 0, 1]

@@ -10,15 +10,15 @@ from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.algorithms.matrix_operations import rank
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.matplotlib_base import (
+    _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
     GRID_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS,
-    _EPSILON,
-    _MatplotlibBackendBase,
     _calculate_axis_range,
+    _MatplotlibBackendBase,
     _resolve_colors,
     _smooth_step,
 )
@@ -360,7 +360,8 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
         if dim == 0:
             _setup_coordinate_plane(ax, (-3, 3), (-3, 3), grid)
-            ax.plot(0, 0, "ko", markersize=8, zorder=5)
+            ax.plot(0, 0, "ko", markersize=8, zorder=5, label="span = {0}")
+            ax.legend(loc="upper left", fontsize=10)
             self._finalize_figure(fig, name)
             return
 
@@ -381,7 +382,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                     linewidth=3,
                     alpha=0.4,
                     zorder=1,
-                    label="span",
+                    label="span = line (R¹)",
                 )
         elif dim == 2:
             xlo, xhi = axis_range

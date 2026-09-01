@@ -34,7 +34,9 @@ class TestVectorSpaceInitialization:
         v2 = Vector([0, 1])
         v3 = Vector([1, 1])  # linearly dependent on v1 and v2
         vs = VectorSpace([v1, v2, v3])
-        print(f"\n✓ VectorSpace([e1, e2, e1+e2]) → data has {len(vs.data)} vectors (all 3 stored)")
+        print(
+            f"\n✓ VectorSpace([e1, e2, e1+e2]) → data has {len(vs.data)} vectors (all 3 stored)"
+        )
         assert len(vs.data) == 3
 
     def test_valid_float_vectors(self):
@@ -45,30 +47,30 @@ class TestVectorSpaceInitialization:
         assert len(vs.data) == 2
 
     def test_invalid_not_a_list(self):
-        print(f"\n✓ VectorSpace(Vector([1,2])) → raises TypeError")
+        print("\n✓ VectorSpace(Vector([1,2])) → raises TypeError")
         with pytest.raises(TypeError):
             VectorSpace(Vector([1, 2]))
 
     def test_invalid_empty_list(self):
-        print(f"\n✓ VectorSpace([]) → raises ValueError")
+        print("\n✓ VectorSpace([]) → raises ValueError")
         with pytest.raises(ValueError):
             VectorSpace([])
 
     def test_invalid_non_vector_element(self):
-        print(f"\n✓ VectorSpace([[1,2,3]]) → raises TypeError (list not Vector)")
+        print("\n✓ VectorSpace([[1,2,3]]) → raises TypeError (list not Vector)")
         with pytest.raises(TypeError):
             VectorSpace([[1, 2, 3]])
 
     def test_invalid_mixed_elements(self):
         v = Vector([1, 2])
-        print(f"\n✓ VectorSpace([Vector, 5]) → raises TypeError")
+        print("\n✓ VectorSpace([Vector, 5]) → raises TypeError")
         with pytest.raises(TypeError):
             VectorSpace([v, 5])
 
     def test_invalid_inconsistent_dimensions(self):
         v1 = Vector([1, 2])
         v2 = Vector([1, 2, 3])
-        print(f"\n✓ VectorSpace([2d, 3d]) → raises ValueError (dimension mismatch)")
+        print("\n✓ VectorSpace([2d, 3d]) → raises ValueError (dimension mismatch)")
         with pytest.raises(ValueError):
             VectorSpace([v1, v2])
 
@@ -76,7 +78,7 @@ class TestVectorSpaceInitialization:
         v1 = Vector([1, 0, 0])
         v2 = Vector([0, 1, 0])
         v3 = Vector([1, 1])  # wrong dims
-        print(f"\n✓ VectorSpace([3d, 3d, 2d]) → raises ValueError")
+        print("\n✓ VectorSpace([3d, 3d, 2d]) → raises ValueError")
         with pytest.raises(ValueError):
             VectorSpace([v1, v2, v3])
 
@@ -171,13 +173,13 @@ class TestVectorSpaceGetItem:
 
     def test_getitem_invalid_index_type(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ vs[1.0] → raises TypeError")
+        print("\n✓ vs[1.0] → raises TypeError")
         with pytest.raises(TypeError):
             _ = vs[1.0]
 
     def test_getitem_invalid_index_string(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ vs['0'] → raises TypeError")
+        print("\n✓ vs['0'] → raises TypeError")
         with pytest.raises(TypeError):
             _ = vs["0"]
 
@@ -205,19 +207,19 @@ class TestVectorSpaceSetItem:
 
     def test_setitem_invalid_index_type(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ vs[1.0] = Vector([1, 0]) → raises TypeError")
+        print("\n✓ vs[1.0] = Vector([1, 0]) → raises TypeError")
         with pytest.raises(TypeError):
             vs[1.0] = Vector([1, 0])
 
     def test_setitem_invalid_value_not_vector(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ vs[0] = [1, 0] → raises TypeError (list not Vector)")
+        print("\n✓ vs[0] = [1, 0] → raises TypeError (list not Vector)")
         with pytest.raises(TypeError):
             vs[0] = [1, 0]
 
     def test_setitem_invalid_dims_mismatch(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ vs[0] = Vector([1, 0, 0]) → raises ValueError (wrong dims)")
+        print("\n✓ vs[0] = Vector([1, 0, 0]) → raises ValueError (wrong dims)")
         with pytest.raises(ValueError):
             vs[0] = Vector([1, 0, 0])
 
@@ -263,7 +265,7 @@ class TestVectorSpaceIter:
         v3 = Vector([1, 1])
         vs = VectorSpace([v1, v2, v3])
         result = list(vs)
-        print(f"\n✓ iteration order matches insertion order")
+        print("\n✓ iteration order matches insertion order")
         assert result[0] == v1
         assert result[1] == v2
         assert result[2] == v3
@@ -276,32 +278,34 @@ class TestVectorSpaceEquality:
         v1, v2 = Vector([1, 0]), Vector([0, 1])
         vs1 = VectorSpace([v1, v2])
         vs2 = VectorSpace([v1, v2])
-        print(f"\n✓ VectorSpace([v1,v2]) == VectorSpace([v1,v2]) → True")
+        print("\n✓ VectorSpace([v1,v2]) == VectorSpace([v1,v2]) → True")
         assert vs1 == vs2
 
     def test_equal_different_order(self):
         v1, v2 = Vector([1, 0]), Vector([0, 1])
         vs1 = VectorSpace([v1, v2])
         vs2 = VectorSpace([v2, v1])
-        print(f"\n✓ VectorSpace([v1,v2]) == VectorSpace([v2,v1]) → True (order does not matter)")
+        print(
+            "\n✓ VectorSpace([v1,v2]) == VectorSpace([v2,v1]) → True (order does not matter)"
+        )
         assert vs1 == vs2
 
     def test_not_equal_different_vectors(self):
         vs1 = VectorSpace([Vector([1, 0])])
         vs2 = VectorSpace([Vector([0, 1])])
-        print(f"\n✓ VectorSpace([v1]) != VectorSpace([v2]) → False")
+        print("\n✓ VectorSpace([v1]) != VectorSpace([v2]) → False")
         assert vs1 != vs2
 
     def test_not_equal_different_length(self):
         v1, v2 = Vector([1, 0]), Vector([0, 1])
         vs1 = VectorSpace([v1])
         vs2 = VectorSpace([v1, v2])
-        print(f"\n✓ VectorSpace([v1]) != VectorSpace([v1, v2]) → False")
+        print("\n✓ VectorSpace([v1]) != VectorSpace([v1, v2]) → False")
         assert vs1 != vs2
 
     def test_not_equal_to_non_vectorspace(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ VectorSpace != list → NotImplemented")
+        print("\n✓ VectorSpace != list → NotImplemented")
         assert vs.__eq__([Vector([1, 0])]) is NotImplemented
 
 
@@ -406,7 +410,7 @@ class TestVectorSpaceAmbientDims:
 
     def test_ambient_dims_independent_of_num_vectors(self):
         vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])])
-        print(f"\n✓ ambient_dims unchanged by number of spanning vectors")
+        print("\n✓ ambient_dims unchanged by number of spanning vectors")
         assert vs.ambient_dims == 3
 
 
@@ -471,13 +475,13 @@ class TestVectorSpaceContains:
 
     def test_contains_invalid_type(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ contains([1, 0]) → raises TypeError")
+        print("\n✓ contains([1, 0]) → raises TypeError")
         with pytest.raises(TypeError):
             contains(vs, [1, 0])
 
     def test_contains_wrong_dims(self):
         vs = VectorSpace([Vector([1, 0])])
-        print(f"\n✓ contains(Vector([1, 0, 0])) in R²-space → raises ValueError")
+        print("\n✓ contains(Vector([1, 0, 0])) in R²-space → raises ValueError")
         with pytest.raises(ValueError):
             contains(vs, Vector([1, 0, 0]))
 

@@ -1,9 +1,15 @@
-from fractions import Fraction
-
 import pytest
 
+from panchi.algorithms import (
+    InverseResult,
+    Solution,
+    determinant,
+    determinant_lu,
+    inverse,
+    rank,
+    solve,
+)
 from panchi.primitives import Matrix, Vector, identity
-from panchi.algorithms import InverseResult, Solution, inverse, determinant, determinant_lu, solve, rank
 
 
 # ==================== INVERSE TESTS ====================

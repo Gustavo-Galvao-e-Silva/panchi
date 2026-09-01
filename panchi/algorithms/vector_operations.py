@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from panchi.types import Scalar
 from panchi.primitives.vector import Vector
+from panchi.types import Scalar
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> Scalar:
@@ -123,7 +123,9 @@ def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
     >>> print(vector_projection(v, a))
     [2.0, 0.0]
     """
-    scalar_projection = dot(projected_vector, axis_vector) / dot(axis_vector, axis_vector)
+    scalar_projection = dot(projected_vector, axis_vector) / dot(
+        axis_vector, axis_vector
+    )
     return scalar_projection * axis_vector
 
 

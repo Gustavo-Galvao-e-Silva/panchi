@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from panchi.algorithms.row_operations import RowOperation
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.algorithms.row_operations import RowOperation
 
 if TYPE_CHECKING:
     from panchi.primitives.vector_space import VectorSpace
@@ -580,7 +580,7 @@ class Solution:
         parts = []
         if not is_zero:
             parts.append(str(self.particular))
-        for param, vec in zip(params, basis):
+        for param, vec in zip(params, basis, strict=False):
             parts.append(f"{param}·{vec}")
 
         return "x = " + " + ".join(parts)
@@ -676,7 +676,7 @@ class EigenResult:
             One (eigenvalue, eigenvector) tuple per computed eigenvector.
             Empty when no eigenvectors were computed.
         """
-        return list(zip(self.eigenvalues, self.eigenvectors))
+        return list(zip(self.eigenvalues, self.eigenvectors, strict=False))
 
     def __str__(self) -> str:
         """

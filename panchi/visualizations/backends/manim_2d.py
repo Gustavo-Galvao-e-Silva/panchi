@@ -24,6 +24,7 @@ from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.algorithms.matrix_operations import rank
 from panchi.primitives.vector_space import VectorSpace
 from panchi.visualizations.backends.manim_base import (
+    _EPSILON,
     ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
@@ -35,7 +36,6 @@ from panchi.visualizations.backends.manim_base import (
     TRANSFORM_COLORS,
     _axis_range,
     _BuilderSceneMixin,
-    _EPSILON,
     _ManimBackendBase,
     _resolve_colors,
 )

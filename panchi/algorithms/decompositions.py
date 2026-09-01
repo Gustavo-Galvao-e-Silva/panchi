@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.factories import identity, vector_column_matrix
 from panchi.algorithms.reductions import ref
-from panchi.algorithms.row_operations import RowOperation, RowAdd, RowSwap
-from panchi.algorithms.vector_operations import _gram_schmidt_steps
 from panchi.algorithms.results import LUDecomposition, QRDecomposition
+from panchi.algorithms.row_operations import RowAdd, RowOperation, RowSwap
+from panchi.algorithms.vector_operations import _gram_schmidt_steps
+from panchi.primitives.factories import identity, vector_column_matrix
+from panchi.primitives.matrix import Matrix
 
 
 def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
