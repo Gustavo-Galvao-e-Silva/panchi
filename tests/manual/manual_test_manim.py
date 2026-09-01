@@ -43,7 +43,7 @@ def run_tests():
     v3 = Vector([-2, 1])
     try:
         animator.plot_vectors(
-            v1, v2, v3, labels=[r"v_1", r"v_2", r"v_3"], name="vectors"
+            [v1, v2, v3], labels=[r"v_1", r"v_2", r"v_3"], name="vectors"
         )
         print("  OK: vectors rendered")
     except Exception as e:
@@ -103,9 +103,7 @@ def run_tests():
     try:
         animator_3d = Animator3D(backend="manim", save_path=output_dir)
         animator_3d.plot_vectors(
-            Vector([3, 2, 1]),
-            Vector([-2, 3, 2]),
-            Vector([1, -1, 3]),
+            [Vector([3, 2, 1]), Vector([-2, 3, 2]), Vector([1, -1, 3])],
             labels=[r"a", r"b", r"c"],
             name="vectors_3d",
         )
@@ -147,8 +145,7 @@ def run_tests():
     print("\n[3D] Span visualization (Animator3D)")
     try:
         animator_3d.plot_span(
-            Vector([1, 0, 0]),
-            Vector([0, 1, 1]),
+            [Vector([1, 0, 0]), Vector([0, 1, 1])],
             labels=[r"b_1", r"b_2"],
             name="span_3d",
         )

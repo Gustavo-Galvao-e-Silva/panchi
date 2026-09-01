@@ -48,7 +48,7 @@ v1 = Vector([3, 2])
 v2 = Vector([-1, 3])
 v3 = Vector([2, -1])
 
-animator.plot_vectors(v1, v2, v3, labels=["v1", "v2", "v3"])
+animator.plot_vectors([v1, v2, v3], labels=["v1", "v2", "v3"])
 ```
 
 Pass any number of 2D vectors as positional arguments. Optional parameters:
@@ -141,9 +141,9 @@ Optional parameters: `frames`, `interval`, `name`, and `colors` (up to two, for 
 `plot_span` draws the subspace spanned by a set of vectors, with a shaded region and basis vector arrows.
 
 ```python
-# From individual vectors
-animator.plot_span(Vector([1, 2]))                        # 1D span (line)
-animator.plot_span(Vector([1, 0]), Vector([0, 1]))        # 2D span (full plane)
+# From a list of vectors
+animator.plot_span([Vector([1, 2])])                      # 1D span (line)
+animator.plot_span([Vector([1, 0]), Vector([0, 1])])      # 2D span (full plane)
 
 # From a VectorSpace object
 space = VectorSpace([Vector([1, 1]), Vector([1, -1])])
@@ -159,7 +159,7 @@ If you pass linearly dependent vectors, panchi computes the actual basis automat
 
 ```python
 # These two vectors are parallel — the span is still 1D
-animator.plot_span(Vector([1, 2]), Vector([2, 4]))
+animator.plot_span([Vector([1, 2]), Vector([2, 4])])
 ```
 
 <figure class="viz" markdown="span">
@@ -178,7 +178,7 @@ When `save_path` is set, every method saves its output to that directory:
 ```python
 animator = Animator2D(save_path="./output")
 
-animator.plot_vectors(Vector([1, 2]), name="my_vectors")
+animator.plot_vectors([Vector([1, 2])], name="my_vectors")
 # → ./output/my_vectors.png
 
 animator.animate_transform(Matrix([[0, -1], [1, 0]]), name="rotation")
@@ -227,9 +227,7 @@ All vectors passed to `Animator3D` must be 3D; a 2D vector raises a `ValueError`
 
 ```python
 animator.plot_vectors(
-    Vector([3, 2, 1]),
-    Vector([-1, 2, 3]),
-    Vector([1, -2, 2]),
+    [Vector([3, 2, 1]), Vector([-1, 2, 3]), Vector([1, -2, 2])],
     labels=["v1", "v2", "v3"],
 )
 ```
@@ -286,7 +284,7 @@ Only **3x3** matrices are supported — a `ValueError` is raised for other shape
 ### Visualizing spans
 
 ```python
-animator.plot_span(Vector([1, 0, 1]), Vector([0, 1, 1]), labels=["v1", "v2"])
+animator.plot_span([Vector([1, 0, 1]), Vector([0, 1, 1])], labels=["v1", "v2"])
 ```
 
 `plot_span` adapts to the dimension of the subspace:

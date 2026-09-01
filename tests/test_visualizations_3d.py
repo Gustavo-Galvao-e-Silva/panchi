@@ -32,7 +32,7 @@ class TestAnimator3DInit:
     def test_save_path_creates_directory(self, tmp_path):
         save_dir = tmp_path / "output"
         animator = Animator3D(save_path=save_dir)
-        animator.plot_vectors(Vector([1, 2, 3]))
+        animator.plot_vectors([Vector([1, 2, 3])])
         print(f"\n✓ save_path creates directory → {save_dir.exists()}")
         assert save_dir.exists()
 
@@ -45,21 +45,22 @@ class TestPlotVectors3D:
 
     def test_single_vector(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_vectors(Vector([2, 3, 1]), labels=["v"])
+        animator.plot_vectors([Vector([2, 3, 1])], labels=["v"])
         print(f"\n✓ Single 3D vector saved to {tmp_path}")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_multiple_vectors(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 2, 3]), Vector([-2, 1, 2]), Vector([0, -3, 1]))
+        animator.plot_vectors(
+            [Vector([1, 2, 3]), Vector([-2, 1, 2]), Vector([0, -3, 1])]
+        )
         print("\n✓ Multiple 3D vectors saved")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_custom_colors_and_labels(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         animator.plot_vectors(
-            Vector([1, 0, 2]),
-            Vector([0, 2, 1]),
+            [Vector([1, 0, 2]), Vector([0, 2, 1])],
             colors=["#805B49", "#FFB592"],
             labels=["a", "b"],
         )
@@ -68,13 +69,13 @@ class TestPlotVectors3D:
 
     def test_grid_off(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 1, 1]), grid=False)
+        animator.plot_vectors([Vector([1, 1, 1])], grid=False)
         print("\n✓ grid=False saved")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_custom_name(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 2, 3]), name="my_plot")
+        animator.plot_vectors([Vector([1, 2, 3])], name="my_plot")
         print("\n✓ Custom name saved")
         assert (tmp_path / "my_plot.png").exists()
 
@@ -163,20 +164,20 @@ class TestPlotSpan3D:
 
     def test_span_line(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 1, 1]))
+        animator.plot_span([Vector([1, 1, 1])])
         print("\n✓ 3D span (line) saved")
         assert (tmp_path / "plot_span.png").exists()
 
     def test_span_plane(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 0, 0]), Vector([0, 1, 1]), name="plane")
+        animator.plot_span([Vector([1, 0, 0]), Vector([0, 1, 1])], name="plane")
         print("\n✓ 3D span (plane) saved")
         assert (tmp_path / "plane.png").exists()
 
     def test_span_full_space(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         animator.plot_span(
-            Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1]), name="r3"
+            [Vector([1, 0, 0]), Vector([0, 1, 0]), Vector([0, 0, 1])], name="r3"
         )
         print("\n✓ 3D span (R³) saved")
         assert (tmp_path / "r3.png").exists()
@@ -198,12 +199,12 @@ class TestPlotSpan3D:
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ 2D vector → plot_span raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
-            animator.plot_span(Vector([1, 2]))
+            animator.plot_span([Vector([1, 2])])
 
     def test_span_type_error(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ non-Vector → plot_span raises TypeError")
-        with pytest.raises(TypeError, match="Expected Vector or VectorSpace"):
+        with pytest.raises(TypeError, match="list of vectors or a VectorSpace"):
             animator.plot_span("not a vector")
 
 
@@ -214,16 +215,16 @@ class TestValidate3D:
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ 2D vector → raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
-            animator.plot_vectors(Vector([1, 2]))
+            animator.plot_vectors([Vector([1, 2])])
 
     def test_rejects_4d_vector(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ 4D vector → raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
-            animator.plot_vectors(Vector([1, 2, 3, 4]))
+            animator.plot_vectors([Vector([1, 2, 3, 4])])
 
     def test_rejects_mixed_dimensions(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         print("\n✓ Mixed 3D + 2D → raises ValueError")
         with pytest.raises(ValueError, match="Only 3D vectors"):
-            animator.plot_vectors(Vector([1, 2, 3]), Vector([1, 2]))
+            animator.plot_vectors([Vector([1, 2, 3]), Vector([1, 2])])

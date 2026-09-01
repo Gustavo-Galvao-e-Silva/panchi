@@ -84,7 +84,7 @@ Rank has a geometric meaning: a rank-1 span is a line through the origin, while 
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/span_line.png" alt="A single vector and the line through the origin it spans">
-  <figcaption>A single vector spans a line — <code>plot_span(Vector([2, 1]))</code>.</figcaption>
+  <figcaption>A single vector spans a line — <code>plot_span([Vector([2, 1])])</code>.</figcaption>
 </figure>
 
 <figure class="viz" markdown="span">

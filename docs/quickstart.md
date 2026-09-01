@@ -88,7 +88,7 @@ from panchi.visualizations import Animator2D
 animator = Animator2D()
 
 # Plot vectors
-animator.plot_vectors(pan.Vector([3, 2]), pan.Vector([-1, 3]), labels=["v1", "v2"])
+animator.plot_vectors([pan.Vector([3, 2]), pan.Vector([-1, 3])], labels=["v1", "v2"])
 
 # Animate a linear transformation (grid morph)
 animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))

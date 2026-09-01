@@ -32,7 +32,7 @@ class TestAnimator2DInit:
         save_dir = tmp_path / "output"
         animator = Animator2D(save_path=save_dir)
         v = Vector([1, 2])
-        animator.plot_vectors(v)
+        animator.plot_vectors([v])
         print(f"\n✓ save_path creates directory → {save_dir.exists()}")
         assert save_dir.exists()
 
@@ -52,7 +52,7 @@ class TestPlotVectors:
     def test_single_vector(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
         v = Vector([2, 3])
-        animator.plot_vectors(v, labels=["v"])
+        animator.plot_vectors([v], labels=["v"])
         print(f"\n✓ Single vector saved to {tmp_path}")
         assert (tmp_path / "plot_vectors.png").exists()
 
@@ -61,7 +61,7 @@ class TestPlotVectors:
         v1 = Vector([1, 2])
         v2 = Vector([2, 1])
         v3 = Vector([-1, 1])
-        animator.plot_vectors(v1, v2, v3, labels=["v1", "v2", "v3"])
+        animator.plot_vectors([v1, v2, v3], labels=["v1", "v2", "v3"])
         print("\n✓ Multiple vectors saved")
         assert (tmp_path / "plot_vectors.png").exists()
 
@@ -70,26 +70,26 @@ class TestPlotVectors:
         v1 = Vector([1, 2])
         v2 = Vector([2, 1])
         animator.plot_vectors(
-            v1, v2, colors=["#FF0000", "#0000FF"], labels=["red", "blue"]
+            [v1, v2], colors=["#FF0000", "#0000FF"], labels=["red", "blue"]
         )
         print("\n✓ Custom colors accepted")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_no_labels(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 2]), Vector([2, 1]))
+        animator.plot_vectors([Vector([1, 2]), Vector([2, 1])])
         print("\n✓ No labels accepted")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_no_grid(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 2]), grid=False)
+        animator.plot_vectors([Vector([1, 2])], grid=False)
         print("\n✓ Grid disabled accepted")
         assert (tmp_path / "plot_vectors.png").exists()
 
     def test_custom_name(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_vectors(Vector([1, 2]), name="my_plot")
+        animator.plot_vectors([Vector([1, 2])], name="my_plot")
         print("\n✓ Custom name → my_plot.png")
         assert (tmp_path / "my_plot.png").exists()
 
@@ -97,13 +97,19 @@ class TestPlotVectors:
         animator = Animator2D()
         print("\n✓ 3D vector → raises ValueError")
         with pytest.raises(ValueError, match="2D"):
-            animator.plot_vectors(Vector([1, 2, 3]))
+            animator.plot_vectors([Vector([1, 2, 3])])
 
     def test_rejects_mixed_dimensions(self):
         animator = Animator2D()
         print("\n✓ Mixed 2D/3D → raises ValueError")
         with pytest.raises(ValueError, match="2D"):
-            animator.plot_vectors(Vector([1, 2]), Vector([1, 2, 3]))
+            animator.plot_vectors([Vector([1, 2]), Vector([1, 2, 3])])
+
+    def test_rejects_bare_vector(self):
+        animator = Animator2D()
+        print("\n✓ Bare Vector (not a list) → raises TypeError")
+        with pytest.raises(TypeError, match="list"):
+            animator.plot_vectors(Vector([1, 2]))
 
 
 # ==================== ANIMATE ADDITION ====================
@@ -236,13 +242,13 @@ class TestPlotSpan:
 
     def test_span_from_single_vector(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 2]))
+        animator.plot_span([Vector([1, 2])])
         print("\n✓ 1D span from single vector saved")
         assert (tmp_path / "plot_span.png").exists()
 
     def test_span_from_two_vectors(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 0]), Vector([0, 1]))
+        animator.plot_span([Vector([1, 0]), Vector([0, 1])])
         print("\n✓ 2D span from two vectors saved")
         assert (tmp_path / "plot_span.png").exists()
 
@@ -255,15 +261,14 @@ class TestPlotSpan:
 
     def test_1d_subspace(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 2]), Vector([2, 4]), name="1d_span")
+        animator.plot_span([Vector([1, 2]), Vector([2, 4])], name="1d_span")
         print("\n✓ 1D subspace (linearly dependent vectors) saved")
         assert (tmp_path / "1d_span.png").exists()
 
     def test_custom_labels_and_colors(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
         animator.plot_span(
-            Vector([1, 0]),
-            Vector([0, 1]),
+            [Vector([1, 0]), Vector([0, 1])],
             colors=["#FF0000", "#0000FF"],
             labels=["e1", "e2"],
         )
@@ -274,23 +279,23 @@ class TestPlotSpan:
         animator = Animator2D()
         print("\n✓ 3D vector → raises ValueError")
         with pytest.raises(ValueError, match="2D"):
-            animator.plot_span(Vector([1, 2, 3]))
+            animator.plot_span([Vector([1, 2, 3])])
 
     def test_rejects_invalid_type(self):
         animator = Animator2D()
         print("\n✓ Invalid type → raises TypeError")
-        with pytest.raises(TypeError, match="Expected Vector or VectorSpace"):
+        with pytest.raises(TypeError, match="list of vectors or a VectorSpace"):
             animator.plot_span("not a vector")
 
-    def test_rejects_empty_call(self):
+    def test_rejects_empty_list(self):
         animator = Animator2D()
-        print("\n✓ No arguments → raises ValueError")
-        with pytest.raises(ValueError, match="At least one"):
-            animator.plot_span()
+        print("\n✓ Empty list → raises ValueError")
+        with pytest.raises(ValueError, match="at least one"):
+            animator.plot_span([])
 
     def test_custom_span_color(self, tmp_path):
         animator = Animator2D(save_path=tmp_path)
-        animator.plot_span(Vector([1, 0]), Vector([0, 1]), span_color="#805B49")
+        animator.plot_span([Vector([1, 0]), Vector([0, 1])], span_color="#805B49")
         print("\n✓ Custom span_color accepted")
         assert (tmp_path / "plot_span.png").exists()
 
