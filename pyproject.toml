@@ -71,6 +71,7 @@ packages = [
   "panchi.algorithms",
   "panchi.visualizations",
   "panchi.visualizations.backends",
+  "panchi.utils",
 ]
 
 [tool.setuptools.package-data]

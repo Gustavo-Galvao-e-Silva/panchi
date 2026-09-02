@@ -4,9 +4,9 @@ from collections.abc import Iterator
 from fractions import Fraction
 from typing import overload
 
-from panchi._latex import matrix_to_latex
 from panchi.primitives.vector import Vector
-from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
+from panchi.utils.latex import matrix_to_latex
+from panchi.utils.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
 class Matrix:

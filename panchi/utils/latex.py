@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from panchi.primitives.matrix import Matrix
     from panchi.primitives.vector import Vector
-    from panchi.types import Scalar
+    from panchi.utils.types import Scalar
 
 
 def scalar_to_latex(value: Scalar) -> str:

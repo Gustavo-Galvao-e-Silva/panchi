@@ -1,7 +1,7 @@
 from fractions import Fraction
 
 from panchi import Matrix, Vector
-from panchi.types import parse_scalar
+from panchi.utils.types import parse_scalar
 
 
 class TestParseScalarValid:

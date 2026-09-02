@@ -6,7 +6,7 @@ from panchi.primitives.factories import identity, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
-from panchi.types import Scalar
+from panchi.utils.types import Scalar
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:

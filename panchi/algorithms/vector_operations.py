@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from panchi._latex import vector_to_latex
 from panchi.primitives.vector import Vector
-from panchi.types import Scalar
+from panchi.utils.latex import vector_to_latex
+from panchi.utils.types import Scalar
 
 
 def dot(vector_1: Vector, vector_2: Vector) -> Scalar:

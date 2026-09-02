@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from panchi._latex import (
+from panchi.algorithms.row_operations import RowOperation
+from panchi.primitives.matrix import Matrix
+from panchi.primitives.vector import Vector
+from panchi.utils.latex import (
     matrix_to_latex,
     row_op_to_latex,
     scalar_to_latex,
     vector_to_latex,
 )
-from panchi.algorithms.row_operations import RowOperation
-from panchi.primitives.matrix import Matrix
-from panchi.primitives.vector import Vector
 
 if TYPE_CHECKING:
     from panchi.primitives.vector_space import VectorSpace
