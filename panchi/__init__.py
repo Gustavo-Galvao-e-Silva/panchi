@@ -58,7 +58,7 @@ from panchi.primitives.factories import (
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
-from panchi.types import Scalar
+from panchi.utils.types import Scalar
 
 __all__ = [
     "Fraction",

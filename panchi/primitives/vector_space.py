@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 
-from panchi._latex import vector_to_latex
 from panchi.primitives.vector import Vector
+from panchi.utils.latex import vector_to_latex
 
 
 class VectorSpace:

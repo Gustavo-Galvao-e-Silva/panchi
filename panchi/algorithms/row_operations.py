@@ -6,7 +6,7 @@ from typing import overload
 from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.types import SCALAR_TYPES, Scalar
+from panchi.utils.types import SCALAR_TYPES, Scalar
 
 
 class RowOperation(ABC):
