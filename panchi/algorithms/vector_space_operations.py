@@ -18,6 +18,12 @@ def basis(space: VectorSpace) -> list[Vector]:
     of all preceding pivot vectors, so the original vectors at those column
     indices form a basis.
 
+    The result is cached on the space and reused while the spanning set is
+    unchanged. The cache key is the current value of every spanning vector,
+    so any mutation — through ``VectorSpace.__setitem__`` or direct edits to
+    ``data`` — invalidates it automatically. A new list is returned on every
+    call, so mutating the result never corrupts the cache.
+
     Parameters
     ----------
     space : VectorSpace
@@ -38,14 +44,21 @@ def basis(space: VectorSpace) -> list[Vector]:
     >>> len(basis(vs))
     2
     """
-    vector_col_list = [v.to_list() for v in space.data]
-    vector_col_matrix = Matrix(vector_col_list).T
+    columns = [v.to_list() for v in space.data]
+    cache_key = tuple(tuple(column) for column in columns)
+
+    cache = getattr(space, "_basis_cache", None)
+    if cache is not None and cache[0] == cache_key:
+        return list(cache[1])
+
+    vector_col_matrix = Matrix(columns).T
     matrix_ref = ref(vector_col_matrix)
     result = []
     for _, pivot_col in matrix_ref.pivots:
         result.append(space.data[pivot_col])
 
-    return result
+    space._basis_cache = (cache_key, result)
+    return list(result)
 
 
 def is_full_rank(space: VectorSpace) -> bool:

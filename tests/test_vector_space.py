@@ -543,3 +543,68 @@ class TestVectorSpaceSameSubspace:
         vs2 = VectorSpace([Vector([1, 0, 0])])
         with pytest.raises(ValueError):
             same_subspace(vs1, vs2)
+
+
+class TestBasisCaching:
+    """Test cases for the basis cache (issue #97)."""
+
+    def test_repeated_calls_return_same_result(self):
+        vs = VectorSpace([Vector([1, 2, 3]), Vector([4, 5, 6]), Vector([7, 8, 9])])
+        first = basis(vs)
+        second = basis(vs)
+        assert first == second
+        assert len(first) == 2
+
+    def test_cache_hit_avoids_recomputation(self, monkeypatch):
+        from panchi.algorithms import vector_space_operations
+
+        calls = {"ref": 0}
+        original_ref = vector_space_operations.ref
+
+        def counting_ref(matrix):
+            calls["ref"] += 1
+            return original_ref(matrix)
+
+        monkeypatch.setattr(vector_space_operations, "ref", counting_ref)
+
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1]), Vector([1, 1])])
+        basis(vs)
+        basis(vs)
+        basis(vs)
+        assert calls["ref"] == 1
+
+    def test_cache_invalidated_by_setitem(self, monkeypatch):
+        from panchi.algorithms import vector_space_operations
+
+        calls = {"ref": 0}
+        original_ref = vector_space_operations.ref
+
+        def counting_ref(matrix):
+            calls["ref"] += 1
+            return original_ref(matrix)
+
+        monkeypatch.setattr(vector_space_operations, "ref", counting_ref)
+
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        first = basis(vs)
+        assert len(first) == 2
+
+        vs[0] = Vector([2, 4])  # still independent, but a different vector
+        second = basis(vs)
+        assert second[0] == Vector([2, 4])
+        assert calls["ref"] == 2  # recomputed after mutation
+
+    def test_cache_invalidated_by_direct_data_mutation(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        assert len(basis(vs)) == 2
+
+        vs.data.append(Vector([1, 1]))  # bypass __setitem__ on purpose
+        result = basis(vs)
+        assert len(result) == 2  # still rank 2, but computed from 3 vectors
+
+    def test_returned_list_is_a_copy(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        first = basis(vs)
+        first.append(Vector([5, 5]))  # mutate the returned list
+        second = basis(vs)
+        assert len(second) == 2  # cache not corrupted
