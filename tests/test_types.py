@@ -1,5 +1,7 @@
 from fractions import Fraction
 
+import pytest
+
 from panchi import Matrix, Vector
 from panchi.utils.types import parse_scalar
 
@@ -64,3 +66,43 @@ class TestParseScalarBoolRejected:
             raise AssertionError("Should have raised")
         except TypeError:
             pass
+
+
+class TestParseScalarInvalidStrings:
+    def test_non_numeric_string_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert string 'abc' to a number"):
+            parse_scalar("abc")
+
+    def test_empty_string_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert string '' to a number"):
+            parse_scalar("")
+
+    def test_zero_denominator_fraction_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert string '1/0' to a number"):
+            parse_scalar("1/0")
+
+    def test_malformed_fraction_raises(self):
+        with pytest.raises(
+            TypeError, match="Cannot convert string '1/2/3' to a number"
+        ):
+            parse_scalar("1/2/3")
+
+    def test_malformed_float_raises(self):
+        with pytest.raises(
+            TypeError, match="Cannot convert string '1.2.3' to a number"
+        ):
+            parse_scalar("1.2.3")
+
+
+class TestParseScalarInvalidTypes:
+    def test_none_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert NoneType to a number"):
+            parse_scalar(None)
+
+    def test_list_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert list to a number"):
+            parse_scalar([1, 2])
+
+    def test_dict_raises(self):
+        with pytest.raises(TypeError, match="Cannot convert dict to a number"):
+            parse_scalar({"a": 1})
