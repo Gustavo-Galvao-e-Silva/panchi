@@ -811,6 +811,23 @@ class TestMatrixConversions:
         assert m[0][0] == 1
 
 
+    def test_to_tuple(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.to_tuple()
+        print(f"\n✓ to_tuple() = {result} (expected ((1, 2), (3, 4)))")
+        assert result == ((1, 2), (3, 4))
+        assert isinstance(result, tuple)
+        assert all(isinstance(row, tuple) for row in result)
+
+    def test_to_tuple_is_snapshot(self):
+        m = Matrix([[1, 2], [3, 4]])
+        snapshot = m.to_tuple()
+        m[0, 0] = 99
+        print(f"\n✓ to_tuple() snapshot unchanged after mutation: {snapshot}")
+        assert snapshot == ((1, 2), (3, 4))
+        assert m.to_tuple() == ((99, 2), (3, 4))
+
+
 class TestMatrixCopy:
     """Test cases for Matrix copy method."""
 

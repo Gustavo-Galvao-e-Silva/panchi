@@ -4,6 +4,7 @@ from collections.abc import Iterator
 
 from panchi.primitives.vector import Vector
 from panchi.utils.latex import vector_to_latex
+from panchi.utils.types import Scalar
 
 
 class VectorSpace:
@@ -299,6 +300,25 @@ class VectorSpace:
         """Render as ``span{...}`` of its generators for Jupyter/Colab display."""
         generators = ",\\; ".join(vector_to_latex(v) for v in self.data)
         return f"$\\operatorname{{span}}\\left\\{{ {generators} \\right\\}}$"
+
+    def to_tuple(self) -> tuple[tuple[Scalar, ...], ...]:
+        """
+        Convert the spanning set to a nested tuple.
+
+        Returns
+        -------
+        tuple[tuple[int | float | Fraction, ...], ...]
+            An immutable snapshot of each spanning vector, in stored order.
+            Useful as a cache key: mutating a vector or the spanning list
+            produces a different tuple.
+
+        Examples
+        --------
+        >>> vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        >>> vs.to_tuple()
+        ((1, 0), (0, 1))
+        """
+        return tuple(vector.to_tuple() for vector in self.data)
 
     @property
     def ambient_dims(self) -> int:
