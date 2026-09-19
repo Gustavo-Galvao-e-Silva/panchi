@@ -545,6 +545,28 @@ class TestVectorSpaceSameSubspace:
             same_subspace(vs1, vs2)
 
 
+class TestVectorSpaceToTuple:
+    """Test cases for VectorSpace.to_tuple()."""
+
+    def test_to_tuple(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        result = vs.to_tuple()
+        assert result == ((1, 0), (0, 1))
+        assert isinstance(result, tuple)
+        assert all(isinstance(row, tuple) for row in result)
+
+    def test_to_tuple_preserves_order(self):
+        vs = VectorSpace([Vector([0, 1]), Vector([1, 0])])
+        assert vs.to_tuple() == ((0, 1), (1, 0))
+
+    def test_to_tuple_is_snapshot(self):
+        vs = VectorSpace([Vector([1, 0]), Vector([0, 1])])
+        snapshot = vs.to_tuple()
+        vs[0][0] = 7
+        assert snapshot == ((1, 0), (0, 1))
+        assert vs.to_tuple() == ((7, 0), (0, 1))
+
+
 class TestBasisCaching:
     """Test cases for the basis cache (issue #97)."""
 

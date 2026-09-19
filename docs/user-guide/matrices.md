@@ -192,5 +192,6 @@ pan.random_matrix(3, 3)    # random entries
 
 ```python
 A.to_list()  # returns a 2D list copy of the data
+A.to_tuple() # ((1, 2), (3, 4)) — immutable snapshot, usable as a cache key
 A.copy()     # returns an independent Matrix copy
 ```

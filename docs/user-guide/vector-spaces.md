@@ -274,4 +274,12 @@ print(vs)
 repr(vs)  # 'VectorSpace(ambient=3, generators=3)'
 ```
 
+## Conversion
+
+`to_tuple()` returns an immutable snapshot of the spanning set in stored order. The nested tuples can be used as cache keys so a later mutation of a generator or of the spanning list is visible to callers.
+
+```python
+vs.to_tuple()  # ((1, 0, 0), (0, 1, 0), (1, 1, 0))
+```
+
 To see the reduced basis or the rank instead, call `basis(vs)` and `rank(vs)`.
