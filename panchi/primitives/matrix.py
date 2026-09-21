@@ -1044,6 +1044,26 @@ class Matrix:
         """
         return [row.copy() for row in self.data]
 
+    def to_tuple(self) -> tuple[tuple[Scalar, ...], ...]:
+        """
+        Convert the matrix to a tuple of row tuples.
+
+        The result is an immutable snapshot of the matrix data, suitable
+        for use as a cache key or a hashable-ish value representation.
+
+        Returns
+        -------
+        tuple[tuple[int | float | Fraction, ...], ...]
+            The matrix data as a tuple of row tuples.
+
+        Examples
+        --------
+        >>> m = Matrix([[1, 2], [3, 4]])
+        >>> m.to_tuple()
+        ((1, 2), (3, 4))
+        """
+        return tuple(tuple(row) for row in self.data)
+
     def copy(self) -> Matrix:
         """
         Create a deep copy of the matrix.

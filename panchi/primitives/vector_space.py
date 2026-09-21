@@ -4,6 +4,7 @@ from collections.abc import Iterator
 
 from panchi.primitives.vector import Vector
 from panchi.utils.latex import vector_to_latex
+from panchi.utils.types import Scalar
 
 
 class VectorSpace:
@@ -320,3 +321,23 @@ class VectorSpace:
         3
         """
         return self.data[0].dims
+
+    def to_tuple(self) -> tuple[tuple[Scalar, ...], ...]:
+        """
+        Convert the vector space to a tuple of generator-vector tuples.
+
+        The result is an immutable snapshot of the generating vectors, in
+        their original order, suitable for use as a value-based cache key.
+
+        Returns
+        -------
+        tuple[tuple[int | float | Fraction, ...], ...]
+            One tuple of components per generator vector.
+
+        Examples
+        --------
+        >>> vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        >>> vs.to_tuple()
+        ((1, 0, 0), (0, 1, 0))
+        """
+        return tuple(vector.to_tuple() for vector in self.data)

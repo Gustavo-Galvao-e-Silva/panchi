@@ -102,6 +102,16 @@ vs.ambient_dims  # 3  — the space lives inside R³
 rank(vs)         # 2  — the subspace itself is 2-dimensional
 ```
 
+## Conversion
+
+```python
+vs.to_tuple()  # ((1, 0, 0), (0, 1, 0)) — immutable snapshot of the generators
+```
+
+The snapshot preserves generator order and can be used as a value-based cache
+key: mutating a generator produces a different tuple, so cached results keyed
+on it are naturally invalidated.
+
 ## Full rank
 
 `is_full_rank(space)` returns `True` when the subspace spans all of Rⁿ, i.e. when `rank(space) == space.ambient_dims`.
