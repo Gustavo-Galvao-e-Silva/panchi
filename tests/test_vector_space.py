@@ -608,3 +608,29 @@ class TestBasisCaching:
         first.append(Vector([5, 5]))  # mutate the returned list
         second = basis(vs)
         assert len(second) == 2  # cache not corrupted
+
+
+class TestVectorSpaceConversions:
+    """Test cases for VectorSpace conversion methods (issue #118)."""
+
+    def test_to_tuple(self):
+        vs = VectorSpace([Vector([1, 0, 0]), Vector([0, 1, 0])])
+        result = vs.to_tuple()
+        print(f"\n✓ to_tuple() = {result} (expected ((1,0,0),(0,1,0)))")
+        assert result == ((1, 0, 0), (0, 1, 0))
+        assert isinstance(result, tuple)
+        assert all(isinstance(vector, tuple) for vector in result)
+
+    def test_to_tuple_preserves_generator_order(self):
+        vs = VectorSpace([Vector([0, 1]), Vector([1, 0])])
+        result = vs.to_tuple()
+        print(f"\n✓ to_tuple() keeps generator order: {result}")
+        assert result == ((0, 1), (1, 0))
+
+    def test_to_tuple_is_immutable_snapshot(self):
+        vs = VectorSpace([Vector([1, 2])])
+        snapshot = vs.to_tuple()
+        vs[0][0] = 99
+        print(f"\n✓ snapshot unchanged after mutation: {snapshot} (expected ((1,2),))")
+        assert snapshot == ((1, 2),)
+        assert vs.to_tuple() == ((99, 2),)

@@ -45,7 +45,7 @@ def basis(space: VectorSpace) -> list[Vector]:
     2
     """
     columns = [v.to_list() for v in space.data]
-    cache_key = tuple(tuple(column) for column in columns)
+    cache_key = space.to_tuple()
 
     cache = getattr(space, "_basis_cache", None)
     if cache is not None and cache[0] == cache_key:
