@@ -4,8 +4,8 @@
 from panchi.algorithms import ref, rref, lu, qr_decomposition
 from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
-from panchi.algorithms import InverseResult, Solution, EigenResult
-from panchi.algorithms import inverse, solve, determinant, determinant_lu, eigen
+from panchi.algorithms import InverseResult, Solution, QREigenResult
+from panchi.algorithms import inverse, solve, determinant, determinant_lu, eigen_qr
 from panchi.algorithms import rank, nullity, is_invertible, is_symmetric
 from panchi.algorithms import span, standard_basis, column_space, row_space, null_space
 from panchi.algorithms import dot, cross, orthogonal_complement
@@ -34,7 +34,7 @@ from panchi.algorithms import gram_schmidt, vector_projection
 
 ## Eigenvalues
 
-::: panchi.algorithms.eigen
+::: panchi.algorithms.eigen_qr
 
 ## Solvers
 
@@ -96,4 +96,4 @@ from panchi.algorithms import gram_schmidt, vector_projection
 
 ::: panchi.algorithms.Solution
 
-::: panchi.algorithms.EigenResult
+::: panchi.algorithms.QREigenResult

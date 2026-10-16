@@ -7,7 +7,7 @@ from panchi._latex import (
     scalar_to_latex,
     vector_to_latex,
 )
-from panchi.algorithms import eigen, inverse, lu, qr_decomposition, solve
+from panchi.algorithms import eigen_qr, inverse, lu, qr_decomposition, solve
 from panchi.algorithms.reductions import rref
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
 
@@ -103,7 +103,7 @@ class TestResultReprLatex:
         assert "^{-1}" in out
 
     def test_eigen_pairs(self):
-        out = eigen(Matrix([[2, 1], [1, 2]]))._repr_latex_()
+        out = eigen_qr(Matrix([[2, 1], [1, 2]]))._repr_latex_()
         assert "\\lambda_{1}" in out
 
 

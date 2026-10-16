@@ -13,7 +13,7 @@ from panchi.algorithms.decompositions import qr_decomposition
 from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
-    eigen,
+    eigen_qr,
     inverse,
     is_invertible,
     is_symmetric,
@@ -103,5 +103,5 @@ __all__ = [
     "determinant",
     "determinant_lu",
     "qr_decomposition",
-    "eigen",
+    "eigen_qr",
 ]

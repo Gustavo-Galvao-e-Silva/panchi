@@ -683,7 +683,7 @@ class Solution:
         return "x = " + " + ".join(parts)
 
 
-class EigenResult:
+class QREigenResult:
     """
     The result of an eigenvalue computation via the QR algorithm.
 
@@ -720,7 +720,7 @@ class EigenResult:
 
     Examples
     --------
-    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> result = eigen_qr(Matrix([[2, 1], [1, 2]]))
     >>> sorted(round(v, 6) for v in result.eigenvalues)
     [1.0, 3.0]
     """
@@ -783,7 +783,7 @@ class EigenResult:
 
     def __repr__(self) -> str:
         """
-        Return a concise data inspection string for this EigenResult.
+        Return a concise data inspection string for this QREigenResult.
 
         Returns
         -------
@@ -793,11 +793,11 @@ class EigenResult:
 
         Examples
         --------
-        >>> eigen(Matrix([[2, 1], [1, 2]]))
-        EigenResult(shape=2×2, iterations=..., converged=True)
+        >>> eigen_qr(Matrix([[2, 1], [1, 2]]))
+        QREigenResult(shape=2×2, iterations=..., converged=True)
         """
         return (
-            f"EigenResult("
+            f"QREigenResult("
             f"shape={self.original.rows}×{self.original.cols}, "
             f"iterations={self.iterations}, "
             f"converged={self.converged})"

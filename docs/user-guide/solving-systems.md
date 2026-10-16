@@ -121,4 +121,4 @@ solve(A, pan.Vector([0.0, 0.0]), tolerance=1e-6) # status 'infinite' → null sp
 
 The default of `tolerance=0.0` reproduces the exact behaviour exactly, so existing code is unaffected. The same `tolerance` parameter is available on `ref()` and `rref()`.
 
-This is the mechanism [`eigen()`](decompositions.md#eigenvalues-and-eigenvectors) uses to recover eigenvectors as the null space of an approximately-singular `A - λI`.
+This is the mechanism [`eigen_qr()`](decompositions.md#numerical-eigenvalues-qr-algorithm) uses to recover eigenvectors as the null space of an approximately-singular `A - λI`.

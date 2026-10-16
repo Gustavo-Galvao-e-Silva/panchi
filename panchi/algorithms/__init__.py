@@ -14,7 +14,7 @@ from panchi.algorithms.decompositions import lu, qr_decomposition
 from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
-    eigen,
+    eigen_qr,
     inverse,
     is_invertible,
     is_symmetric,
@@ -24,10 +24,10 @@ from panchi.algorithms.matrix_operations import (
 )
 from panchi.algorithms.reductions import Reduction, ref, rref
 from panchi.algorithms.results import (
-    EigenResult,
     InverseResult,
     LUDecomposition,
     QRDecomposition,
+    QREigenResult,
     Solution,
 )
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
@@ -63,12 +63,12 @@ __all__ = [
     "QRDecomposition",
     "InverseResult",
     "Solution",
-    "EigenResult",
+    "QREigenResult",
     "inverse",
     "solve",
     "determinant",
     "determinant_lu",
-    "eigen",
+    "eigen_qr",
     "rank",
     "nullity",
     "is_invertible",

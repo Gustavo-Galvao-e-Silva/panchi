@@ -1,6 +1,6 @@
 from panchi.algorithms.decompositions import lu, qr_decomposition
 from panchi.algorithms.reductions import ref, rref
-from panchi.algorithms.results import EigenResult, InverseResult, Reduction, Solution
+from panchi.algorithms.results import InverseResult, QREigenResult, Reduction, Solution
 from panchi.algorithms.row_operations import RowOperation, RowSwap
 from panchi.primitives.factories import identity, zero_vector
 from panchi.primitives.matrix import Matrix
@@ -600,11 +600,11 @@ def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
     return solution.null_space[0].normalize()
 
 
-def eigen(
+def eigen_qr(
     matrix: Matrix,
     max_iterations: int = 1000,
     tolerance: float = 1e-12,
-) -> EigenResult:
+) -> QREigenResult:
     """
     Compute the eigenvalues of a square matrix using the QR algorithm.
 
@@ -635,7 +635,7 @@ def eigen(
 
     Returns
     -------
-    EigenResult
+    QREigenResult
         A result object containing the eigenvalues, eigenvectors, the number
         of iterations performed, whether the iteration converged, and the
         final (near) upper-triangular matrix.
@@ -649,7 +649,7 @@ def eigen(
 
     Examples
     --------
-    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> result = eigen_qr(Matrix([[2, 1], [1, 2]]))
     >>> sorted(round(v, 6) for v in result.eigenvalues)
     [1.0, 3.0]
     """
@@ -689,6 +689,6 @@ def eigen(
             vector = _eigenvector(matrix, eigenvalue, n)
             if vector is not None:
                 eigenvectors.append(vector)
-    return EigenResult(
+    return QREigenResult(
         matrix, eigenvalues, eigenvectors, iterations, converged, current
     )
