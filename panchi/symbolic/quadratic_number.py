@@ -306,7 +306,8 @@ class QuadraticNumber:
         """The imaginary part, exactly (so the imaginary part of 1 + i√2 is √2)."""
         if self.is_real:
             return 0
-        return _make(Fraction(0), self.coefficient, -self.radicand)
+        imaginary = self.coefficient * sqrt(-self.radicand)
+        return _simplify(imaginary) if isinstance(imaginary, Fraction) else imaginary
 
     def _sign(self) -> int:
         """Return -1, 0 or 1 for a real number, using exact comparison."""

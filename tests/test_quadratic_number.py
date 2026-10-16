@@ -207,6 +207,12 @@ class TestConversions:
         assert z.real == 1
         assert z.imag == sqrt(2)
 
+    def test_imag_of_gaussian_number(self):
+        z = 3 + 2 * sqrt(-1)
+        assert z.imag == 2
+        assert isinstance(z.imag, int)
+        assert (Fraction(1, 2) - sqrt(-1) / 3).imag == Fraction(-1, 3)
+
     def test_abs_real(self):
         assert abs(1 - sqrt(2)) == sqrt(2) - 1
 
