@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from panchi._latex import (
     matrix_to_latex,
-    row_op_to_latex,
     scalar_to_latex,
     vector_to_latex,
 )
@@ -170,7 +169,7 @@ class Reduction:
         for step in self.steps:
             current = step.apply(current)
             lines.append(
-                f"&\\xrightarrow{{{row_op_to_latex(step)}}} {matrix_to_latex(current)}"
+                f"&\\xrightarrow{{{step._latex()}}} {matrix_to_latex(current)}"
             )
         body = " \\\\\n".join(lines)
         return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"

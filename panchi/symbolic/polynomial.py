@@ -3,6 +3,7 @@ from __future__ import annotations
 from fractions import Fraction
 from math import isqrt, lcm
 
+from panchi._latex import scalar_to_latex
 from panchi.symbolic.quadratic_number import QuadraticNumber, Scalar
 
 _SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
@@ -253,8 +254,6 @@ class Polynomial:
 
     def _coefficient_text(self, value: Scalar, latex: bool) -> str:
         if latex:
-            from panchi._latex import scalar_to_latex
-
             return scalar_to_latex(value)
         return str(value)
 

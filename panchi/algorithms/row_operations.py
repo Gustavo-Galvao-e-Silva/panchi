@@ -3,6 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import overload
 
+from panchi._latex import scalar_to_latex
 from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
@@ -148,6 +149,18 @@ class RowOperation(ABC):
         str
             A string showing the class name and all arguments needed to
             recreate this operation, such as 'RowSwap(row_a=0, row_b=2)'.
+        """
+        pass
+
+    @abstractmethod
+    def _latex(self) -> str:
+        """
+        Return the standard row operation notation as LaTeX (0-based rows).
+
+        Returns
+        -------
+        str
+            A LaTeX fragment such as 'R_{0} \\leftrightarrow R_{2}'.
         """
         pass
 
@@ -401,6 +414,9 @@ class RowSwap(RowOperation):
     def __repr__(self) -> str:
         return f"RowSwap(row_a={self.a}, row_b={self.b})"
 
+    def _latex(self) -> str:
+        return f"R_{{{self.a}}} \\leftrightarrow R_{{{self.b}}}"
+
 
 class RowScale(RowOperation):
     """
@@ -613,6 +629,11 @@ class RowScale(RowOperation):
 
     def __repr__(self) -> str:
         return f"RowScale(row={self.row}, scalar={self.scalar})"
+
+    def _latex(self) -> str:
+        return (
+            f"R_{{{self.row}}} \\to {scalar_to_latex(self.scalar)}\\,R_{{{self.row}}}"
+        )
 
 
 class RowAdd(RowOperation):
@@ -846,4 +867,10 @@ class RowAdd(RowOperation):
     def __repr__(self) -> str:
         return (
             f"RowAdd(target={self.target}, source={self.source}, scalar={self.scalar})"
+        )
+
+    def _latex(self) -> str:
+        return (
+            f"R_{{{self.target}}} \\to R_{{{self.target}}} "
+            f"+ ({scalar_to_latex(self.scalar)})\\,R_{{{self.source}}}"
         )

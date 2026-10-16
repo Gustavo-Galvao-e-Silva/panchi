@@ -3,13 +3,13 @@ from fractions import Fraction
 from panchi import Matrix, Vector, VectorSpace, exact_vector
 from panchi._latex import (
     matrix_to_latex,
-    row_op_to_latex,
     scalar_to_latex,
     vector_to_latex,
 )
 from panchi.algorithms import eigen_qr, inverse, lu, qr_decomposition, solve
 from panchi.algorithms.reductions import rref
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
+from panchi.symbolic import sqrt
 
 
 class TestScalarToLatex:
@@ -28,6 +28,9 @@ class TestScalarToLatex:
     def test_negative_fraction_sign_outside(self):
         assert scalar_to_latex(Fraction(-2, 5)) == "-\\frac{2}{5}"
 
+    def test_self_rendering_value_uses_its_latex(self):
+        assert scalar_to_latex(sqrt(2)) == "\\sqrt{2}"
+
 
 class TestBuildersLatex:
     def test_vector_to_latex_is_column(self):
@@ -44,10 +47,10 @@ class TestBuildersLatex:
         assert "\\frac{1}{2}" in out
 
     def test_row_op_labels(self):
-        assert "\\leftrightarrow" in row_op_to_latex(RowSwap(0, 1))
-        assert "\\to" in row_op_to_latex(RowScale(0, 5))
-        assert row_op_to_latex(RowAdd(target=1, source=0, scalar=-3)).startswith(
-            "R_{1}"
+        assert RowSwap(0, 1)._latex() == "R_{0} \\leftrightarrow R_{1}"
+        assert RowScale(0, Fraction(1, 2))._latex() == "R_{0} \\to \\frac{1}{2}\\,R_{0}"
+        assert RowAdd(target=1, source=0, scalar=-3)._latex() == (
+            "R_{1} \\to R_{1} + (-3)\\,R_{0}"
         )
 
 
