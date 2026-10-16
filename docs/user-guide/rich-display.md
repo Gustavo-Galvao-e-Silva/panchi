@@ -50,7 +50,7 @@ The same holds across the library:
 - `solve(A, b)` renders the solution vector, or the full general solution `x = x_p + t\,v` when there are infinitely many.
 - `lu(A)` and `qr_decomposition(A)` render the factorization `A = LU` / `A = QR`.
 - `inverse(A)` renders `A^{-1} = …`.
-- `eigen_qr(A)` renders each eigenvalue with its eigenvector.
+- `eigen(A)` renders the characteristic polynomial, its factored form, and each eigenspace; `eigen_qr(A)` renders each numerical eigenvalue with its eigenvector.
 
 ## Visualizations
 

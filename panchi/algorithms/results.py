@@ -9,11 +9,15 @@ from panchi._latex import (
     vector_to_latex,
 )
 from panchi.algorithms.row_operations import RowOperation
+from panchi.primitives.factories import diagonal, vector_column_matrix
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.symbolic.quadratic_number import QuadraticNumber
 
 if TYPE_CHECKING:
     from panchi.primitives.vector_space import VectorSpace
+    from panchi.symbolic.polynomial import Polynomial
+    from panchi.types import Scalar
 
 
 class Reduction:
@@ -816,6 +820,248 @@ class QREigenResult:
             lines.append(
                 f"\\lambda_{{{i + 1}}} = {scalar_to_latex(round(value, 6))}, "
                 f"\\quad v_{{{i + 1}}} = {vector_to_latex(vector)}"
+            )
+        body = " \\\\\n".join(lines)
+        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+
+
+def _linear_factor(root: Scalar, variable: str, latex: bool) -> str:
+    """Render the factor (λ - root), simplifying the sign where possible."""
+    text = scalar_to_latex(root) if latex else str(root)
+    if isinstance(root, QuadraticNumber):
+        if " " not in text and text.startswith("-"):
+            return f"({variable} + {text[1:]})"
+        if " " in text and not text.startswith(("(", "\\frac")):
+            text = f"({text})"
+        return f"({variable} - {text})"
+    if root == 0:
+        return variable
+    if root < 0:
+        return f"({variable} + {text[1:]})"
+    return f"({variable} - {text})"
+
+
+def _power(base: str, exponent: int, latex: bool) -> str:
+    if exponent == 1:
+        return base
+    if latex:
+        return f"{base}^{{{exponent}}}"
+    return base + str(exponent).translate(str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹"))
+
+
+class EigenResult:
+    """
+    The exact eigenvalues and eigenspaces of a 2×2 or 3×3 matrix.
+
+    Built the way eigenvalues are found by hand: the characteristic
+    polynomial det(A - λI) is computed exactly, its roots are the
+    eigenvalues, and each eigenspace is the null space of A - λI. Every
+    value is exact: rational eigenvalues are ints or Fractions, and
+    irrational or complex ones are QuadraticNumbers such as (1 + √5)/2 or
+    1 - 2i.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square matrix whose eigenvalues were computed.
+    characteristic_polynomial : Polynomial
+        The polynomial det(A - λI), written in powers of λ.
+    eigenvalues : list[Scalar]
+        The distinct eigenvalues: real ones in increasing order, then
+        complex ones.
+    algebraic_multiplicities : list[int]
+        How many times each eigenvalue is a root of the characteristic
+        polynomial, paired by index with eigenvalues.
+    eigenspaces : list[VectorSpace]
+        The eigenspace of each eigenvalue, paired by index with
+        eigenvalues. Each is spanned by a basis of eigenvectors scaled to
+        avoid fractions.
+
+    Examples
+    --------
+    >>> result = eigen(Matrix([[2, 1], [1, 2]]))
+    >>> result.eigenvalues
+    [1, 3]
+    >>> print(result.characteristic_polynomial)
+    λ² - 4λ + 3
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        characteristic_polynomial: Polynomial,
+        eigenvalues: list[Scalar],
+        algebraic_multiplicities: list[int],
+        eigenspaces: list[VectorSpace],
+    ) -> None:
+        self.original = original
+        self.characteristic_polynomial = characteristic_polynomial
+        self.eigenvalues = eigenvalues
+        self.algebraic_multiplicities = algebraic_multiplicities
+        self.eigenspaces = eigenspaces
+
+    @property
+    def geometric_multiplicities(self) -> list[int]:
+        """
+        The dimension of each eigenspace, paired by index with eigenvalues.
+
+        The geometric multiplicity is never larger than the algebraic one.
+        When it is smaller for some eigenvalue, the matrix is defective.
+        """
+        return [len(space) for space in self.eigenspaces]
+
+    @property
+    def is_diagonalizable(self) -> bool:
+        """
+        Whether the matrix can be written as P D P⁻¹ with D diagonal.
+
+        True exactly when every eigenvalue's geometric multiplicity equals
+        its algebraic multiplicity, so that the eigenvectors form a basis.
+        Complex eigenvalues count: a rotation is diagonalizable over ℂ.
+        """
+        return self.geometric_multiplicities == self.algebraic_multiplicities
+
+    @property
+    def has_complex_eigenvalues(self) -> bool:
+        """Whether any eigenvalue has a non-zero imaginary part."""
+        return any(
+            isinstance(value, QuadraticNumber) and not value.is_real
+            for value in self.eigenvalues
+        )
+
+    @property
+    def pairs(self) -> list[tuple[Scalar, Vector]]:
+        """
+        Every (eigenvalue, eigenvector) pair from the eigenspace bases.
+
+        An eigenvalue with a two-dimensional eigenspace contributes two
+        pairs, one for each basis vector.
+        """
+        return [
+            (value, vector)
+            for value, space in zip(self.eigenvalues, self.eigenspaces, strict=True)
+            for vector in space
+        ]
+
+    def diagonalization(self) -> tuple[Matrix, Matrix]:
+        """
+        Return P and D with A = P D P⁻¹.
+
+        The columns of P are the eigenvectors and D holds the matching
+        eigenvalues on its diagonal, in the same order.
+
+        Returns
+        -------
+        tuple[Matrix, Matrix]
+            The eigenvector matrix P and the diagonal matrix D.
+
+        Raises
+        ------
+        ValueError
+            If the matrix is defective (not diagonalizable).
+
+        Examples
+        --------
+        >>> p, d = eigen(Matrix([[2, 1], [1, 2]])).diagonalization()
+        >>> print(d)
+        [[1, 0],
+         [0, 3]]
+        """
+        if not self.is_diagonalizable:
+            shortfalls = [
+                f"λ = {value} appears {alg} times but has only {geo} "
+                f"independent eigenvector{'s' if geo != 1 else ''}"
+                for value, alg, geo in zip(
+                    self.eigenvalues,
+                    self.algebraic_multiplicities,
+                    self.geometric_multiplicities,
+                    strict=True,
+                )
+                if alg != geo
+            ]
+            raise ValueError(
+                "This matrix is not diagonalizable: "
+                + "; ".join(shortfalls)
+                + ". There are not enough independent eigenvectors to build "
+                "an invertible P."
+            )
+        pairs = self.pairs
+        p = vector_column_matrix([vector for _, vector in pairs])
+        d = diagonal([value for value, _ in pairs])
+        return p, d
+
+    def _factored(self, latex: bool) -> str:
+        variable = "\\lambda" if latex else self.characteristic_polynomial.variable
+        sign = "-" if self.characteristic_polynomial.leading_coefficient < 0 else ""
+        return sign + "".join(
+            _power(_linear_factor(value, variable, latex), count, latex)
+            for value, count in zip(
+                self.eigenvalues, self.algebraic_multiplicities, strict=True
+            )
+        )
+
+    def __str__(self) -> str:
+        """
+        Return the full by-hand derivation of the eigenvalues.
+
+        Shows the characteristic polynomial and its factored form, then
+        each eigenvalue with its multiplicities and eigenspace basis, and
+        finally whether the matrix is diagonalizable.
+        """
+        n = self.original.rows
+        lines = [
+            f"Eigenvalues of {n}×{n} matrix",
+            f"det(A - λI) = {self.characteristic_polynomial} = {self._factored(False)}",
+            "",
+        ]
+        for value, alg, geo, space in zip(
+            self.eigenvalues,
+            self.algebraic_multiplicities,
+            self.geometric_multiplicities,
+            self.eigenspaces,
+            strict=True,
+        ):
+            lines.append(
+                f"λ = {value}  (algebraic multiplicity {alg}, "
+                f"geometric multiplicity {geo})"
+            )
+            lines.extend(f"  v = {vector}" for vector in space)
+        lines.append("")
+        if self.is_diagonalizable:
+            lines.append("Diagonalizable: yes")
+        else:
+            lines.append("Diagonalizable: no (not enough independent eigenvectors)")
+        return "\n".join(lines)
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this EigenResult.
+
+        Examples
+        --------
+        >>> eigen(Matrix([[2, 1], [1, 2]]))
+        EigenResult(shape=2×2, eigenvalues=[1, 3], diagonalizable=True)
+        """
+        values = ", ".join(str(v) for v in self.eigenvalues)
+        return (
+            f"EigenResult(shape={self.original.rows}×{self.original.cols}, "
+            f"eigenvalues=[{values}], diagonalizable={self.is_diagonalizable})"
+        )
+
+    def _repr_latex_(self) -> str:
+        """Render the characteristic polynomial and eigenspaces in LaTeX."""
+        lines = [
+            f"\\det(A - \\lambda I) &= {self.characteristic_polynomial._latex()} "
+            f"= {self._factored(True)}"
+        ]
+        for i, (value, space) in enumerate(
+            zip(self.eigenvalues, self.eigenspaces, strict=True)
+        ):
+            generators = r",\; ".join(vector_to_latex(v) for v in space)
+            lines.append(
+                f"\\lambda_{{{i + 1}}} &= {scalar_to_latex(value)}, "
+                f"\\quad E_{{\\lambda_{{{i + 1}}}}} = "
+                f"\\operatorname{{span}}\\left\\{{ {generators} \\right\\}}"
             )
         body = " \\\\\n".join(lines)
         return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"

@@ -10,6 +10,7 @@ __version__ = "2.0.0"
 from fractions import Fraction
 
 from panchi.algorithms.decompositions import qr_decomposition
+from panchi.algorithms.eigen import characteristic_polynomial, eigen
 from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
@@ -104,4 +105,6 @@ __all__ = [
     "determinant_lu",
     "qr_decomposition",
     "eigen_qr",
+    "eigen",
+    "characteristic_polynomial",
 ]
