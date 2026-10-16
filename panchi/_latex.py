@@ -12,6 +12,8 @@ from __future__ import annotations
 from fractions import Fraction
 from typing import TYPE_CHECKING
 
+from panchi.symbolic.quadratic_number import QuadraticNumber
+
 if TYPE_CHECKING:
     from panchi.primitives.matrix import Matrix
     from panchi.primitives.vector import Vector
@@ -22,9 +24,12 @@ def scalar_to_latex(value: Scalar) -> str:
     """Render a scalar as LaTeX.
 
     ``Fraction`` values become ``\\frac{p}{q}`` (a bare integer when the
-    denominator is 1, with the sign kept outside the fraction); ``int`` and
-    ``float`` fall back to ``str``.
+    denominator is 1, with the sign kept outside the fraction);
+    ``QuadraticNumber`` values render their radicals as ``\\sqrt``; ``int``
+    and ``float`` fall back to ``str``.
     """
+    if isinstance(value, QuadraticNumber):
+        return value._latex()
     if isinstance(value, Fraction):
         if value.denominator == 1:
             return str(value.numerator)
