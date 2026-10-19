@@ -15,9 +15,15 @@ def _build_backend(
     quality: str,
     figsize: tuple[int, int],
     include_extra_files: bool,
+    output_format: str | None,
 ):
     """Construct a 2D or 3D backend from the facade's constructor arguments."""
     if backend == "matplotlib":
+        if output_format is not None:
+            raise ValueError(
+                "output_format only applies to the manim backend. matplotlib "
+                "already saves animations as .gif and still plots as .png."
+            )
         if dims == 2:
             from panchi.visualizations.backends.matplotlib_2d import (
                 _MatplotlibBackend2D as backend_class,
@@ -28,6 +34,10 @@ def _build_backend(
             )
         return backend_class(save_path=save_path, quality=quality, figsize=figsize)
     if backend == "manim":
+        if output_format not in (None, "mp4", "gif"):
+            raise ValueError(
+                f"Unknown output_format {output_format!r}. Choose 'mp4' or 'gif'."
+            )
         if dims == 2:
             from panchi.visualizations.backends.manim_2d import (
                 _ManimBackend2D as backend_class,
@@ -40,6 +50,7 @@ def _build_backend(
             save_path=save_path or Path("./media"),
             quality=quality,
             include_extra_files=include_extra_files,
+            output_format=output_format or "mp4",
         )
     raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'.")
 
@@ -113,10 +124,17 @@ class _Animator:
         quality: str = "medium",
         figsize: tuple[int, int] = (8, 8),
         include_extra_files: bool = False,
+        output_format: str | None = None,
     ) -> None:
         resolved_path = Path(save_path) if save_path else None
         self._backend = _build_backend(
-            backend, self._dims, resolved_path, quality, figsize, include_extra_files
+            backend,
+            self._dims,
+            resolved_path,
+            quality,
+            figsize,
+            include_extra_files,
+            output_format,
         )
         self.backend = backend
 
@@ -128,7 +146,7 @@ class _Animator:
         labels: list[str] | None = None,
         grid: bool = True,
         name: str | None = None,
-    ) -> None:
+    ) -> object | None:
         """Plot a list of vectors.
 
         Parameters
@@ -146,7 +164,7 @@ class _Animator:
             Output filename (without extension) when saving.
         """
         self._validate_vectors(vectors)
-        self._backend.plot_vectors(
+        return self._backend.plot_vectors(
             [_to_float_vector(v) for v in vectors],
             colors=colors,
             labels=labels,
@@ -281,7 +299,7 @@ class _Animator:
         grid: bool = True,
         name: str | None = None,
         span_color: str | None = None,
-    ) -> None:
+    ) -> object | None:
         """Visualize the span of vectors with a shaded region and basis arrows.
 
         Accepts a single span (a ``VectorSpace`` or a list of ``Vector``) or
@@ -312,7 +330,7 @@ class _Animator:
         spans = _resolve_span_inputs(vectors_or_space)
         for vectors, _ in spans:
             self._validate_vectors(vectors)
-        self._backend.plot_span(
+        return self._backend.plot_span(
             [_to_float_space(space) for _, space in spans],
             colors=colors,
             labels=labels,
@@ -358,6 +376,13 @@ class Animator2D(_Animator):
         or ``"production"`` (manim only).
     figsize : tuple[int, int]
         Figure size in inches (matplotlib only). Default ``(8, 8)``.
+    include_extra_files : bool
+        Keep manim's scratch directories next to the output (manim only).
+        Default ``False``.
+    output_format : str, optional
+        ``"mp4"`` (default) or ``"gif"`` (manim only). With the manim
+        backend every method returns the saved file, which plays inline
+        when it is the last value in a Jupyter cell.
 
     Examples
     --------
@@ -387,7 +412,14 @@ class Animator3D(_Animator):
     quality : str
         Render quality: ``"low"``, ``"medium"`` (default), or ``"high"``.
     figsize : tuple[int, int]
-        Figure size in inches. Default ``(8, 8)``.
+        Figure size in inches (matplotlib only). Default ``(8, 8)``.
+    include_extra_files : bool
+        Keep manim's scratch directories next to the output (manim only).
+        Default ``False``.
+    output_format : str, optional
+        ``"mp4"`` (default) or ``"gif"`` (manim only). With the manim
+        backend every method returns the saved file, which plays inline
+        when it is the last value in a Jupyter cell.
 
     Examples
     --------

@@ -41,6 +41,7 @@ from panchi.visualizations.backends.manim_base import (
     _axis_range,
     _BuilderSceneMixin,
     _ManimBackendBase,
+    _ManimOutput,
     _resolve_colors,
     _resolve_n_colors,
 )
@@ -134,7 +135,7 @@ class _ManimBackend3D(_ManimBackendBase):
         labels: list[str] | None,
         grid: bool,
         name: str,
-    ) -> None:
+    ) -> _ManimOutput:
         color_list = colors or DEFAULT_COLORS[: len(vectors)]
         label_list = labels or [f"v_{{{i + 1}}}" for i in range(len(vectors))]
 
@@ -148,7 +149,7 @@ class _ManimBackend3D(_ManimBackendBase):
 
             scene.wait(1.5)
 
-        self._render(name, build)
+        return self._render(name, build)
 
     def animate_addition(
         self,
@@ -158,7 +159,7 @@ class _ManimBackend3D(_ManimBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _ManimOutput:
         color_v1, color_v2, color_result = _resolve_colors(colors, ADDITION_COLORS)
 
         v1c = (v1[0], v1[1], v1[2])
@@ -188,7 +189,7 @@ class _ManimBackend3D(_ManimBackendBase):
 
             scene.add_vector(result, color_result, r"v_1 + v_2", run_time=1.5, wait=2)
 
-        self._render(name, build)
+        return self._render(name, build)
 
     def animate_scaling(
         self,
@@ -198,7 +199,7 @@ class _ManimBackend3D(_ManimBackendBase):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _ManimOutput:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
         factor = float(scale_factor)
 
@@ -234,7 +235,7 @@ class _ManimBackend3D(_ManimBackendBase):
             scene.add_fixed_orientation_mobjects(scaled_label)
             scene.wait(1.5)
 
-        self._render(name, build)
+        return self._render(name, build)
 
     def animate_transform(
         self,
@@ -244,7 +245,7 @@ class _ManimBackend3D(_ManimBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
-    ) -> None:
+    ) -> _ManimOutput:
         vecs = (
             [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
             if vectors
@@ -297,7 +298,7 @@ class _ManimBackend3D(_ManimBackendBase):
             )
             scene.wait(2)
 
-        self._render(name, build)
+        return self._render(name, build)
 
     def plot_span(
         self,
@@ -307,7 +308,7 @@ class _ManimBackend3D(_ManimBackendBase):
         grid: bool,
         name: str,
         span_color: str | None = None,
-    ) -> None:
+    ) -> _ManimOutput:
         per_space = [(compute_basis(s), rank(s)) for s in spaces]
         all_basis = [v for basis, _ in per_space for v in basis]
         single = len(per_space) == 1
@@ -401,4 +402,4 @@ class _ManimBackend3D(_ManimBackendBase):
 
             scene.wait(1.5)
 
-        self._render(name, build)
+        return self._render(name, build)

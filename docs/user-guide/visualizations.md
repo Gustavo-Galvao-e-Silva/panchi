@@ -36,8 +36,10 @@ The `backend` parameter selects which rendering engine to use. Manim is only imp
 | `save_path` | `None`          | Directory for output files. If `None`, matplotlib shows interactively. |
 | `quality`   | `"medium"`      | Render quality: `"low"`, `"medium"`, `"high"`, `"production"` (manim only) |
 | `figsize`   | `(8, 8)`        | Figure size in inches (matplotlib only) |
+| `include_extra_files` | `False` | Keep manim's scratch directories next to the output (manim only) |
+| `output_format` | `None` | `"mp4"` (the default) or `"gif"` (manim only) |
 
-When `save_path` is set, static plots are saved as `.png` and animations as `.gif` (matplotlib) or `.mp4` (manim).
+When `save_path` is set, static plots are saved as `.png` and animations as `.gif` (matplotlib). The manim backend saves every method as `.mp4`, or as `.gif` with `output_format="gif"`.
 
 ---
 
@@ -212,6 +214,18 @@ animator.animate_transform(Matrix([[0, -1], [1, 0]]), name="rotation")
 # → ./output/rotation.mp4  (manim)
 ```
 
+### manim as GIFs
+
+GIFs embed anywhere a video can't: READMEs, slides, LMS pages, chat. Ask manim for one with `output_format`:
+
+```python
+animator = Animator2D(backend="manim", save_path="./output", output_format="gif")
+clip = animator.animate_transform(Matrix([[1, 1], [0, 1]]), name="shear")
+print(clip.path)  # ./output/shear.gif
+```
+
+Every manim method returns the saved file this way, as an object with a `.path`. GIFs are larger than `.mp4` and limited to 256 colours, so faint details such as grid lines come out a little dimmer.
+
 The `name` parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. `"plot_vectors"`, `"animate_transform"`).
 
 ---
@@ -221,8 +235,9 @@ The `name` parameter controls the filename (without extension). If omitted, it d
 | Feature | matplotlib | manim |
 |---------|-----------|-------|
 | Install | Included with panchi | `pip install panchi[manim]` + system deps |
-| Output format | `.png` / `.gif` | `.mp4` video |
+| Output format | `.png` / `.gif` | `.mp4` or `.gif` (`output_format`) |
 | Interactive display | Yes (`plt.show()`) | No (always renders to file) |
+| Plays inline in Jupyter | Yes | Yes (the saved file is embedded) |
 | Grid morph quality | Good (LineCollection interpolation) | Excellent (native NumberPlane) |
 | LaTeX labels | No | Yes |
 | Parallelogram in addition | No | Yes |

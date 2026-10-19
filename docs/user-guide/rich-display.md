@@ -63,3 +63,14 @@ Animator2D().plot_vectors([pan.Vector([2, 1]), pan.Vector([1, 3])])
 ```
 
 Animations play as inline players (via matplotlib's own HTML animation), so you can scrub through a transformation without leaving the notebook. Set a `save_path` to write files to disk instead, exactly as in a script.
+
+The manim backend plays inline too. It renders to a file as usual, and when a manim call is the last line of a cell the notebook embeds that file: an `.mp4` as a looping video player, a `.gif` as an image.
+
+```python
+from panchi.visualizations import Animator2D
+
+animator = Animator2D(backend="manim", quality="low", output_format="gif")
+animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))
+```
+
+The file is embedded into the notebook itself, so the notebook still shows the animation after the file is moved or deleted. Use `quality="low"` while exploring to keep notebooks small and renders quick.
