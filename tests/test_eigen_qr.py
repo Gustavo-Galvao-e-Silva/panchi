@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from panchi import Matrix, determinant_lu, eigen_qr
+from panchi import Matrix, determinant, eigen_qr
 from panchi.algorithms import QREigenResult
 
 
@@ -63,9 +63,7 @@ class TestEigenvalueCorrectness:
     def test_product_of_eigenvalues_equals_determinant(self):
         m = Matrix([[4, 1], [2, 3]])
         result = eigen_qr(m)
-        assert math.prod(result.eigenvalues) == pytest.approx(
-            determinant_lu(m), abs=1e-6
-        )
+        assert math.prod(result.eigenvalues) == pytest.approx(determinant(m), abs=1e-6)
 
 
 class TestEigenvectorCorrectness:

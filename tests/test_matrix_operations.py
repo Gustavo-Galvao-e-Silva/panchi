@@ -103,6 +103,7 @@ class TestInverseCorrectness:
 # ==================== DETERMINANT_LU TESTS ====================
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestDeterminantLuValidation:
     """Test type and value validation for determinant_lu."""
 
@@ -115,6 +116,7 @@ class TestDeterminantLuValidation:
             determinant_lu(Matrix([[1, 2, 3], [4, 5, 6]]))
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestDeterminantLuCorrectness:
     """Test determinant_lu produces correct values."""
 
