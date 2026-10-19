@@ -40,7 +40,6 @@ class RowOperation(ABC):
     @overload
     def apply(self, target: Vector) -> Vector: ...
 
-    @abstractmethod
     def apply(self, target: Matrix | Vector) -> Matrix | Vector:
         """
         Apply this operation to a matrix or vector, returning the result.
@@ -71,6 +70,59 @@ class RowOperation(ABC):
             If target is not a Matrix or Vector instance.
         ValueError
             If the operation's row indices are out of range for this target.
+
+        Examples
+        --------
+        >>> m = Matrix([[1, 2], [3, 4], [5, 6]])
+        >>> print(RowSwap(0, 2).apply(m))
+        [[5, 6],
+         [3, 4],
+         [1, 2]]
+        >>> print(RowAdd(target=1, source=0, scalar=-3).apply(Vector([2, 6])))
+        [2, 0]
+        """
+        self._validate_target(target)
+        n = target.dims if isinstance(target, Vector) else target.rows
+        self._validate_indices(n)
+
+        if isinstance(target, Vector):
+            return self._apply_vector(target)
+
+        return self.elementary_matrix(n) @ target
+
+    @abstractmethod
+    def _apply_vector(self, vector: Vector) -> Vector:
+        """
+        Apply this operation to the components of a vector.
+
+        Called by apply after the row indices have been validated.
+
+        Parameters
+        ----------
+        vector : Vector
+            The vector to operate on. It is not modified.
+
+        Returns
+        -------
+        Vector
+            A new vector with the operation applied.
+        """
+        pass
+
+    @abstractmethod
+    def _validate_indices(self, n: int) -> None:
+        """
+        Validate that this operation's row indices are in range for size n.
+
+        Parameters
+        ----------
+        n : int
+            Number of rows in the target matrix or vector.
+
+        Raises
+        ------
+        ValueError
+            If a row index is outside [0, n - 1].
         """
         pass
 
@@ -114,10 +166,6 @@ class RowOperation(ABC):
         matrix M, the following holds:
 
             inverse().apply(apply(M)) == M
-
-        This is used in factorization algorithms such as LU decomposition,
-        where the inverse operations encode the elimination steps that
-        reconstruct L without recomputing anything.
 
         Returns
         -------
@@ -211,6 +259,75 @@ class RowOperation(ABC):
                 f"Row operations require at least two rows to be meaningful."
             )
 
+    @staticmethod
+    def _validate_index_type(index: int, name: str | None = None) -> None:
+        """
+        Validate that a row index is an integer.
+
+        Parameters
+        ----------
+        index : int
+            The row index to validate.
+        name : str, optional
+            The argument name to mention in the error message.
+
+        Raises
+        ------
+        TypeError
+            If index is not an integer.
+        """
+        if not isinstance(index, int):
+            where = f" for {name}" if name else ""
+            raise TypeError(
+                f"Row index must be an integer. Got {type(index).__name__}{where}."
+            )
+
+    @staticmethod
+    def _validate_in_range(index: int, n: int, label: str = "Row") -> None:
+        """
+        Validate that a row index is in range for a matrix or vector of size n.
+
+        Parameters
+        ----------
+        index : int
+            The row index to validate.
+        n : int
+            Number of rows in the target matrix or vector.
+        label : str, optional
+            How the index is described in the error message. Defaults to "Row".
+
+        Raises
+        ------
+        ValueError
+            If index is outside [0, n - 1].
+        """
+        if not (0 <= index < n):
+            raise ValueError(
+                f"{label} index {index} is out of range for a matrix with {n} rows. "
+                f"Valid indices are 0 to {n - 1}."
+            )
+
+    @staticmethod
+    def _validate_scalar_type(scalar: Scalar) -> None:
+        """
+        Validate that a scalar is a number.
+
+        Parameters
+        ----------
+        scalar : Scalar
+            The value to validate.
+
+        Raises
+        ------
+        TypeError
+            If scalar is not an int, float, Fraction, or QuadraticNumber.
+        """
+        if not isinstance(scalar, SCALAR_TYPES):
+            raise TypeError(
+                f"Scalar must be a number (int, float, or Fraction). "
+                f"Got {type(scalar).__name__}."
+            )
+
 
 class RowSwap(RowOperation):
     """
@@ -252,52 +369,12 @@ class RowSwap(RowOperation):
     def __init__(self, row_a: int, row_b: int) -> None:
         self.a = row_a
         self.b = row_b
-        self._validate_index_types()
-
-    def _validate_index_types(self) -> None:
-        """
-        Validate that both row indices are integers.
-
-        Raises
-        ------
-        TypeError
-            If either row index is not an integer.
-        """
-        if not isinstance(self.a, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(self.a).__name__} for row_a."
-            )
-
-        if not isinstance(self.b, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(self.b).__name__} for row_b."
-            )
+        self._validate_index_type(self.a, "row_a")
+        self._validate_index_type(self.b, "row_b")
 
     def _validate_indices(self, n: int) -> None:
-        """
-        Validate that both row indices are in range for a matrix of size n.
-
-        Parameters
-        ----------
-        n : int
-            Number of rows in the target matrix or vector.
-
-        Raises
-        ------
-        ValueError
-            If either row index is outside [0, n - 1].
-        """
-        if not (0 <= self.a < n):
-            raise ValueError(
-                f"Row index {self.a} is out of range for a matrix with {n} rows. "
-                f"Valid indices are 0 to {n - 1}."
-            )
-
-        if not (0 <= self.b < n):
-            raise ValueError(
-                f"Row index {self.b} is out of range for a matrix with {n} rows. "
-                f"Valid indices are 0 to {n - 1}."
-            )
+        self._validate_in_range(self.a, n)
+        self._validate_in_range(self.b, n)
 
     def elementary_matrix(self, n: int) -> Matrix:
         """
@@ -345,48 +422,10 @@ class RowSwap(RowOperation):
 
         return grid
 
-    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
-        """
-        Swap rows a and b of a matrix or vector, returning the result.
-
-        Parameters
-        ----------
-        target : Matrix | Vector
-            The matrix or vector to operate on.
-
-        Returns
-        -------
-        Matrix | Vector
-            A new matrix or vector with the two entries exchanged.
-
-        Raises
-        ------
-        TypeError
-            If target is not a Matrix or Vector instance.
-        ValueError
-            If either row index is out of range for this target.
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4], [5, 6]])
-        >>> print(RowSwap(0, 2).apply(m))
-        [[5, 6],
-         [3, 4],
-         [1, 2]]
-        >>> v = Vector([1, 2, 3])
-        >>> print(RowSwap(0, 2).apply(v))
-        [3, 2, 1]
-        """
-        self._validate_target(target)
-        n = target.dims if isinstance(target, Vector) else target.rows
-        self._validate_indices(n)
-
-        if isinstance(target, Vector):
-            result = target.copy()
-            result[self.a], result[self.b] = target[self.b], target[self.a]
-            return result
-
-        return self.elementary_matrix(target.rows) @ target
+    def _apply_vector(self, vector: Vector) -> Vector:
+        result = vector.copy()
+        result[self.a], result[self.b] = vector[self.b], vector[self.a]
+        return result
 
     def inverse(self) -> RowSwap:
         """
@@ -458,65 +497,16 @@ class RowScale(RowOperation):
     def __init__(self, row: int, scalar: Scalar) -> None:
         self.row = row
         self.scalar = scalar
-        self._validate_row_type()
-        self._validate_scalar()
-
-    def _validate_row_type(self) -> None:
-        """
-        Validate that the row index is an integer.
-
-        Raises
-        ------
-        TypeError
-            If row is not an integer.
-        """
-        if not isinstance(self.row, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(self.row).__name__}."
-            )
-
-    def _validate_row(self, n: int) -> None:
-        """
-        Validate that the row index is in range for a matrix or vector of size n.
-
-        Parameters
-        ----------
-        n : int
-            Number of rows in the target matrix or vector.
-
-        Raises
-        ------
-        ValueError
-            If the row index is outside [0, n - 1].
-        """
-        if not (0 <= self.row < n):
-            raise ValueError(
-                f"Row index {self.row} is out of range for a matrix with {n} rows. "
-                f"Valid indices are 0 to {n - 1}."
-            )
-
-    def _validate_scalar(self) -> None:
-        """
-        Validate that the scalar is a non-zero number.
-
-        Raises
-        ------
-        TypeError
-            If scalar is not an int, float, or Fraction.
-        ValueError
-            If scalar is zero.
-        """
-        if not isinstance(self.scalar, SCALAR_TYPES):
-            raise TypeError(
-                f"Scalar must be a number (int, float, or Fraction). "
-                f"Got {type(self.scalar).__name__}."
-            )
-
+        self._validate_index_type(self.row)
+        self._validate_scalar_type(self.scalar)
         if self.scalar == 0:
             raise ValueError(
                 "Scalar must be non-zero. Scaling a row by zero would make "
                 "the matrix singular and the operation non-invertible."
             )
+
+    def _validate_indices(self, n: int) -> None:
+        self._validate_in_range(self.row, n)
 
     def elementary_matrix(self, n: int) -> Matrix:
         """
@@ -540,9 +530,9 @@ class RowScale(RowOperation):
         Raises
         ------
         TypeError
-            If n is not an integer, or scalar is not a number.
+            If n is not an integer.
         ValueError
-            If n < 2, scalar is zero, or the row index is out of range.
+            If n < 2 or the row index is out of range.
 
         Examples
         --------
@@ -553,56 +543,17 @@ class RowScale(RowOperation):
          [0, 0, 1]]
         """
         self._validate_n(n)
-        self._validate_row(n)
-        self._validate_scalar()
+        self._validate_indices(n)
 
         grid: Matrix = identity(n)
         grid[self.row, self.row] = self.scalar
 
         return grid
 
-    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
-        """
-        Multiply a row of a matrix or vector by the scalar, returning the result.
-
-        Parameters
-        ----------
-        target : Matrix | Vector
-            The matrix or vector to operate on.
-
-        Returns
-        -------
-        Matrix | Vector
-            A new matrix or vector with the specified row multiplied by scalar.
-
-        Raises
-        ------
-        TypeError
-            If target is not a Matrix or Vector instance, or scalar is not a number.
-        ValueError
-            If scalar is zero or the row index is out of range.
-
-        Examples
-        --------
-        >>> m = Matrix([[1, 2], [3, 4]])
-        >>> print(RowScale(0, -1).apply(m))
-        [[-1, -2],
-         [3, 4]]
-        >>> v = Vector([1, 2])
-        >>> print(RowScale(0, -1).apply(v))
-        [-1, 2]
-        """
-        self._validate_target(target)
-        n = target.dims if isinstance(target, Vector) else target.rows
-        self._validate_row(n)
-        self._validate_scalar()
-
-        if isinstance(target, Vector):
-            result = target.copy()
-            result[self.row] = target[self.row] * self.scalar
-            return result
-
-        return self.elementary_matrix(target.rows) @ target
+    def _apply_vector(self, vector: Vector) -> Vector:
+        result = vector.copy()
+        result[self.row] = vector[self.row] * self.scalar
+        return result
 
     def inverse(self) -> RowScale:
         """
@@ -682,73 +633,18 @@ class RowAdd(RowOperation):
         self.target = target
         self.source = source
         self.scalar = scalar
-        self._validate_index_types()
-        self._validate_scalar()
-
-    def _validate_index_types(self) -> None:
-        """
-        Validate that both row indices are integers.
-
-        Raises
-        ------
-        TypeError
-            If either row index is not an integer.
-        """
-        if not isinstance(self.target, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(self.target).__name__} for target."
-            )
-
-        if not isinstance(self.source, int):
-            raise TypeError(
-                f"Row index must be an integer. Got {type(self.source).__name__} for source."
-            )
+        self._validate_index_type(self.target, "target")
+        self._validate_index_type(self.source, "source")
+        self._validate_scalar_type(self.scalar)
 
     def _validate_indices(self, n: int) -> None:
-        """
-        Validate that both row indices are in range and distinct.
-
-        Parameters
-        ----------
-        n : int
-            Number of rows in the target matrix or vector.
-
-        Raises
-        ------
-        ValueError
-            If either index is out of range, or if target equals source.
-        """
-        if not (0 <= self.target < n):
-            raise ValueError(
-                f"Target row index {self.target} is out of range for a matrix "
-                f"with {n} rows. Valid indices are 0 to {n - 1}."
-            )
-
-        if not (0 <= self.source < n):
-            raise ValueError(
-                f"Source row index {self.source} is out of range for a matrix "
-                f"with {n} rows. Valid indices are 0 to {n - 1}."
-            )
+        self._validate_in_range(self.target, n, "Target row")
+        self._validate_in_range(self.source, n, "Source row")
 
         if self.target == self.source:
             raise ValueError(
                 f"Target and source rows must be different. Both are row {self.target}. "
                 f"To scale a row, use RowScale instead."
-            )
-
-    def _validate_scalar(self) -> None:
-        """
-        Validate that the scalar is a number.
-
-        Raises
-        ------
-        TypeError
-            If scalar is not an int, float, or Fraction.
-        """
-        if not isinstance(self.scalar, SCALAR_TYPES):
-            raise TypeError(
-                f"Scalar must be a number (int, float, or Fraction). "
-                f"Got {type(self.scalar).__name__}."
             )
 
     def elementary_matrix(self, n: int) -> Matrix:
@@ -774,7 +670,7 @@ class RowAdd(RowOperation):
         Raises
         ------
         TypeError
-            If n is not an integer, or scalar is not a number.
+            If n is not an integer.
         ValueError
             If n < 2, indices are out of range, or target equals source.
 
@@ -788,58 +684,16 @@ class RowAdd(RowOperation):
         """
         self._validate_n(n)
         self._validate_indices(n)
-        self._validate_scalar()
 
         grid: Matrix = identity(n)
         grid[self.target, self.source] = self.scalar
 
         return grid
 
-    def apply(self, target: Matrix | Vector) -> Matrix | Vector:
-        """
-        Add scalar times the source row to the target row, returning the result.
-
-        Parameters
-        ----------
-        target : Matrix | Vector
-            The matrix or vector to operate on.
-
-        Returns
-        -------
-        Matrix | Vector
-            A new matrix or vector where the target row has been replaced by
-            target row + scalar * source row.
-
-        Raises
-        ------
-        TypeError
-            If target is not a Matrix or Vector instance, or scalar is not a number.
-        ValueError
-            If indices are out of range or target equals source.
-
-        Examples
-        --------
-        >>> m = Matrix([[2, 1], [6, 4]])
-        >>> print(RowAdd(target=1, source=0, scalar=-3).apply(m))
-        [[2, 1],
-         [0, 1]]
-        >>> v = Vector([2, 6])
-        >>> print(RowAdd(target=1, source=0, scalar=-3).apply(v))
-        [2, 0]
-        """
-        self._validate_target(target)
-        n = target.dims if isinstance(target, Vector) else target.rows
-        self._validate_indices(n)
-        self._validate_scalar()
-
-        if isinstance(target, Vector):
-            result = target.copy()
-            result[self.target] = (
-                target[self.target] + self.scalar * target[self.source]
-            )
-            return result
-
-        return self.elementary_matrix(target.rows) @ target
+    def _apply_vector(self, vector: Vector) -> Vector:
+        result = vector.copy()
+        result[self.target] = vector[self.target] + self.scalar * vector[self.source]
+        return result
 
     def inverse(self) -> RowAdd:
         """

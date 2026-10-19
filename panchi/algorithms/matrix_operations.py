@@ -1,12 +1,42 @@
-from panchi.algorithms.decompositions import lu, qr_decomposition
+from panchi.algorithms.decompositions import lu
 from panchi.algorithms.reductions import ref, rref
-from panchi.algorithms.results import InverseResult, QREigenResult, Reduction, Solution
+from panchi.algorithms.results import InverseResult, Reduction, Solution
 from panchi.algorithms.row_operations import RowOperation, RowSwap
-from panchi.primitives.factories import identity, zero_vector
+from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.utils.types import Scalar
+
+
+def _require_square_matrix(matrix: Matrix, what: str) -> None:
+    """
+    Check that matrix is a square Matrix before computing something from it.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The object to check.
+    what : str
+        What is being computed, such as "inverse", used in the error message.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Cannot compute the {what} of a {type(matrix).__name__}."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot compute the {what} of a non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}; it must be square (n×n)."
+        )
 
 
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
@@ -151,17 +181,7 @@ def inverse(matrix: Matrix) -> InverseResult:
     [[-2.0, 1.0],
      [1.5, -0.5]]
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Inverse is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the inverse of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Inverse is only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "inverse")
     n = matrix.rows
     matrix_rref = rref(matrix)
     if matrix_rref.rank != n:
@@ -213,17 +233,7 @@ def determinant_lu(matrix: Matrix) -> float:
     --------
     determinant : Determinant via cofactor expansion.
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Determinant is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the determinant of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Determinants are only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "determinant")
     matrix_lu = lu(matrix)
     parity = _swap_parity(matrix_lu.steps)
     upper_diagonal_product = _main_diagonal_product(matrix_lu.upper)
@@ -306,17 +316,7 @@ def determinant(matrix: Matrix) -> Scalar:
     --------
     determinant_lu : Determinant via LU decomposition (float, O(n³)).
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Determinant is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot calculate determinant of non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Determinants are only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "determinant")
 
     if matrix.rows == 1:
         return matrix[0][0]
@@ -566,129 +566,3 @@ def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
     ]
     solution = Vector([applied_b[row] for row in pivot_row_indices])
     return Solution(A, b, "unique", solution, steps)
-
-
-def _below_diagonal_mass(matrix: Matrix) -> float:
-    """
-    Sum the absolute values of the strictly-below-diagonal entries.
-
-    Used as the convergence measure for the QR algorithm: when this sum is
-    small, the iterate is (near) upper triangular and its diagonal holds the
-    eigenvalues.
-    """
-    n = matrix.rows
-    return sum(abs(matrix[i][j]) for i in range(n) for j in range(i))
-
-
-def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
-    """
-    Find an eigenvector for a known eigenvalue as the null space of A - λI.
-
-    Solves the homogeneous system ``(A - λI) x = 0`` with a scale-relative
-    tolerance, reusing solve(). Because a floating-point λ makes ``A - λI``
-    only approximately singular, the tolerance is what lets solve() report an
-    infinite solution set and expose the null space. Returns the first
-    null-space basis vector, normalized, or None if the system is not
-    detected as rank-deficient (e.g. for tightly clustered eigenvalues).
-    """
-    shifted = matrix - eigenvalue * identity(n)
-    scale = max(1.0, max(abs(shifted[i][j]) for i in range(n) for j in range(n)))
-    solution = solve(shifted, zero_vector(n), tolerance=1e-6 * scale)
-
-    if solution.null_space is None:
-        return None
-    return solution.null_space[0].normalize()
-
-
-def eigen_qr(
-    matrix: Matrix,
-    max_iterations: int = 1000,
-    tolerance: float = 1e-12,
-) -> QREigenResult:
-    """
-    Compute the eigenvalues of a square matrix using the QR algorithm.
-
-    Starting from the original matrix, repeatedly computes a QR
-    decomposition and reassembles the matrix as R @ Q. For matrices with
-    real eigenvalues this sequence converges to an upper triangular matrix
-    whose diagonal entries are the eigenvalues.
-
-    The iteration stops once the strictly-below-diagonal entries sum to less
-    than ``tolerance`` (recorded as converged), or once ``max_iterations`` is
-    reached (recorded as not converged). Eigenvalues are the diagonal of the
-    final iterate. Eigenvectors are computed separately and are only
-    populated when the iteration converges.
-
-    Only real eigenvalues are supported. Matrices with complex eigenvalues
-    or eigenvalues of equal magnitude may fail to converge, in which case the
-    returned result has ``converged`` set to False and no eigenvectors.
-
-    Parameters
-    ----------
-    matrix : Matrix
-        The square matrix whose eigenvalues will be computed.
-    max_iterations : int, optional
-        The maximum number of QR iterations to perform. Defaults to 1000.
-    tolerance : float, optional
-        The convergence threshold on the below-diagonal mass. Defaults to
-        1e-12.
-
-    Returns
-    -------
-    QREigenResult
-        A result object containing the eigenvalues, eigenvectors, the number
-        of iterations performed, whether the iteration converged, and the
-        final (near) upper-triangular matrix.
-
-    Raises
-    ------
-    TypeError
-        If matrix is not a Matrix instance.
-    ValueError
-        If matrix is not square.
-
-    Examples
-    --------
-    >>> result = eigen_qr(Matrix([[2, 1], [1, 2]]))
-    >>> sorted(round(v, 6) for v in result.eigenvalues)
-    [1.0, 3.0]
-    """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Eigenvalues are only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the eigenvalues of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Eigenvalues are only defined for square matrices (n×n)."
-        )
-
-    n = matrix.rows
-    current = matrix
-    converged = False
-    iterations = 0
-    for iterations in range(1, max_iterations + 1):
-        if _below_diagonal_mass(current) < tolerance:
-            converged = True
-            iterations -= 1
-            break
-        try:
-            decomposition = qr_decomposition(current)
-        except ZeroDivisionError:
-            # A singular iterate cannot be orthonormalized by Gram-Schmidt;
-            # treat this as failure to converge rather than crashing.
-            break
-        current = decomposition.r @ decomposition.q
-
-    eigenvalues = [current[i][i] for i in range(n)]
-    eigenvectors: list[Vector] = []
-    if converged:
-        for eigenvalue in eigenvalues:
-            vector = _eigenvector(matrix, eigenvalue, n)
-            if vector is not None:
-                eigenvectors.append(vector)
-    return QREigenResult(
-        matrix, eigenvalues, eigenvectors, iterations, converged, current
-    )

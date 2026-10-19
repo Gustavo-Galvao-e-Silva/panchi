@@ -6,17 +6,17 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
 from panchi.primitives.vector import Vector
-from panchi.visualizations.backends.base import _BaseBackend
-
-DEFAULT_COLORS = ["#805B49", "#FFB592", "#3E7C7B", "#D4A15E", "#45423F"]
-
-# Per-method default color roles, shared across dimensions. Overridable by
-# passing ``colors=`` (animations) or ``span_color=`` (spans) to the method.
-ADDITION_COLORS = ("#805B49", "#FFB592", "#3E7C7B")  # v1, v2, result
-SCALING_COLORS = ("#805B49", "#FFB592")  # original, scaled
-TRANSFORM_COLORS = ("#805B49", "#FFB592")  # e1, e2 (2D)
-TRANSFORM_COLORS_3D = ("#805B49", "#FFB592", "#3E7C7B")  # e1, e2, e3 (3D)
-SPAN_COLOR = "#805B49"
+from panchi.visualizations.backends.base import (  # noqa: F401
+    ADDITION_COLORS,
+    DEFAULT_COLORS,
+    SCALING_COLORS,
+    SPAN_COLOR,
+    TRANSFORM_COLORS,
+    TRANSFORM_COLORS_3D,
+    _BaseBackend,
+    _resolve_colors,
+    _resolve_n_colors,
+)
 
 GRID_COLOR = "#CCCCCC"
 
@@ -30,28 +30,6 @@ _QUALITY_DPI = {
     "medium": 100,
     "high": 150,
 }
-
-
-def _resolve_colors(colors: list[str] | None, defaults: tuple[str, ...]) -> list[str]:
-    """Fill in per-role colors, keeping defaults for any not supplied.
-
-    A partial list is honored positionally; missing trailing roles fall back
-    to ``defaults``. ``None`` reproduces the default palette exactly.
-    """
-    colors = colors or []
-    return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
-
-
-def _resolve_n_colors(
-    colors: list[str] | None, n: int, defaults: tuple[str, ...]
-) -> list[str]:
-    """Return ``n`` colors, cycling the palette when more are needed than given.
-
-    Supplied colors take precedence; ``defaults`` (then ``DEFAULT_COLORS``) fill
-    the rest, cycling so an arbitrary number of vectors each get a color.
-    """
-    palette = list(colors) if colors else list(defaults) or list(DEFAULT_COLORS)
-    return [palette[i % len(palette)] for i in range(n)]
 
 
 def _calculate_axis_range(vectors: list[Vector]) -> tuple[float, float]:
