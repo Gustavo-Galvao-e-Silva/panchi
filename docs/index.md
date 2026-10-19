@@ -36,7 +36,7 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 - Elementary row operations as first-class objects
 - Row reduction to REF and RREF
 - LU and QR decomposition (QR via Gram-Schmidt)
-- Eigenvalues and eigenvectors via the QR algorithm
+- Exact eigenvalues and eigenvectors for 2×2 and 3×3 matrices, including irrational and complex ones, plus a numerical QR algorithm for any size
 - Matrix inverse and linear system solving (with an optional numerical tolerance)
 - Rich result formats for algorithms, allowing for step-by-step inspection
 - [2D and 3D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend

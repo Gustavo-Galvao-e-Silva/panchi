@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from panchi.utils.latex import (
     matrix_to_latex,
-    row_op_to_latex,
     scalar_to_latex,
     vector_to_latex,
 )
@@ -17,5 +16,4 @@ __all__ = [
     "scalar_to_latex",
     "matrix_to_latex",
     "vector_to_latex",
-    "row_op_to_latex",
 ]

@@ -5,15 +5,16 @@ panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "2.0.0"
+__version__ = "3.0.0"
 
 from fractions import Fraction
 
 from panchi.algorithms.decompositions import qr_decomposition
+from panchi.algorithms.eigen import characteristic_polynomial, eigen
 from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
-    eigen,
+    eigen_qr,
     inverse,
     is_invertible,
     is_symmetric,
@@ -103,5 +104,7 @@ __all__ = [
     "determinant",
     "determinant_lu",
     "qr_decomposition",
+    "eigen_qr",
     "eigen",
+    "characteristic_polynomial",
 ]

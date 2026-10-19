@@ -212,10 +212,11 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         colors: list[str] | None = None,
     ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+        factor = float(scale_factor)
 
         fig, ax = plt.subplots(figsize=self.figsize)
 
-        scaled = scale_factor * vector
+        scaled = factor * vector
         axis_range = _calculate_axis_range([vector, scaled])
         _setup_coordinate_plane(ax, axis_range, axis_range, grid=True)
 
@@ -233,7 +234,7 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
         def animate_frame(frame: int) -> tuple:
             t = frame / frames
-            current_scale = 1 + (scale_factor - 1) * t
+            current_scale = 1 + (factor - 1) * t
             current_x = vector[0] * current_scale
             current_y = vector[1] * current_scale
 

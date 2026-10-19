@@ -22,6 +22,7 @@ from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.utils.latex import scalar_to_latex
 from panchi.visualizations.backends.geometry import (
     CUBE_EDGES,
     CUBE_VERTS,
@@ -199,12 +200,13 @@ class _ManimBackend3D(_ManimBackendBase):
         colors: list[str] | None = None,
     ) -> None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+        factor = float(scale_factor)
 
         v_coords = (vector[0], vector[1], vector[2])
         scaled_coords = (
-            vector[0] * scale_factor,
-            vector[1] * scale_factor,
-            vector[2] * scale_factor,
+            vector[0] * factor,
+            vector[1] * factor,
+            vector[2] * factor,
         )
 
         def build(scene: _VectorScene3D) -> None:
@@ -221,9 +223,9 @@ class _ManimBackend3D(_ManimBackendBase):
                 scene.axes.c2p(*scaled_coords),
                 color=color_end,
             )
-            scaled_label = MathTex(f"{scale_factor} \\cdot v", color=color_end).scale(
-                0.9
-            )
+            scaled_label = MathTex(
+                f"{scalar_to_latex(scale_factor)} \\cdot v", color=color_end
+            ).scale(0.9)
             scaled_label.move_to(scene.axes.c2p(*scaled_coords) * 1.15)
 
             scene.play(Transform(arrow, scaled_arrow), run_time=2)

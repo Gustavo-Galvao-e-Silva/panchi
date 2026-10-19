@@ -11,10 +11,11 @@ find solutions to linear systems by reducing augmented matrices.
 """
 
 from panchi.algorithms.decompositions import lu, qr_decomposition
+from panchi.algorithms.eigen import characteristic_polynomial, eigen
 from panchi.algorithms.matrix_operations import (
     determinant,
     determinant_lu,
-    eigen,
+    eigen_qr,
     inverse,
     is_invertible,
     is_symmetric,
@@ -28,6 +29,7 @@ from panchi.algorithms.results import (
     InverseResult,
     LUDecomposition,
     QRDecomposition,
+    QREigenResult,
     Solution,
 )
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
@@ -63,12 +65,15 @@ __all__ = [
     "QRDecomposition",
     "InverseResult",
     "Solution",
+    "QREigenResult",
     "EigenResult",
     "inverse",
     "solve",
     "determinant",
     "determinant_lu",
+    "eigen_qr",
     "eigen",
+    "characteristic_polynomial",
     "rank",
     "nullity",
     "is_invertible",

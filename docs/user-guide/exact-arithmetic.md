@@ -146,6 +146,23 @@ pan.exact_vector([3, 4]).normalize()  # [3/5, 4/5], every component a Fraction
 
 When the length is irrational (e.g. `[1, 1]`, whose length is $\sqrt{2}$), `magnitude` falls back to `float` — unavoidable, since the value has no exact rational form. Orthonormalization pipelines (`gram_schmidt`, `qr_decomposition`) inherit this behavior: exact in, exact out whenever every length involved is rational.
 
+## Square roots and complex numbers
+
+`panchi.symbolic.QuadraticNumber` goes one step past fractions: it represents $a + b\sqrt{d}$ exactly, with rational $a$, $b$. A negative $d$ makes it complex, so $\sqrt{-1} = i$. Build them with `sqrt()`:
+
+```python
+from panchi.symbolic import sqrt
+
+print(sqrt(8))           # 2√2  (simplest radical form)
+sqrt(9)                  # 3    (perfect squares stay plain ints)
+phi = (1 + sqrt(5)) / 2
+print(phi)               # (1 + √5)/2
+phi * phi == phi + 1     # True
+(3 + 2 * sqrt(-1)) * (3 - 2 * sqrt(-1))  # 13
+```
+
+They work as entries of `Vector` and `Matrix`, and row reduction stays exact over them. That is how [`eigen()`](eigenvalues.md) finds exact eigenvectors for irrational and complex eigenvalues. Only one square root can be involved at a time, so mixing `sqrt(2)` with `sqrt(3)` raises a `ValueError`, and mixing with a `float` raises a `TypeError`.
+
 ## When to use exact arithmetic
 
 **Use exact arithmetic when:**

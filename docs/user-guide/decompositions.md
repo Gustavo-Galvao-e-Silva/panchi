@@ -1,6 +1,6 @@
 # Decompositions
 
-A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi implements **LU** decomposition with partial pivoting, **QR** decomposition via Gram-Schmidt, and eigenvalue/eigenvector computation via the **QR algorithm**.
+A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi implements **LU** decomposition with partial pivoting, **QR** decomposition via Gram-Schmidt, and numerical eigenvalue computation via the **QR algorithm** (exact eigenvalues have [their own page](eigenvalues.md)).
 
 ## LU Decomposition
 
@@ -122,18 +122,21 @@ print(decomp)
 !!! note
     QR decomposition here is the reduced ("thin") form and assumes the columns of A are linearly independent. Dependent columns produce a zero vector during Gram-Schmidt, which cannot be normalized and raises `ZeroDivisionError`.
 
-## Eigenvalues and eigenvectors
+## Numerical eigenvalues (QR algorithm)
 
-`eigen()` computes the eigenvalues and eigenvectors of a square matrix using the **QR algorithm**: it repeatedly decomposes the matrix and reassembles it as `R @ Q`. For matrices with real eigenvalues this sequence converges to an upper triangular matrix whose diagonal entries are the eigenvalues.
+!!! tip
+    For the exact, textbook-style answer on 2×2 and 3×3 matrices, use [`eigen()`](eigenvalues.md). `eigen_qr()` is the numerical approach.
+
+`eigen_qr()` computes the eigenvalues and eigenvectors of a square matrix using the **QR algorithm**: it repeatedly decomposes the matrix and reassembles it as `R @ Q`. For matrices with real eigenvalues this sequence converges to an upper triangular matrix whose diagonal entries are the eigenvalues.
 
 ```python
 import panchi as pan
-from panchi.algorithms import eigen
+from panchi.algorithms import eigen_qr
 
 A = pan.Matrix([[2, 1],
                 [1, 2]])
 
-result = eigen(A)
+result = eigen_qr(A)
 
 print(result.eigenvalues)   # ≈ [3.0, 1.0]
 print(result.eigenvectors)  # unit eigenvectors, paired by index
@@ -151,7 +154,7 @@ for value, vector in result.pairs:
 
 Eigenvectors are recovered as the null space of $A - \lambda I$: since a computed eigenvalue is an approximation, panchi solves `(A - λI) x = 0` with a small numerical [tolerance](solving-systems.md#numerical-tolerance) so the near-singular matrix is treated as singular.
 
-### The EigenResult object
+### The QREigenResult object
 
 ```python
 result.original      # the original matrix A
@@ -164,10 +167,10 @@ result.triangular    # the final (near) upper-triangular matrix
 ```
 
 !!! warning "Real eigenvalues only"
-    The unshifted QR algorithm converges for matrices with **real** eigenvalues. Matrices with complex eigenvalues (for example a rotation matrix) or eigenvalues of equal magnitude may not converge. In that case `result.converged` is `False` and `result.eigenvectors` is empty — `eigen()` never raises for this, so you can still inspect the partial result.
+    The unshifted QR algorithm converges for matrices with **real** eigenvalues. Matrices with complex eigenvalues (for example a rotation matrix) or eigenvalues of equal magnitude may not converge. In that case `result.converged` is `False` and `result.eigenvectors` is empty — `eigen_qr()` never raises for this, so you can still inspect the partial result.
 
     You can adjust `max_iterations` and `tolerance` if needed:
 
     ```python
-    eigen(A, max_iterations=5000, tolerance=1e-14)
+    eigen_qr(A, max_iterations=5000, tolerance=1e-14)
     ```

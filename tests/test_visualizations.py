@@ -5,7 +5,10 @@ matplotlib.use("Agg")
 import pytest
 
 from panchi import Matrix, Vector, VectorSpace
+from panchi.algorithms import rank
+from panchi.symbolic import sqrt
 from panchi.visualizations import Animator2D
+from panchi.visualizations.animator import _to_float_space
 
 # ==================== ANIMATOR2D INITIALIZATION ====================
 
@@ -463,3 +466,56 @@ class TestInlineNotebookPlayback2D:
         )
         assert result is None
         assert (tmp_path / "animate_addition.gif").exists()
+
+
+# ==================== EXACT IRRATIONAL INPUTS ====================
+
+
+class TestExactIrrationalInputs2D:
+    """QuadraticNumber components are plotted, and spans keep their exact rank."""
+
+    def test_plot_vectors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.plot_vectors([Vector([1 + sqrt(2), 1]), Vector([sqrt(3), -1])])
+        assert (tmp_path / "plot_vectors.png").exists()
+
+    def test_animate_addition(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_addition(
+            Vector([sqrt(2), 1]), Vector([1, sqrt(2)]), frames=5, interval=100
+        )
+        assert (tmp_path / "animate_addition.gif").exists()
+
+    def test_animate_scaling_by_irrational(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_scaling(
+            Vector([sqrt(2), 1]), scale_factor=sqrt(2), frames=5, interval=100
+        )
+        assert (tmp_path / "animate_scaling.gif").exists()
+
+    def test_animate_transform_vectors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[sqrt(2), 1], [0, 1]]),
+            vectors=[Vector([1, sqrt(2)])],
+            frames=5,
+            interval=100,
+        )
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    def test_plot_span(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.plot_span([Vector([1 + sqrt(2), 1]), Vector([1, sqrt(2) - 1])])
+        assert (tmp_path / "plot_span.png").exists()
+
+    def test_parallel_irrational_span_stays_a_line(self):
+        space = VectorSpace([Vector([1 + sqrt(2), 1]), Vector([1, sqrt(2) - 1])])
+        assert rank(_to_float_space(space)) == 1
+
+    def test_zero_span_is_kept(self):
+        assert rank(_to_float_space(VectorSpace([Vector([0, 0])]))) == 0
+
+    def test_rejects_complex_components(self):
+        animator = Animator2D()
+        with pytest.raises(TypeError, match="real components"):
+            animator.plot_vectors([Vector([sqrt(-1), 1])])

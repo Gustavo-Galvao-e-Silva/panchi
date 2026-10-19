@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from fractions import Fraction
 
-Scalar = int | float | Fraction
-SCALAR_TYPES = (int, float, Fraction)
+from panchi.symbolic.quadratic_number import QuadraticNumber
+
+Scalar = int | float | Fraction | QuadraticNumber
+SCALAR_TYPES = (int, float, Fraction, QuadraticNumber)
 
 
 def _parse_numeric_string(value: str) -> Scalar:
@@ -88,5 +90,5 @@ def parse_scalar(value: object) -> Scalar:
         return _parse_numeric_string(value)
     raise TypeError(
         f"Cannot convert {type(value).__name__} to a number. "
-        f"Expected int, float, Fraction, or a string like '1/3'."
+        f"Expected int, float, Fraction, QuadraticNumber, or a string like '1/3'."
     )

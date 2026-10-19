@@ -235,8 +235,9 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         colors: list[str] | None = None,
     ) -> _InlineAnimation | None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+        factor = float(scale_factor)
 
-        scaled = scale_factor * vector
+        scaled = factor * vector
         fig = plt.figure(figsize=self.figsize)
         ax = fig.add_subplot(projection="3d")
         axis_range = _calculate_axis_range([vector, scaled])
@@ -246,7 +247,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
         def animate_frame(frame: int) -> tuple:
             t = frame / frames
-            scale = 1 + (scale_factor - 1) * t
+            scale = 1 + (factor - 1) * t
             vx, vy, vz = vector[0] * scale, vector[1] * scale, vector[2] * scale
 
             color = color_end if t > 0.5 else color_start

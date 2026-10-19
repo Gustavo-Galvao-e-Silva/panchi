@@ -5,6 +5,7 @@ matplotlib.use("Agg")
 import pytest
 
 from panchi import Matrix, Vector, VectorSpace
+from panchi.symbolic import sqrt
 from panchi.visualizations import Animator3D
 
 # ==================== ANIMATOR3D INITIALIZATION ====================
@@ -319,3 +320,36 @@ class TestInlineNotebookPlayback3D:
             Vector([1, 0, 0]), Vector([0, 1, 0]), frames=5, interval=100
         )
         assert result is None
+
+
+class TestExactIrrationalInputs3D:
+    """QuadraticNumber components are plotted in R³."""
+
+    def test_plot_vectors(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_vectors([Vector([1 + sqrt(2), 1, 0]), Vector([0, sqrt(3), 1])])
+        assert (tmp_path / "plot_vectors.png").exists()
+
+    def test_animate_addition(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_addition(
+            Vector([sqrt(2), 1, 0]), Vector([0, 1, sqrt(2)]), frames=5, interval=100
+        )
+        assert (tmp_path / "animate_addition.gif").exists()
+
+    def test_animate_scaling_by_irrational(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_scaling(
+            Vector([sqrt(2), 1, 1]), scale_factor=sqrt(2), frames=5, interval=100
+        )
+        assert (tmp_path / "animate_scaling.gif").exists()
+
+    def test_plot_span(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        animator.plot_span([Vector([sqrt(2), 1, 0]), Vector([0, 1, sqrt(3)])])
+        assert (tmp_path / "plot_span.png").exists()
+
+    def test_rejects_complex_components(self):
+        animator = Animator3D()
+        with pytest.raises(TypeError, match="real components"):
+            animator.plot_vectors([Vector([sqrt(-1), 1, 0])])

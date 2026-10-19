@@ -5,7 +5,6 @@ from __future__ import annotations
 import panchi.utils
 from panchi.utils.latex import (
     matrix_to_latex,
-    row_op_to_latex,
     scalar_to_latex,
     vector_to_latex,
 )
@@ -20,7 +19,6 @@ def test_utils_package_exports() -> None:
     assert panchi.utils.scalar_to_latex is scalar_to_latex
     assert panchi.utils.matrix_to_latex is matrix_to_latex
     assert panchi.utils.vector_to_latex is vector_to_latex
-    assert panchi.utils.row_op_to_latex is row_op_to_latex
 
 
 def test_parse_scalar_from_utils() -> None:
