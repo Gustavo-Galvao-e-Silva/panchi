@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from panchi.algorithms.vector_space_operations import basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -32,6 +33,22 @@ def _build_backend(
             include_extra_files=include_extra_files,
         )
     raise ValueError(f"Unknown backend '{backend}'. Choose 'matplotlib' or 'manim'.")
+
+
+def _to_float_vector(vector: Vector) -> Vector:
+    """Return a float copy of ``vector`` for drawing."""
+    try:
+        return Vector([float(x) for x in vector.data])
+    except TypeError:
+        raise TypeError(
+            f"Cannot plot {vector}: visualizations need real components."
+        ) from None
+
+
+def _to_float_space(space: VectorSpace) -> VectorSpace:
+    """Return a float ``VectorSpace`` spanned by the exact basis of ``space``."""
+    vectors = basis(space) or list(space.data)
+    return VectorSpace([_to_float_vector(v) for v in vectors])
 
 
 def _resolve_single_span(
@@ -137,7 +154,7 @@ class Animator2D:
         """
         self._validate_2d(vectors)
         self._backend.plot_vectors(
-            vectors,
+            [_to_float_vector(v) for v in vectors],
             colors=colors,
             labels=labels,
             grid=grid,
@@ -173,8 +190,8 @@ class Animator2D:
         """
         self._validate_2d([v1, v2])
         return self._backend.animate_addition(
-            v1,
-            v2,
+            _to_float_vector(v1),
+            _to_float_vector(v2),
             frames=frames,
             interval=interval,
             name=name or "animate_addition",
@@ -210,7 +227,7 @@ class Animator2D:
         """
         self._validate_2d([vector])
         return self._backend.animate_scaling(
-            vector,
+            _to_float_vector(vector),
             scale_factor,
             frames=frames,
             interval=interval,
@@ -254,7 +271,7 @@ class Animator2D:
             self._validate_2d(vectors)
         return self._backend.animate_transform(
             matrix,
-            vectors=vectors,
+            vectors=None if vectors is None else [_to_float_vector(v) for v in vectors],
             frames=frames,
             interval=interval,
             name=name or "animate_transform",
@@ -301,7 +318,7 @@ class Animator2D:
         for vectors, _ in spans:
             self._validate_2d(vectors)
         self._backend.plot_span(
-            [space for _, space in spans],
+            [_to_float_space(space) for _, space in spans],
             colors=colors,
             labels=labels,
             grid=grid,
@@ -419,7 +436,7 @@ class Animator3D:
         """
         self._validate_3d(vectors)
         self._backend.plot_vectors(
-            vectors,
+            [_to_float_vector(v) for v in vectors],
             colors=colors,
             labels=labels,
             grid=grid,
@@ -455,8 +472,8 @@ class Animator3D:
         """
         self._validate_3d([v1, v2])
         return self._backend.animate_addition(
-            v1,
-            v2,
+            _to_float_vector(v1),
+            _to_float_vector(v2),
             frames=frames,
             interval=interval,
             name=name or "animate_addition",
@@ -492,7 +509,7 @@ class Animator3D:
         """
         self._validate_3d([vector])
         return self._backend.animate_scaling(
-            vector,
+            _to_float_vector(vector),
             scale_factor,
             frames=frames,
             interval=interval,
@@ -536,7 +553,7 @@ class Animator3D:
             self._validate_3d(vectors)
         return self._backend.animate_transform(
             matrix,
-            vectors=vectors,
+            vectors=None if vectors is None else [_to_float_vector(v) for v in vectors],
             frames=frames,
             interval=interval,
             name=name or "animate_transform",
@@ -584,7 +601,7 @@ class Animator3D:
         for vectors, _ in spans:
             self._validate_3d(vectors)
         self._backend.plot_span(
-            [space for _, space in spans],
+            [_to_float_space(space) for _, space in spans],
             colors=colors,
             labels=labels,
             grid=grid,

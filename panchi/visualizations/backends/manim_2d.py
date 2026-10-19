@@ -23,6 +23,7 @@ from panchi.algorithms.vector_space_operations import basis as compute_basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.utils.latex import scalar_to_latex
 from panchi.visualizations.backends.manim_base import (
     _EPSILON,
     ADDITION_COLORS,
@@ -302,9 +303,10 @@ class _ManimBackend2D(_ManimBackendBase):
         colors: list[str] | None = None,
     ) -> None:
         color_start, color_end = _resolve_colors(colors, SCALING_COLORS)
+        factor = float(scale_factor)
 
         v_coords = (vector[0], vector[1])
-        scaled_coords = (vector[0] * scale_factor, vector[1] * scale_factor)
+        scaled_coords = (vector[0] * factor, vector[1] * factor)
 
         def build(scene: _VectorScene) -> None:
             range_val = _axis_range((*v_coords, *scaled_coords))
@@ -318,7 +320,10 @@ class _ManimBackend2D(_ManimBackendBase):
                 scene.axes, (0, 0), scaled_coords, color_end, stroke_width=7
             )
             scale_text = _label(
-                f"{scale_factor} \\cdot v", color_end, scaled_arrow, scaled_coords
+                f"{scalar_to_latex(scale_factor)} \\cdot v",
+                color_end,
+                scaled_arrow,
+                scaled_coords,
             )
             scene.play(
                 Transform(arrow, scaled_arrow),
