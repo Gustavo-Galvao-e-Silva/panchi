@@ -61,6 +61,7 @@ nav:
     - Linear Transformations: user-guide/transformations.md
     - Row Operations: user-guide/row-operations.md
     - Row Reduction: user-guide/row-reduction.md
+    - Determinants: user-guide/determinants.md
     - Decompositions: user-guide/decompositions.md
     - Eigenvalues: user-guide/eigenvalues.md
     - Solving Systems: user-guide/solving-systems.md
