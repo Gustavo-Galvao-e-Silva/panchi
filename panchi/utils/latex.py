@@ -47,12 +47,15 @@ def scalar_to_latex(value: Scalar) -> str:
     return str(value)
 
 
-def matrix_to_latex(matrix: Matrix) -> str:
-    """Render a Matrix as a ``bmatrix`` (no surrounding math delimiters)."""
+def matrix_to_latex(matrix: Matrix, environment: str = "bmatrix") -> str:
+    """Render a Matrix as a ``bmatrix`` (no surrounding math delimiters).
+
+    Pass ``environment="vmatrix"`` to draw determinant bars instead.
+    """
     rows = " \\\\ ".join(
         " & ".join(scalar_to_latex(x) for x in row) for row in matrix.data
     )
-    return f"\\begin{{bmatrix}} {rows} \\end{{bmatrix}}"
+    return f"\\begin{{{environment}}} {rows} \\end{{{environment}}}"
 
 
 def vector_to_latex(vector: Vector) -> str:

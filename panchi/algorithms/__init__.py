@@ -13,7 +13,11 @@ find solutions to linear systems by reducing augmented matrices.
 from panchi.algorithms.decompositions import lu, qr_decomposition
 from panchi.algorithms.eigen import characteristic_polynomial, eigen, eigen_qr
 from panchi.algorithms.matrix_operations import (
+    adjugate,
+    cofactor_expansion,
+    cramer,
     determinant,
+    determinant_by_reduction,
     determinant_lu,
     inverse,
     is_invertible,
@@ -24,6 +28,10 @@ from panchi.algorithms.matrix_operations import (
 )
 from panchi.algorithms.reductions import Reduction, ref, rref
 from panchi.algorithms.results import (
+    CofactorExpansion,
+    CofactorTerm,
+    CramerResult,
+    DeterminantReduction,
     EigenResult,
     InverseResult,
     LUDecomposition,
@@ -63,6 +71,10 @@ __all__ = [
     "LUDecomposition",
     "QRDecomposition",
     "InverseResult",
+    "CofactorExpansion",
+    "CofactorTerm",
+    "DeterminantReduction",
+    "CramerResult",
     "Solution",
     "QREigenResult",
     "EigenResult",
@@ -70,6 +82,10 @@ __all__ = [
     "solve",
     "determinant",
     "determinant_lu",
+    "determinant_by_reduction",
+    "cofactor_expansion",
+    "adjugate",
+    "cramer",
     "eigen_qr",
     "eigen",
     "characteristic_polynomial",

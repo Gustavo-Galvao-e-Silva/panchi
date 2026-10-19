@@ -95,6 +95,9 @@ property — it is an algorithm, so it lives in `panchi.algorithms` rather than 
 print(pan.determinant(A))  # -2  — cofactor expansion, exact (square only)
 ```
 
+To see the working (cofactor expansion, row reduction, the adjugate and Cramer's rule), see
+[Determinants](determinants.md).
+
 ## Rank, invertibility, and symmetry
 
 Rank and its companions are free functions too. `rank` counts the linearly independent rows

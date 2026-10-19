@@ -6,6 +6,7 @@ from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
 from panchi.algorithms import InverseResult, Solution, EigenResult, QREigenResult
 from panchi.algorithms import inverse, solve, determinant, determinant_lu
+from panchi.algorithms import cofactor_expansion, determinant_by_reduction, adjugate, cramer
 from panchi.algorithms import eigen, characteristic_polynomial, eigen_qr
 from panchi.algorithms import rank, nullity, is_invertible, is_symmetric
 from panchi.algorithms import span, standard_basis, column_space, row_space, null_space
@@ -50,6 +51,16 @@ from panchi.algorithms import gram_schmidt, vector_projection
 ::: panchi.algorithms.determinant
 
 ::: panchi.algorithms.determinant_lu
+
+## Determinants step by step
+
+::: panchi.algorithms.cofactor_expansion
+
+::: panchi.algorithms.determinant_by_reduction
+
+::: panchi.algorithms.adjugate
+
+::: panchi.algorithms.cramer
 
 ## Matrix properties
 
@@ -98,6 +109,14 @@ from panchi.algorithms import gram_schmidt, vector_projection
 ::: panchi.algorithms.QRDecomposition
 
 ::: panchi.algorithms.InverseResult
+
+::: panchi.algorithms.CofactorExpansion
+
+::: panchi.algorithms.CofactorTerm
+
+::: panchi.algorithms.DeterminantReduction
+
+::: panchi.algorithms.CramerResult
 
 ::: panchi.algorithms.Solution
 
