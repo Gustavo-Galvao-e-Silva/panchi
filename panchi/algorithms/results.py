@@ -518,6 +518,354 @@ class InverseResult:
         )
 
 
+def _factor(value: Scalar) -> str:
+    """Render a scalar for a product, wrapping negatives in parentheses."""
+    text = str(value)
+    return f"({text})" if text.startswith("-") else text
+
+
+class CofactorTerm:
+    """
+    One term of a cofactor expansion: (-1)^(i+j) · a_ij · det(M_ij).
+
+    Parameters
+    ----------
+    row : int
+        The row index i of the entry (0-based).
+    col : int
+        The column index j of the entry (0-based).
+    entry : Scalar
+        The entry a_ij.
+    minor : Matrix
+        M_ij, the matrix left after deleting row i and column j.
+    minor_determinant : Scalar
+        det(M_ij).
+    """
+
+    def __init__(
+        self,
+        row: int,
+        col: int,
+        entry: Scalar,
+        minor: Matrix,
+        minor_determinant: Scalar,
+    ) -> None:
+        self.row = row
+        self.col = col
+        self.entry = entry
+        self.minor = minor
+        self.minor_determinant = minor_determinant
+
+    @property
+    def sign(self) -> int:
+        """The checkerboard sign (-1)^(i+j)."""
+        return (-1) ** (self.row + self.col)
+
+    @property
+    def cofactor(self) -> Scalar:
+        """The cofactor C_ij = (-1)^(i+j) · det(M_ij)."""
+        return self.sign * self.minor_determinant
+
+    @property
+    def value(self) -> Scalar:
+        """This term's contribution to the determinant, a_ij · C_ij."""
+        return self.entry * self.cofactor
+
+    def __repr__(self) -> str:
+        return (
+            f"CofactorTerm(row={self.row}, col={self.col}, entry={self.entry}, "
+            f"minor_determinant={self.minor_determinant})"
+        )
+
+
+class CofactorExpansion:
+    """
+    The determinant of a square matrix computed by cofactor expansion.
+
+    Expanding along row i gives det(A) = Σ_j (-1)^(i+j) · a_ij · det(M_ij),
+    and along column j gives det(A) = Σ_i (-1)^(i+j) · a_ij · det(M_ij). Every
+    term is kept, including those whose entry is zero, so the derivation can
+    be read off directly.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square matrix whose determinant was computed.
+    along : str
+        "row" or "column".
+    index : int
+        The row or column expanded along (0-based).
+    terms : list[CofactorTerm]
+        One term per entry of that row or column, in order.
+
+    Examples
+    --------
+    >>> result = cofactor_expansion(Matrix([[2, 1, 0], [1, 3, 1], [0, 1, 4]]))
+    >>> result.determinant
+    18
+    >>> [term.value for term in result.terms]
+    [22, -4, 0]
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        along: str,
+        index: int,
+        terms: list[CofactorTerm],
+    ) -> None:
+        self.original = original
+        self.along = along
+        self.index = index
+        self.terms = terms
+
+    @property
+    def determinant(self) -> Scalar:
+        """det(A), the sum of every term."""
+        return sum(term.value for term in self.terms)
+
+    def __str__(self) -> str:
+        """
+        Return the expansion written out term by term.
+
+        Examples
+        --------
+        >>> print(cofactor_expansion(Matrix([[2, 1, 0], [1, 3, 1], [0, 1, 4]])))
+        Cofactor expansion of 3×3 matrix along row 0
+          (+1) · 2 · 11 = 22
+          (-1) · 1 · 4 = -4
+          (+1) · 0 · 1 = 0
+        det(A) = 18
+        """
+        lines = [
+            f"Cofactor expansion of {self.original.rows}×{self.original.cols} "
+            f"matrix along {self.along} {self.index}"
+        ]
+        for term in self.terms:
+            lines.append(
+                f"  ({term.sign:+d}) · {_factor(term.entry)} · "
+                f"{_factor(term.minor_determinant)} = {term.value}"
+            )
+        lines.append(f"det(A) = {self.determinant}")
+        return "\n".join(lines)
+
+    def __repr__(self) -> str:
+        return (
+            f"CofactorExpansion("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"along={self.along} {self.index}, "
+            f"determinant={self.determinant})"
+        )
+
+    def _repr_latex_(self) -> str:
+        """Render the expansion with each minor drawn as a determinant."""
+        expanded = " + ".join(
+            f"({term.sign:+d})\\,({scalar_to_latex(term.entry)})"
+            f"{matrix_to_latex(term.minor, 'vmatrix')}"
+            for term in self.terms
+        )
+        evaluated = " + ".join(
+            f"({term.sign:+d})({scalar_to_latex(term.entry)})"
+            f"({scalar_to_latex(term.minor_determinant)})"
+            for term in self.terms
+        )
+        return aligned_to_latex(
+            [
+                f"{matrix_to_latex(self.original, 'vmatrix')} &= {expanded}",
+                f"&= {evaluated}",
+                f"&= {scalar_to_latex(self.determinant)}",
+            ]
+        )
+
+
+class DeterminantReduction:
+    """
+    The determinant of a square matrix computed by row reduction.
+
+    Reduces A to a row echelon form U using only row swaps and row
+    additions. Adding a multiple of one row to another leaves the
+    determinant unchanged and each swap flips its sign, so
+    det(A) = (-1)^swaps · det(U), and det(U) is the product of its diagonal
+    because U is upper triangular.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square matrix whose determinant was computed.
+    reduction : Reduction
+        The REF reduction of original, with every step applied.
+    swaps : int
+        The number of row swaps among the reduction steps.
+
+    Examples
+    --------
+    >>> result = determinant_by_reduction(Matrix([[0, 2], [3, 4]]))
+    >>> result.swaps, result.diagonal, result.determinant
+    (1, [3, 2], -6)
+    """
+
+    def __init__(self, original: Matrix, reduction: Reduction, swaps: int) -> None:
+        self.original = original
+        self.reduction = reduction
+        self.swaps = swaps
+
+    @property
+    def diagonal(self) -> list[Scalar]:
+        """The diagonal entries of the row echelon form U."""
+        return [self.reduction.result[i][i] for i in range(self.original.rows)]
+
+    @property
+    def determinant(self) -> Scalar:
+        """det(A) = (-1)^swaps · (product of the diagonal of U)."""
+        product = 1
+        for value in self.diagonal:
+            product *= value
+        return (-1) ** self.swaps * product
+
+    def __str__(self) -> str:
+        """
+        Return the reduction summary and the final product.
+
+        Examples
+        --------
+        >>> print(determinant_by_reduction(Matrix([[0, 2], [3, 4]])))
+        Determinant of 2×2 matrix by row reduction — 1 step, 1 row swap
+        U =
+        [[3, 4],
+         [0, 2]]
+        det(A) = (-1)^1 · 3 · 2 = -6
+        """
+        product = " · ".join(_factor(value) for value in self.diagonal)
+        steps = len(self.reduction.steps)
+        return (
+            f"Determinant of {self.original.rows}×{self.original.cols} matrix "
+            f"by row reduction — {steps} step{'' if steps == 1 else 's'}, "
+            f"{self.swaps} row swap{'' if self.swaps == 1 else 's'}\n"
+            f"U =\n{self.reduction.result}\n"
+            f"det(A) = (-1)^{self.swaps} · {product} = {self.determinant}"
+        )
+
+    def __repr__(self) -> str:
+        return (
+            f"DeterminantReduction("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"swaps={self.swaps}, "
+            f"determinant={self.determinant})"
+        )
+
+    def _repr_latex_(self) -> str:
+        """Render det(A) = (-1)^s det(U) = (-1)^s · d1 · d2 ... = det."""
+        product = "".join(f"({scalar_to_latex(value)})" for value in self.diagonal)
+        return aligned_to_latex(
+            [
+                f"{matrix_to_latex(self.original, 'vmatrix')} "
+                f"&= (-1)^{{{self.swaps}}}"
+                f"{matrix_to_latex(self.reduction.result, 'vmatrix')}",
+                f"&= (-1)^{{{self.swaps}}}{product}",
+                f"&= {scalar_to_latex(self.determinant)}",
+            ]
+        )
+
+
+class CramerResult:
+    """
+    The solution of a square system Ax = b by Cramer's rule.
+
+    Each unknown is x_i = det(A_i) / det(A), where A_i is A with column i
+    replaced by b. Only defined when det(A) ≠ 0.
+
+    Parameters
+    ----------
+    original : Matrix
+        The square coefficient matrix A.
+    b : Vector
+        The right-hand side vector.
+    determinant : Scalar
+        det(A), which is non-zero.
+    replaced : list[Matrix]
+        The matrices A_0, A_1, ..., each with one column replaced by b.
+    replaced_determinants : list[Scalar]
+        det(A_i) for each replaced matrix, in order.
+    solution : Vector
+        The unique solution x.
+
+    Examples
+    --------
+    >>> result = cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5]))
+    >>> result.replaced_determinants
+    [4, 7]
+    >>> result.solution
+    [0.8, 1.4]
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        b: Vector,
+        determinant: Scalar,
+        replaced: list[Matrix],
+        replaced_determinants: list[Scalar],
+        solution: Vector,
+    ) -> None:
+        self.original = original
+        self.b = b
+        self.determinant = determinant
+        self.replaced = replaced
+        self.replaced_determinants = replaced_determinants
+        self.solution = solution
+
+    def __str__(self) -> str:
+        """
+        Return each x_i = det(A_i) / det(A) and the solution.
+
+        Examples
+        --------
+        >>> print(cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5])))
+        Cramer's rule for 2×2 system, det(A) = 5
+          x0 = det(A0) / det(A) = 4 / 5 = 0.8
+          x1 = det(A1) / det(A) = 7 / 5 = 1.4
+        x = [0.8, 1.4]
+        """
+        lines = [
+            f"Cramer's rule for {self.original.rows}×{self.original.cols} system, "
+            f"det(A) = {self.determinant}"
+        ]
+        for i, (value, x) in enumerate(
+            zip(self.replaced_determinants, self.solution, strict=True)
+        ):
+            lines.append(
+                f"  x{i} = det(A{i}) / det(A) = {value} / {self.determinant} = {x}"
+            )
+        lines.append(f"x = {self.solution}")
+        return "\n".join(lines)
+
+    def __repr__(self) -> str:
+        return (
+            f"CramerResult("
+            f"shape={self.original.rows}×{self.original.cols}, "
+            f"solution={self.solution})"
+        )
+
+    def _repr_latex_(self) -> str:
+        """Render x_i = |A_i| / |A| = value for every unknown."""
+        denominator = matrix_to_latex(self.original, "vmatrix")
+        lines = [
+            f"x_{{{i}}} &= \\frac{{{matrix_to_latex(matrix, 'vmatrix')}}}"
+            f"{{{denominator}}} = "
+            f"\\frac{{{scalar_to_latex(value)}}}{{{scalar_to_latex(self.determinant)}}}"
+            f" = {scalar_to_latex(x)}"
+            for i, (matrix, value, x) in enumerate(
+                zip(
+                    self.replaced,
+                    self.replaced_determinants,
+                    self.solution,
+                    strict=True,
+                )
+            )
+        ]
+        return aligned_to_latex(lines)
+
+
 class Solution:
     """
     The result of solving a linear system Ax = b.

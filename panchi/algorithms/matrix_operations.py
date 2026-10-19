@@ -1,6 +1,14 @@
 from panchi.algorithms.decompositions import lu
 from panchi.algorithms.reductions import ref, rref
-from panchi.algorithms.results import InverseResult, Reduction, Solution
+from panchi.algorithms.results import (
+    CofactorExpansion,
+    CofactorTerm,
+    CramerResult,
+    DeterminantReduction,
+    InverseResult,
+    Reduction,
+    Solution,
+)
 from panchi.algorithms.row_operations import RowOperation, RowSwap
 from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
@@ -332,6 +340,211 @@ def determinant(matrix: Matrix) -> Scalar:
             det += sign * entry * determinant(_submatrix(matrix, 0, j))
 
     return det
+
+
+def cofactor_expansion(
+    matrix: Matrix, along: str = "row", index: int = 0
+) -> CofactorExpansion:
+    """
+    Compute the determinant by cofactor expansion, keeping every term.
+
+    Expands along one row or column: each entry a_ij is multiplied by its
+    cofactor (-1)^(i+j) · det(M_ij), where M_ij is the matrix left after
+    deleting row i and column j, and the terms are summed. Choosing a row or
+    column with many zeros makes the hand computation shortest; the result
+    is the same whichever line is chosen.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix to expand. Must be at least 2×2.
+    along : str, optional
+        "row" (default) or "column".
+    index : int, optional
+        Which row or column to expand along (0-based). Defaults to 0.
+
+    Returns
+    -------
+    CofactorExpansion
+        Every term of the expansion and the determinant.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance, or index is not an integer.
+    ValueError
+        If matrix is not square or is 1×1, along is not "row" or "column",
+        or index is out of range.
+
+    Examples
+    --------
+    >>> A = Matrix([[2, 1, 0], [1, 3, 1], [0, 1, 4]])
+    >>> cofactor_expansion(A).determinant
+    18
+    >>> cofactor_expansion(A, along="column", index=2).determinant
+    18
+    """
+    _require_square_matrix(matrix, "cofactor expansion")
+    n = matrix.rows
+    if n < 2:
+        raise ValueError(
+            "Cofactor expansion needs at least a 2×2 matrix. "
+            "The determinant of a 1×1 matrix is its only entry."
+        )
+    if along not in ("row", "column"):
+        raise ValueError(f"along must be 'row' or 'column'. Got {along!r}.")
+    if not isinstance(index, int):
+        raise TypeError(f"index must be an integer. Got {type(index).__name__}.")
+    if not (0 <= index < n):
+        raise ValueError(
+            f"{along.capitalize()} index {index} is out of range for a "
+            f"{n}×{n} matrix. Valid indices are 0 to {n - 1}."
+        )
+
+    terms = []
+    for k in range(n):
+        i, j = (index, k) if along == "row" else (k, index)
+        minor = _submatrix(matrix, i, j)
+        terms.append(CofactorTerm(i, j, matrix[i][j], minor, determinant(minor)))
+    return CofactorExpansion(matrix, along, index, terms)
+
+
+def determinant_by_reduction(matrix: Matrix) -> DeterminantReduction:
+    """
+    Compute the determinant exactly by reducing to row echelon form.
+
+    Reduces the matrix with ref(), which uses only row swaps and row
+    additions. Row additions leave the determinant unchanged and each swap
+    flips its sign, so det(A) = (-1)^swaps times the product of the
+    diagonal of the echelon form. This takes O(n³) work instead of the O(n!)
+    of cofactor expansion and stays exact for int and Fraction entries.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix whose determinant will be computed.
+
+    Returns
+    -------
+    DeterminantReduction
+        The reduction, the number of swaps, and the determinant.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> determinant_by_reduction(Matrix([[0, 2], [3, 4]])).determinant
+    -6
+    """
+    _require_square_matrix(matrix, "determinant")
+    reduction = ref(matrix)
+    swaps = sum(1 for step in reduction.steps if isinstance(step, RowSwap))
+    return DeterminantReduction(matrix, reduction, swaps)
+
+
+def adjugate(matrix: Matrix) -> Matrix:
+    """
+    Return the adjugate (classical adjoint) of a square matrix.
+
+    The adjugate is the transpose of the cofactor matrix, whose entry (i, j)
+    is (-1)^(i+j) · det(M_ij). It satisfies A @ adj(A) == det(A) · I, so
+    when det(A) ≠ 0 the inverse is adj(A) / det(A).
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix.
+
+    Returns
+    -------
+    Matrix
+        The adjugate, with the same shape as matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> print(adjugate(Matrix([[1, 2], [3, 4]])))
+    [[4, -2],
+     [-3, 1]]
+    """
+    _require_square_matrix(matrix, "adjugate")
+    n = matrix.rows
+    if n == 1:
+        return Matrix([[1]])
+    cofactors = [
+        [(-1) ** (i + j) * determinant(_submatrix(matrix, i, j)) for j in range(n)]
+        for i in range(n)
+    ]
+    return Matrix(cofactors).T
+
+
+def cramer(A: Matrix, b: Vector) -> CramerResult:
+    """
+    Solve a square system Ax = b with Cramer's rule.
+
+    Each unknown is x_i = det(A_i) / det(A), where A_i is A with column i
+    replaced by b. Only works when det(A) ≠ 0, i.e. when the system has a
+    unique solution.
+
+    Parameters
+    ----------
+    A : Matrix
+        The square coefficient matrix.
+    b : Vector
+        The right-hand side, with one component per row of A.
+
+    Returns
+    -------
+    CramerResult
+        The replaced matrices, their determinants, and the solution.
+
+    Raises
+    ------
+    TypeError
+        If A is not a Matrix or b is not a Vector.
+    ValueError
+        If A is not square, b has the wrong dimension, or det(A) is zero.
+
+    Examples
+    --------
+    >>> cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5])).solution
+    [0.8, 1.4]
+    """
+    _require_square_matrix(A, "Cramer's rule solution")
+    if not isinstance(b, Vector):
+        raise TypeError(f"Expected b to be a Vector, but got {type(b).__name__}.")
+    n = A.rows
+    if b.dims != n:
+        raise ValueError(
+            f"b must have one component per row of A. "
+            f"A has {n} rows but b has {b.dims} components."
+        )
+
+    det = determinant(A)
+    if det == 0:
+        raise ValueError(
+            "Cramer's rule needs det(A) ≠ 0, but det(A) = 0. The system has "
+            "either no solution or infinitely many; use solve() instead."
+        )
+
+    replaced = [
+        Matrix([[b[i] if j == col else A[i][j] for j in range(n)] for i in range(n)])
+        for col in range(n)
+    ]
+    replaced_determinants = [determinant(m) for m in replaced]
+    solution = Vector([value / det for value in replaced_determinants])
+    return CramerResult(A, b, det, replaced, replaced_determinants, solution)
 
 
 def rank(obj: Matrix | VectorSpace) -> int:

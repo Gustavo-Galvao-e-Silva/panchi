@@ -12,7 +12,11 @@ from fractions import Fraction
 from panchi.algorithms.decompositions import qr_decomposition
 from panchi.algorithms.eigen import characteristic_polynomial, eigen, eigen_qr
 from panchi.algorithms.matrix_operations import (
+    adjugate,
+    cofactor_expansion,
+    cramer,
     determinant,
+    determinant_by_reduction,
     determinant_lu,
     inverse,
     is_invertible,
@@ -102,6 +106,10 @@ __all__ = [
     "solve",
     "determinant",
     "determinant_lu",
+    "determinant_by_reduction",
+    "cofactor_expansion",
+    "adjugate",
+    "cramer",
     "qr_decomposition",
     "eigen_qr",
     "eigen",
