@@ -12,17 +12,17 @@ except ImportError:
     MANIM_AVAILABLE = False
     raise
 
-from panchi.visualizations.backends.base import _BaseBackend
-
-DEFAULT_COLORS = ["#805B49", "#FFB592", "#3E7C7B", "#D4A15E", "#45423F"]
-
-# Per-method default color roles, shared across dimensions. Overridable via
-# ``colors=`` / ``span_color=``.
-ADDITION_COLORS = ("#805B49", "#FFB592", "#3E7C7B")  # v1, v2, result
-SCALING_COLORS = ("#805B49", "#FFB592")  # original, scaled
-TRANSFORM_COLORS = ("#805B49", "#FFB592")  # e1, e2 (2D)
-TRANSFORM_COLORS_3D = ("#805B49", "#FFB592", "#3E7C7B")  # e1, e2, e3 (3D)
-SPAN_COLOR = "#805B49"
+from panchi.visualizations.backends.base import (  # noqa: F401
+    ADDITION_COLORS,
+    DEFAULT_COLORS,
+    SCALING_COLORS,
+    SPAN_COLOR,
+    TRANSFORM_COLORS,
+    TRANSFORM_COLORS_3D,
+    _BaseBackend,
+    _resolve_colors,
+    _resolve_n_colors,
+)
 
 AXIS_COLOR = manim.GREY_B
 GUIDE_COLOR = manim.GREY
@@ -42,18 +42,6 @@ _QUALITY_MAP = {
 # Scratch/cache subdirectories manim writes alongside the final ``<name>.mp4``.
 # Removed after rendering unless ``include_extra_files`` is set.
 _INTERMEDIATE_DIRS = ("partial_movie_files", "Tex", "texts", "images")
-
-
-def _resolve_colors(colors: list[str] | None, defaults: tuple) -> list:
-    """Fill in per-role colors positionally, keeping defaults for omitted roles."""
-    colors = colors or []
-    return [colors[i] if i < len(colors) else defaults[i] for i in range(len(defaults))]
-
-
-def _resolve_n_colors(colors: list[str] | None, n: int, defaults: tuple) -> list:
-    """Return ``n`` colors, cycling the palette when more are needed than given."""
-    palette = list(colors) if colors else list(defaults) or list(DEFAULT_COLORS)
-    return [palette[i % len(palette)] for i in range(n)]
 
 
 def _axis_range(coords, padding: float = AXIS_PADDING) -> int:
