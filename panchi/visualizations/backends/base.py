@@ -55,7 +55,7 @@ class _BaseBackend(ABC):
         labels: list[str] | None,
         grid: bool,
         name: str,
-    ) -> None: ...
+    ) -> object | None: ...
 
     @abstractmethod
     def animate_addition(
@@ -66,7 +66,7 @@ class _BaseBackend(ABC):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None: ...
+    ) -> object | None: ...
 
     @abstractmethod
     def animate_scaling(
@@ -77,7 +77,7 @@ class _BaseBackend(ABC):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None: ...
+    ) -> object | None: ...
 
     @abstractmethod
     def animate_transform(
@@ -87,7 +87,7 @@ class _BaseBackend(ABC):
         interval: int,
         name: str,
         colors: list[str] | None = None,
-    ) -> None: ...
+    ) -> object | None: ...
 
     @abstractmethod
     def plot_span(
@@ -98,4 +98,4 @@ class _BaseBackend(ABC):
         grid: bool,
         name: str,
         span_color: str | None = None,
-    ) -> None: ...
+    ) -> object | None: ...

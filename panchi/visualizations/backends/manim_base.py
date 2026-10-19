@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import shutil
 from collections.abc import Callable
 from pathlib import Path
@@ -49,6 +50,30 @@ def _axis_range(coords, padding: float = AXIS_PADDING) -> int:
     return int(max(abs(c) for c in coords) * padding) + 1
 
 
+class _ManimOutput:
+    """A rendered manim file that plays inline in Jupyter and Colab.
+
+    Returned by every manim backend method. Jupyter renders it through
+    ``_repr_html_``, embedding the file so the notebook keeps working after
+    the file moves; elsewhere it is a handle on the saved file, ``path``.
+    """
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    def __repr__(self) -> str:
+        return f"ManimOutput('{self.path}')"
+
+    def _repr_html_(self) -> str:
+        data = base64.b64encode(self.path.read_bytes()).decode("ascii")
+        if self.path.suffix == ".gif":
+            return f'<img src="data:image/gif;base64,{data}">'
+        return (
+            f"<video autoplay loop muted controls playsinline "
+            f'src="data:video/mp4;base64,{data}"></video>'
+        )
+
+
 class _BuilderSceneMixin:
     """Delegates a scene's ``construct`` to a supplied builder callable.
 
@@ -76,14 +101,20 @@ class _ManimBackendBase(_BaseBackend):
     _function_scene_cls: type
 
     def __init__(
-        self, save_path: Path | None, quality: str, include_extra_files: bool
+        self,
+        save_path: Path | None,
+        quality: str,
+        include_extra_files: bool,
+        output_format: str = "mp4",
     ) -> None:
         super().__init__(save_path=save_path, quality=quality)
         self.include_extra_files = include_extra_files
+        self.output_format = output_format
 
     def _configure(self, name: str) -> None:
         manim.config.quality = _QUALITY_MAP.get(self.quality, "medium_quality")
         manim.config.disable_caching = True
+        manim.config.format = self.output_format
         if self.save_path:
             self.save_path.mkdir(parents=True, exist_ok=True)
             manim.config.media_dir = str(self.save_path)
@@ -91,9 +122,9 @@ class _ManimBackendBase(_BaseBackend):
             manim.config.output_file = name
 
     def _cleanup(self) -> None:
-        """Remove manim's intermediary scratch dirs, keeping the final ``.mp4``.
+        """Remove manim's intermediary scratch dirs, keeping the final file.
 
-        The rendered video lands directly in ``save_path``; manim also leaves
+        The rendered ``.mp4`` or ``.gif`` lands directly in ``save_path``; manim also leaves
         ``Tex/``, ``images/`` and ``partial_movie_files/`` behind. Those are
         deleted unless the user opted into ``include_extra_files``.
         """
@@ -102,8 +133,13 @@ class _ManimBackendBase(_BaseBackend):
         for sub in _INTERMEDIATE_DIRS:
             shutil.rmtree(self.save_path / sub, ignore_errors=True)
 
-    def _render(self, name: str, builder: Callable) -> None:
-        """Configure output, render the builder as a scene, then clean up."""
+    def _render(self, name: str, builder: Callable) -> _ManimOutput:
+        """Render the builder as a scene and return the saved file."""
         self._configure(name)
-        self._function_scene_cls(builder).render()
+        scene = self._function_scene_cls(builder)
+        scene.render()
         self._cleanup()
+        writer = scene.renderer.file_writer
+        if self.output_format == "gif":
+            return _ManimOutput(Path(writer.gif_file_path))
+        return _ManimOutput(Path(writer.movie_file_path))
