@@ -5,6 +5,7 @@ from fractions import Fraction
 from typing import overload
 
 from panchi.primitives.vector import Vector
+from panchi.utils.deprecation import warn_deprecated
 from panchi.utils.latex import matrix_to_latex
 from panchi.utils.types import SCALAR_TYPES, Scalar, parse_scalar
 
@@ -607,7 +608,8 @@ class Matrix:
             )
 
         if exponent == 0:
-            return self.left_identity
+            n = self.rows
+            return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
 
         if exponent == 1:
             return self.copy()
@@ -811,6 +813,9 @@ class Matrix:
         """
         Get the left identity matrix for this matrix.
 
+        Deprecated since 3.1.0. Use ``identity(A.rows)`` instead. Removed in
+        4.0.
+
         The left identity is a square matrix with the same number of rows
         as this matrix. For any matrix A, I_left × A = A.
 
@@ -827,6 +832,7 @@ class Matrix:
         [[1, 0],
          [0, 1]]
         """
+        warn_deprecated("Matrix.left_identity", "identity(A.rows)")
         n = self.rows
         return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
 
@@ -834,6 +840,9 @@ class Matrix:
     def right_identity(self) -> Matrix:
         """
         Get the right identity matrix for this matrix.
+
+        Deprecated since 3.1.0. Use ``identity(A.cols)`` instead. Removed in
+        4.0.
 
         The right identity is a square matrix with the same number of columns
         as this matrix. For any matrix A, A × I_right = A.
@@ -852,6 +861,7 @@ class Matrix:
          [0, 1, 0],
          [0, 0, 1]]
         """
+        warn_deprecated("Matrix.right_identity", "identity(A.cols)")
         n = self.cols
         return Matrix([[1 if i == j else 0 for j in range(n)] for i in range(n)])
 
@@ -961,6 +971,8 @@ class Matrix:
         """
         Apply this matrix as a linear transformation to a vector.
 
+        Deprecated since 3.1.0. Use ``A @ v`` instead. Removed in 4.0.
+
         This is the fundamental purpose of a matrix: transforming vectors
         in space. Equivalent to matrix-vector multiplication.
 
@@ -989,6 +1001,7 @@ class Matrix:
         >>> print(transformed)
         [2, 3]
         """
+        warn_deprecated("Matrix.transform(v)", "A @ v")
         if not isinstance(vec, Vector):
             raise TypeError(
                 f"Can only transform Vector objects. Got {type(vec).__name__}."

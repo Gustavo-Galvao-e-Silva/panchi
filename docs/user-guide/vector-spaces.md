@@ -21,7 +21,7 @@ from panchi.algorithms import (
 )
 ```
 
-This mirrors the rest of the library, where the heavy operations (`solve`, `inverse`, `determinant_lu`) are functions rather than methods. It keeps the primitive lightweight and the layering clean.
+This mirrors the rest of the library, where the heavy operations (`solve`, `inverse`, `determinant`) are functions rather than methods. It keeps the primitive lightweight and the layering clean.
 
 ## Construction
 

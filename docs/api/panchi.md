@@ -18,9 +18,15 @@ import panchi as pan
 
 ::: panchi.zero_matrix
 
+!!! warning "Deprecated in 3.1.0, removed in 4.0"
+    Use `Matrix([[1] * cols for _ in range(rows)])`.
+
 ::: panchi.one_matrix
 
 ::: panchi.zero_vector
+
+!!! warning "Deprecated in 3.1.0, removed in 4.0"
+    Use `Vector([1] * dims)`.
 
 ::: panchi.one_vector
 

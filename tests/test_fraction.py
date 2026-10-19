@@ -1,5 +1,7 @@
 from fractions import Fraction
 
+import pytest
+
 from panchi import (
     Matrix,
     Vector,
@@ -205,6 +207,7 @@ class TestFractionAlgorithms:
         assert result.solution[0] == Fraction(1)
         assert result.solution[1] == Fraction(-1)
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_determinant_lu_exact(self):
         m = exact_matrix([[1, 2, 3], [4, 5, 6], [7, 8, 10]])
         det = determinant_lu(m)

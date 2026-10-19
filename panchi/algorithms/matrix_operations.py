@@ -14,6 +14,7 @@ from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.utils.deprecation import warn_deprecated
 from panchi.utils.types import Scalar
 
 
@@ -207,6 +208,9 @@ def determinant_lu(matrix: Matrix) -> float:
     """
     Compute the determinant of a square matrix using LU decomposition.
 
+    Deprecated since 3.1.0. Use ``determinant`` or the exact
+    ``determinant_by_reduction`` instead. Removed in 4.0.
+
     Factors the matrix into P, L, and U using partial pivoting, then
     multiplies the main diagonal entries of U by the parity of the
     permutation. Each row swap in P contributes a factor of -1 to the
@@ -241,6 +245,9 @@ def determinant_lu(matrix: Matrix) -> float:
     --------
     determinant : Determinant via cofactor expansion.
     """
+    warn_deprecated(
+        "determinant_lu", "determinant() or determinant_by_reduction() (exact)"
+    )
     _require_square_matrix(matrix, "determinant")
     matrix_lu = lu(matrix)
     parity = _swap_parity(matrix_lu.steps)
@@ -293,8 +300,8 @@ def determinant(matrix: Matrix) -> Scalar:
     Computed by expanding along the first row: for each entry in the first
     row, multiply it by its cofactor (the signed determinant of the submatrix
     formed by removing that entry's row and column), then sum the results.
-    Unlike ``determinant_lu``, this preserves exact ``int``/``Fraction``
-    arithmetic, at the cost of O(n!) work.
+    This preserves exact ``int``/``Fraction`` arithmetic, at the cost of
+    O(n!) work; ``determinant_by_reduction`` is exact too and takes O(n³).
 
     Parameters
     ----------
@@ -322,7 +329,8 @@ def determinant(matrix: Matrix) -> Scalar:
 
     See Also
     --------
-    determinant_lu : Determinant via LU decomposition (float, O(n³)).
+    determinant_by_reduction : Exact determinant via row reduction, with steps.
+    cofactor_expansion : This expansion with every term shown.
     """
     _require_square_matrix(matrix, "determinant")
 
