@@ -3,7 +3,7 @@ from __future__ import annotations
 from fractions import Fraction
 from math import lcm
 
-from panchi.algorithms.matrix_operations import determinant
+from panchi.algorithms.matrix_operations import _require_square_matrix, determinant
 from panchi.algorithms.results import EigenResult
 from panchi.algorithms.vector_space_operations import null_space
 from panchi.primitives.factories import exact_matrix, identity
@@ -18,17 +18,7 @@ from panchi.utils.types import Scalar
 
 def _validate_exact_small_square(matrix: Matrix, task: str) -> None:
     """Check that matrix is a 1×1, 2×2 or 3×3 Matrix with rational entries."""
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"{task} is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the {task.lower()} of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}, but eigenvalues are "
-            f"only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, task.lower())
     if matrix.rows > 3:
         raise ValueError(
             f"Exact eigenvalues are supported for 2×2 and 3×3 matrices, but "

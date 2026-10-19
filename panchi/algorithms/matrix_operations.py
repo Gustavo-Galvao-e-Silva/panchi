@@ -9,6 +9,36 @@ from panchi.primitives.vector_space import VectorSpace
 from panchi.utils.types import Scalar
 
 
+def _require_square_matrix(matrix: Matrix, what: str) -> None:
+    """
+    Check that matrix is a square Matrix before computing something from it.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The object to check.
+    what : str
+        What is being computed, such as "inverse", used in the error message.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+    """
+    if not isinstance(matrix, Matrix):
+        raise TypeError(
+            f"Expected a Matrix, but got {type(matrix).__name__}. "
+            f"Cannot compute the {what} of a {type(matrix).__name__}."
+        )
+    if not matrix.is_square:
+        raise ValueError(
+            f"Cannot compute the {what} of a non-square matrix. "
+            f"Your matrix is {matrix.rows}×{matrix.cols}; it must be square (n×n)."
+        )
+
+
 def _calculate_inverse(n: int, steps: list[RowOperation]) -> Matrix:
     """
     Reconstruct the inverse matrix by replaying row operations on the identity.
@@ -151,17 +181,7 @@ def inverse(matrix: Matrix) -> InverseResult:
     [[-2.0, 1.0],
      [1.5, -0.5]]
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Inverse is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the inverse of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Inverse is only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "inverse")
     n = matrix.rows
     matrix_rref = rref(matrix)
     if matrix_rref.rank != n:
@@ -213,17 +233,7 @@ def determinant_lu(matrix: Matrix) -> float:
     --------
     determinant : Determinant via cofactor expansion.
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Determinant is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the determinant of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Determinants are only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "determinant")
     matrix_lu = lu(matrix)
     parity = _swap_parity(matrix_lu.steps)
     upper_diagonal_product = _main_diagonal_product(matrix_lu.upper)
@@ -306,17 +316,7 @@ def determinant(matrix: Matrix) -> Scalar:
     --------
     determinant_lu : Determinant via LU decomposition (float, O(n³)).
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Determinant is only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot calculate determinant of non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Determinants are only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "determinant")
 
     if matrix.rows == 1:
         return matrix[0][0]
@@ -653,17 +653,7 @@ def eigen_qr(
     >>> sorted(round(v, 6) for v in result.eigenvalues)
     [1.0, 3.0]
     """
-    if not isinstance(matrix, Matrix):
-        raise TypeError(
-            f"Expected a Matrix, but got {type(matrix).__name__}. "
-            f"Eigenvalues are only defined for Matrix objects."
-        )
-    if not matrix.is_square:
-        raise ValueError(
-            f"Cannot compute the eigenvalues of a non-square matrix. "
-            f"Your matrix is {matrix.rows}×{matrix.cols}. "
-            f"Eigenvalues are only defined for square matrices (n×n)."
-        )
+    _require_square_matrix(matrix, "eigenvalues")
 
     n = matrix.rows
     current = matrix
