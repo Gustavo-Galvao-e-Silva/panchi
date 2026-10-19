@@ -20,9 +20,9 @@ def _squarefree_split(n: int) -> tuple[int, int]:
     return square_root, sign * remaining
 
 
-def _simplify(value: Fraction) -> Rational:
-    """Return an int when the Fraction is whole, otherwise the Fraction."""
-    if value.denominator == 1:
+def _simplify(value: Scalar) -> Scalar:
+    """Turn a whole Fraction into an int; return anything else unchanged."""
+    if isinstance(value, Fraction) and value.denominator == 1:
         return value.numerator
     return value
 
@@ -307,7 +307,7 @@ class QuadraticNumber:
         if self.is_real:
             return 0
         imaginary = self.coefficient * sqrt(-self.radicand)
-        return _simplify(imaginary) if isinstance(imaginary, Fraction) else imaginary
+        return _simplify(imaginary)
 
     def _sign(self) -> int:
         """Return -1, 0 or 1 for a real number, using exact comparison."""

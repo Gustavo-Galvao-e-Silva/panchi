@@ -11,7 +11,7 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
 from panchi.symbolic.polynomial import Polynomial
-from panchi.symbolic.quadratic_number import QuadraticNumber
+from panchi.symbolic.quadratic_number import QuadraticNumber, _simplify
 from panchi.symbolic.roots import exact_roots
 from panchi.utils.types import Scalar
 
@@ -101,12 +101,6 @@ def characteristic_polynomial(matrix: Matrix) -> Polynomial:
     )
 
 
-def _simple(value: Scalar) -> Scalar:
-    if isinstance(value, Fraction) and value.denominator == 1:
-        return value.numerator
-    return value
-
-
 def _clear_denominators(vector: Vector) -> Vector:
     """Scale a vector by the smallest whole number that removes every fraction."""
     denominators = []
@@ -117,7 +111,7 @@ def _clear_denominators(vector: Vector) -> Vector:
         else:
             denominators.append(Fraction(component).denominator)
     scale = lcm(*denominators)
-    return Vector([_simple(component * scale) for component in vector.data])
+    return Vector([_simplify(component * scale) for component in vector.data])
 
 
 def eigen(matrix: Matrix) -> EigenResult:

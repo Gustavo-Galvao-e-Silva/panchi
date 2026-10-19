@@ -3,7 +3,7 @@ from __future__ import annotations
 from fractions import Fraction
 
 from panchi.symbolic.polynomial import Polynomial
-from panchi.symbolic.quadratic_number import Scalar, sqrt
+from panchi.symbolic.quadratic_number import Scalar, _simplify, sqrt
 
 
 def _root_order(root: Scalar) -> tuple[bool, float, float]:
@@ -52,18 +52,11 @@ def quadratic_roots(polynomial: Polynomial) -> list[tuple[Scalar, int]]:
     c, b, a = polynomial.coefficients
     discriminant = b * b - 4 * a * c
     if discriminant == 0:
-        return [(_as_simple(-b / Fraction(2 * a)), 2)]
+        return [(_simplify(-b / Fraction(2 * a)), 2)]
     root = sqrt(discriminant)
     roots = [(-b - root) / (2 * a), (-b + root) / (2 * a)]
-    roots = [_as_simple(r) for r in roots]
+    roots = [_simplify(r) for r in roots]
     return [(r, 1) for r in sorted(roots, key=_root_order)]
-
-
-def _as_simple(value: Scalar) -> Scalar:
-    """Turn whole Fractions into ints so roots print cleanly."""
-    if isinstance(value, Fraction) and value.denominator == 1:
-        return value.numerator
-    return value
 
 
 def exact_roots(polynomial: Polynomial) -> list[tuple[Scalar, int]]:
@@ -113,7 +106,7 @@ def exact_roots(polynomial: Polynomial) -> list[tuple[Scalar, int]]:
 
     if remaining.degree == 1:
         constant, slope = remaining.coefficients
-        root = _as_simple(Fraction(-constant) / slope)
+        root = _simplify(Fraction(-constant) / slope)
         multiplicities[root] = multiplicities.get(root, 0) + 1
     elif remaining.degree == 2:
         for root, count in quadratic_roots(remaining):

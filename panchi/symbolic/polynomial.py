@@ -3,7 +3,12 @@ from __future__ import annotations
 from fractions import Fraction
 from math import isqrt, lcm
 
-from panchi.symbolic.quadratic_number import QuadraticNumber, Scalar
+from panchi.symbolic.quadratic_number import (
+    QuadraticNumber,
+    Rational,
+    Scalar,
+    _simplify,
+)
 from panchi.utils.latex import scalar_to_latex
 
 _SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
@@ -233,9 +238,7 @@ class Polynomial:
         shifted = Polynomial(integers, self.variable)
         for candidate in sorted(candidates):
             if shifted(candidate) == 0:
-                roots.append(
-                    candidate.numerator if candidate.denominator == 1 else candidate
-                )
+                roots.append(_simplify(candidate))
         return sorted(roots)
 
     def _term(self, power: int, latex: bool) -> str:
@@ -305,6 +308,3 @@ class Polynomial:
 
     def _repr_latex_(self) -> str:
         return f"${self._latex()}$"
-
-
-Rational = int | Fraction
