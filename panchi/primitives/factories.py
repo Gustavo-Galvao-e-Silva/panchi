@@ -8,6 +8,26 @@ from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 
 
+def _check_dims(dims: int) -> None:
+    """Raise if dims is not a positive integer."""
+    if not isinstance(dims, int):
+        raise TypeError(f"Dimension must be an integer. Got {type(dims).__name__}.")
+    if dims <= 0:
+        raise ValueError(f"Dimension must be positive. Got {dims}.")
+
+
+def _check_shape(rows: int, cols: int) -> None:
+    """Raise if rows or cols is not a positive integer."""
+    if not isinstance(rows, int) or not isinstance(cols, int):
+        raise TypeError(
+            f"Rows and columns must be integers. Got rows: {type(rows).__name__}, cols: {type(cols).__name__}."
+        )
+    if rows <= 0 or cols <= 0:
+        raise ValueError(
+            f"Rows and columns must be positive. Got rows: {rows}, cols: {cols}."
+        )
+
+
 def identity(n: int) -> Matrix:
     """
     Create an n×n identity matrix.
@@ -79,14 +99,7 @@ def zero_matrix(rows: int, cols: int) -> Matrix:
     [[0, 0, 0],
      [0, 0, 0]]
     """
-    if not isinstance(rows, int) or not isinstance(cols, int):
-        raise TypeError(
-            f"Rows and columns must be integers. Got rows: {type(rows).__name__}, cols: {type(cols).__name__}."
-        )
-    if rows <= 0 or cols <= 0:
-        raise ValueError(
-            f"Rows and columns must be positive. Got rows: {rows}, cols: {cols}."
-        )
+    _check_shape(rows, cols)
 
     return Matrix([[0 for _ in range(cols)] for _ in range(rows)])
 
@@ -121,14 +134,7 @@ def one_matrix(rows: int, cols: int) -> Matrix:
     [[1, 1, 1],
      [1, 1, 1]]
     """
-    if not isinstance(rows, int) or not isinstance(cols, int):
-        raise TypeError(
-            f"Rows and columns must be integers. Got rows: {type(rows).__name__}, cols: {type(cols).__name__}."
-        )
-    if rows <= 0 or cols <= 0:
-        raise ValueError(
-            f"Rows and columns must be positive. Got rows: {rows}, cols: {cols}."
-        )
+    _check_shape(rows, cols)
 
     return Matrix([[1 for _ in range(cols)] for _ in range(rows)])
 
@@ -163,10 +169,7 @@ def zero_vector(dims: int) -> Vector:
     >>> print(z)
     [0, 0, 0]
     """
-    if not isinstance(dims, int):
-        raise TypeError(f"Dimension must be an integer. Got {type(dims).__name__}.")
-    if dims <= 0:
-        raise ValueError(f"Dimension must be positive. Got {dims}.")
+    _check_dims(dims)
 
     return Vector([0 for _ in range(dims)])
 
@@ -198,10 +201,7 @@ def one_vector(dims: int) -> Vector:
     >>> print(o)
     [1, 1, 1]
     """
-    if not isinstance(dims, int):
-        raise TypeError(f"Dimension must be an integer. Got {type(dims).__name__}.")
-    if dims <= 0:
-        raise ValueError(f"Dimension must be positive. Got {dims}.")
+    _check_dims(dims)
 
     return Vector([1 for _ in range(dims)])
 
@@ -328,10 +328,7 @@ def random_vector(dims: int, low: int | float = 0.0, high: int | float = 1.0) ->
     >>> v.dims
     3
     """
-    if not isinstance(dims, int):
-        raise TypeError(f"Dimension must be an integer. Got {type(dims).__name__}.")
-    if dims <= 0:
-        raise ValueError(f"Dimension must be positive. Got {dims}.")
+    _check_dims(dims)
 
     if low >= high:
         raise ValueError(
@@ -380,14 +377,7 @@ def random_matrix(
     >>> m.shape
     (2, 3)
     """
-    if not isinstance(rows, int) or not isinstance(cols, int):
-        raise TypeError(
-            f"Rows and columns must be integers. Got rows: {type(rows).__name__}, cols: {type(cols).__name__}."
-        )
-    if rows <= 0 or cols <= 0:
-        raise ValueError(
-            f"Rows and columns must be positive. Got rows: {rows}, cols: {cols}."
-        )
+    _check_shape(rows, cols)
 
     if low >= high:
         raise ValueError(
@@ -535,7 +525,7 @@ def exact_vector(data: list) -> Vector:
     >>> print(result)
     [1/3, 2/3, 1]
     """
-    return Vector([Fraction(x) if not isinstance(x, Fraction) else x for x in data])
+    return Vector([Fraction(x) for x in data])
 
 
 def exact_matrix(data: list[list]) -> Matrix:
@@ -564,12 +554,7 @@ def exact_matrix(data: list[list]) -> Matrix:
     [[1, 2],
      [3, 4]]
     """
-    return Matrix(
-        [
-            [Fraction(x) if not isinstance(x, Fraction) else x for x in row]
-            for row in data
-        ]
-    )
+    return Matrix([[Fraction(x) for x in row] for row in data])
 
 
 def vector_column_matrix(vectors: list[Vector]) -> Matrix:
@@ -611,17 +596,11 @@ def vector_column_matrix(vectors: list[Vector]) -> Matrix:
     if not vectors:
         raise ValueError("vector_column_matrix() requires at least one vector.")
 
-    num_vectors = len(vectors)
-    for i in range(num_vectors):
-        for j in range(i + 1, num_vectors):
-            if vectors[i].dims != vectors[j].dims:
-                raise ValueError(
-                    f"All vectors must share the same dimension. "
-                    f"Got {vectors[i].dims} and {vectors[j].dims}."
-                )
+    for vector in vectors[1:]:
+        if vector.dims != vectors[0].dims:
+            raise ValueError(
+                f"All vectors must share the same dimension. "
+                f"Got {vectors[0].dims} and {vector.dims}."
+            )
 
-    result = []
-    for vector in vectors:
-        result.append(vector.to_list())
-
-    return Matrix(result).T
+    return Matrix([vector.to_list() for vector in vectors]).T
