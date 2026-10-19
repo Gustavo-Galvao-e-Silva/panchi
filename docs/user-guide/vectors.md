@@ -102,7 +102,6 @@ panchi provides several convenience functions for constructing common vectors:
 
 ```python
 pan.zero_vector(3)      # [0, 0, 0]
-pan.one_vector(3)       # [1, 1, 1]
 pan.unit_vector(3, 1)   # [0, 1, 0]  — standard basis vector e₁
 pan.random_vector(3)    # random entries
 ```

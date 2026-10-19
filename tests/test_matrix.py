@@ -701,6 +701,7 @@ class TestMatrixRowCol:
         assert len(m.col_vectors) == m.cols
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestMatrixTransform:
     """Test cases for Matrix transform method."""
 
@@ -718,6 +719,7 @@ class TestMatrixTransform:
             _ = m.transform([1, 2])
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestMatrixIdentityProperties:
     """Test cases for left_identity and right_identity properties."""
 

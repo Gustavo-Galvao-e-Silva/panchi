@@ -149,6 +149,7 @@ class TestMixedOperations:
         assert r1.data == [1, 3]
         assert r2.data == [2, 4]
 
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_matrix_transform_vs_multiply(self):
         """Verify that matrix.transform(v) and matrix * v give same result."""
         m = pan.Matrix([[2, 3], [4, 5]])
@@ -204,7 +205,7 @@ class TestOperationsIntegration:
 
     def test_dot_product_with_operations(self):
         """Test dot product using operations functions."""
-        v1 = pan.one_vector(3)
+        v1 = pan.Vector([1, 1, 1])
         v2 = pan.unit_vector(3, 0)
 
         result = pan.dot(v1, v2)

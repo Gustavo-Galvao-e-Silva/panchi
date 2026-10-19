@@ -6,6 +6,7 @@ from math import cos, pi, sin
 
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.utils.deprecation import warn_deprecated
 
 
 def _check_dims(dims: int) -> None:
@@ -108,6 +109,9 @@ def one_matrix(rows: int, cols: int) -> Matrix:
     """
     Create a matrix filled with ones.
 
+    Deprecated since 3.1.0. Use ``Matrix([[1] * cols for _ in
+    range(rows)])`` instead. Removed in 4.0.
+
     Parameters
     ----------
     rows : int
@@ -134,6 +138,9 @@ def one_matrix(rows: int, cols: int) -> Matrix:
     [[1, 1, 1],
      [1, 1, 1]]
     """
+    warn_deprecated(
+        "one_matrix(rows, cols)", "Matrix([[1] * cols for _ in range(rows)])"
+    )
     _check_shape(rows, cols)
 
     return Matrix([[1 for _ in range(cols)] for _ in range(rows)])
@@ -178,6 +185,9 @@ def one_vector(dims: int) -> Vector:
     """
     Create a vector filled with ones.
 
+    Deprecated since 3.1.0. Use ``Vector([1] * dims)`` instead. Removed in
+    4.0.
+
     Parameters
     ----------
     dims: int
@@ -201,6 +211,7 @@ def one_vector(dims: int) -> Vector:
     >>> print(o)
     [1, 1, 1]
     """
+    warn_deprecated("one_vector(dims)", "Vector([1] * dims)")
     _check_dims(dims)
 
     return Vector([1 for _ in range(dims)])

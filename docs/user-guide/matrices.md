@@ -88,7 +88,7 @@ print(A.trace)      # 5       — sum of diagonal (square only)
 print(A.is_square)  # True
 ```
 
-The determinant is a free function (like `solve`, `inverse`, and `determinant_lu`), not a
+The determinant is a free function (like `solve` and `inverse`), not a
 property — it is an algorithm, so it lives in `panchi.algorithms` rather than on the matrix:
 
 ```python
@@ -130,12 +130,8 @@ Every matrix has a left and right identity — the square identity matrices of t
 ```python
 A = pan.Matrix([[1, 2, 3], [4, 5, 6]])  # 2×3
 
-print(A.left_identity)   # 2×2 identity
-print(A.right_identity)  # 3×3 identity
-
-# These satisfy:
-assert A.left_identity @ A == A
-assert A @ A.right_identity == A
+assert pan.identity(A.rows) @ A == A  # left identity, 2×2
+assert A @ pan.identity(A.cols) == A  # right identity, 3×3
 ```
 
 ## Indexing and element access
@@ -186,7 +182,6 @@ The columns of a matrix are vectors in their own right. Here are the two columns
 ```python
 pan.identity(3)            # 3×3 identity
 pan.zero_matrix(2, 3)      # 2×3 matrix of zeros
-pan.one_matrix(2, 3)       # 2×3 matrix of ones
 pan.diagonal([1, 2, 3])    # 3×3 diagonal matrix
 pan.random_matrix(3, 3)    # random entries
 ```
