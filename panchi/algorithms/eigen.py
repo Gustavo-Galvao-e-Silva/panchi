@@ -3,10 +3,15 @@ from __future__ import annotations
 from fractions import Fraction
 from math import lcm
 
-from panchi.algorithms.matrix_operations import _require_square_matrix, determinant
-from panchi.algorithms.results import EigenResult
+from panchi.algorithms.decompositions import qr_decomposition
+from panchi.algorithms.matrix_operations import (
+    _require_square_matrix,
+    determinant,
+    solve,
+)
+from panchi.algorithms.results import EigenResult, QREigenResult
 from panchi.algorithms.vector_space_operations import null_space
-from panchi.primitives.factories import exact_matrix, identity
+from panchi.primitives.factories import exact_matrix, identity, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -183,3 +188,119 @@ def eigen(matrix: Matrix) -> EigenResult:
         multiplicities.append(multiplicity)
         eigenspaces.append(VectorSpace([_clear_denominators(v) for v in space]))
     return EigenResult(matrix, polynomial, eigenvalues, multiplicities, eigenspaces)
+
+
+def _below_diagonal_mass(matrix: Matrix) -> float:
+    """
+    Sum the absolute values of the strictly-below-diagonal entries.
+
+    Used as the convergence measure for the QR algorithm: when this sum is
+    small, the iterate is (near) upper triangular and its diagonal holds the
+    eigenvalues.
+    """
+    n = matrix.rows
+    return sum(abs(matrix[i][j]) for i in range(n) for j in range(i))
+
+
+def _eigenvector(matrix: Matrix, eigenvalue: float, n: int) -> Vector | None:
+    """
+    Find an eigenvector for a known eigenvalue as the null space of A - λI.
+
+    Solves the homogeneous system ``(A - λI) x = 0`` with a scale-relative
+    tolerance, reusing solve(). Because a floating-point λ makes ``A - λI``
+    only approximately singular, the tolerance is what lets solve() report an
+    infinite solution set and expose the null space. Returns the first
+    null-space basis vector, normalized, or None if the system is not
+    detected as rank-deficient (e.g. for tightly clustered eigenvalues).
+    """
+    shifted = matrix - eigenvalue * identity(n)
+    scale = max(1.0, max(abs(shifted[i][j]) for i in range(n) for j in range(n)))
+    solution = solve(shifted, zero_vector(n), tolerance=1e-6 * scale)
+
+    if solution.null_space is None:
+        return None
+    return solution.null_space[0].normalize()
+
+
+def eigen_qr(
+    matrix: Matrix,
+    max_iterations: int = 1000,
+    tolerance: float = 1e-12,
+) -> QREigenResult:
+    """
+    Compute the eigenvalues of a square matrix using the QR algorithm.
+
+    Starting from the original matrix, repeatedly computes a QR
+    decomposition and reassembles the matrix as R @ Q. For matrices with
+    real eigenvalues this sequence converges to an upper triangular matrix
+    whose diagonal entries are the eigenvalues.
+
+    The iteration stops once the strictly-below-diagonal entries sum to less
+    than ``tolerance`` (recorded as converged), or once ``max_iterations`` is
+    reached (recorded as not converged). Eigenvalues are the diagonal of the
+    final iterate. Eigenvectors are computed separately and are only
+    populated when the iteration converges.
+
+    Only real eigenvalues are supported. Matrices with complex eigenvalues
+    or eigenvalues of equal magnitude may fail to converge, in which case the
+    returned result has ``converged`` set to False and no eigenvectors.
+
+    Parameters
+    ----------
+    matrix : Matrix
+        The square matrix whose eigenvalues will be computed.
+    max_iterations : int, optional
+        The maximum number of QR iterations to perform. Defaults to 1000.
+    tolerance : float, optional
+        The convergence threshold on the below-diagonal mass. Defaults to
+        1e-12.
+
+    Returns
+    -------
+    QREigenResult
+        A result object containing the eigenvalues, eigenvectors, the number
+        of iterations performed, whether the iteration converged, and the
+        final (near) upper-triangular matrix.
+
+    Raises
+    ------
+    TypeError
+        If matrix is not a Matrix instance.
+    ValueError
+        If matrix is not square.
+
+    Examples
+    --------
+    >>> result = eigen_qr(Matrix([[2, 1], [1, 2]]))
+    >>> sorted(round(v, 6) for v in result.eigenvalues)
+    [1.0, 3.0]
+    """
+    _require_square_matrix(matrix, "eigenvalues")
+
+    n = matrix.rows
+    current = matrix
+    converged = False
+    iterations = 0
+    for iterations in range(1, max_iterations + 1):
+        if _below_diagonal_mass(current) < tolerance:
+            converged = True
+            iterations -= 1
+            break
+        try:
+            decomposition = qr_decomposition(current)
+        except ZeroDivisionError:
+            # A singular iterate cannot be orthonormalized by Gram-Schmidt;
+            # treat this as failure to converge rather than crashing.
+            break
+        current = decomposition.r @ decomposition.q
+
+    eigenvalues = [current[i][i] for i in range(n)]
+    eigenvectors: list[Vector] = []
+    if converged:
+        for eigenvalue in eigenvalues:
+            vector = _eigenvector(matrix, eigenvalue, n)
+            if vector is not None:
+                eigenvectors.append(vector)
+    return QREigenResult(
+        matrix, eigenvalues, eigenvectors, iterations, converged, current
+    )
