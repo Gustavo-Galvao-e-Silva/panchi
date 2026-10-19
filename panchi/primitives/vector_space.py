@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Iterator
+from collections.abc import Callable, Iterator
 
 from panchi.primitives.vector import Vector
 from panchi.utils.latex import span_to_latex
@@ -79,6 +79,7 @@ class VectorSpace:
                 )
 
         self.data = vectors
+        self._basis_cache: tuple[tuple, list[Vector]] | None = None
 
     def __getitem__(self, index: int) -> Vector:
         """
@@ -163,7 +164,7 @@ class VectorSpace:
                 f"Got {type(new_vector).__name__}."
             )
 
-        ambient = self.data[0].dims
+        ambient = self.ambient_dims
         if new_vector.dims != ambient:
             raise ValueError(
                 f"Cannot assign a {new_vector.dims}-dimensional vector to a space "
@@ -265,7 +266,7 @@ class VectorSpace:
           [1, 0]
           [0, 1]
         """
-        ambient = self.data[0].dims
+        ambient = self.ambient_dims
         count = len(self.data)
         noun = "vector" if count == 1 else "vectors"
         generator_lines = "\n".join(f"  {v}" for v in self.data)
@@ -292,7 +293,7 @@ class VectorSpace:
         """
         return (
             f"VectorSpace("
-            f"ambient={self.data[0].dims}, "
+            f"ambient={self.ambient_dims}, "
             f"generators={len(self.data)})"
         )
 
@@ -340,3 +341,28 @@ class VectorSpace:
         ((1, 0, 0), (0, 1, 0))
         """
         return tuple(vector.to_tuple() for vector in self.data)
+
+    def _cached_basis(
+        self, compute: Callable[[VectorSpace], list[Vector]]
+    ) -> list[Vector]:
+        """
+        Return the basis from the cache, calling compute only when it is stale.
+
+        The cache key is to_tuple(), the current value of every generator, so
+        any mutation of the space invalidates it. A new list is returned on
+        every call, so mutating the result never corrupts the cache.
+
+        Parameters
+        ----------
+        compute : Callable[[VectorSpace], list[Vector]]
+            Computes the basis of this space when the cache is stale.
+
+        Returns
+        -------
+        list[Vector]
+            A copy of the cached basis.
+        """
+        key = self.to_tuple()
+        if self._basis_cache is None or self._basis_cache[0] != key:
+            self._basis_cache = (key, compute(self))
+        return list(self._basis_cache[1])

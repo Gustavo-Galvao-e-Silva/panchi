@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from panchi.algorithms.matrix_operations import _null_space_basis, rank, solve
 from panchi.algorithms.reductions import ref, rref
-from panchi.primitives.factories import unit_vector, zero_vector
+from panchi.primitives.factories import unit_vector, vector_column_matrix, zero_vector
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -44,21 +44,13 @@ def basis(space: VectorSpace) -> list[Vector]:
     >>> len(basis(vs))
     2
     """
-    columns = [v.to_list() for v in space.data]
-    cache_key = space.to_tuple()
+    return space._cached_basis(_pivot_vectors)
 
-    cache = getattr(space, "_basis_cache", None)
-    if cache is not None and cache[0] == cache_key:
-        return list(cache[1])
 
-    vector_col_matrix = Matrix(columns).T
-    matrix_ref = ref(vector_col_matrix)
-    result = []
-    for _, pivot_col in matrix_ref.pivots:
-        result.append(space.data[pivot_col])
-
-    space._basis_cache = (cache_key, result)
-    return list(result)
+def _pivot_vectors(space: VectorSpace) -> list[Vector]:
+    """Return the generators at the pivot columns of the space's REF."""
+    matrix_ref = ref(vector_column_matrix(space.data))
+    return [space.data[pivot_col] for _, pivot_col in matrix_ref.pivots]
 
 
 def is_full_rank(space: VectorSpace) -> bool:
@@ -134,7 +126,7 @@ def contains(space: VectorSpace, v: Vector) -> bool:
             f"R^{space.ambient_dims}. Dimensions must match."
         )
 
-    basis_matrix = Matrix([b.to_list() for b in basis(space)]).T
+    basis_matrix = vector_column_matrix(basis(space))
     return solve(basis_matrix, v).status != "inconsistent"
 
 
