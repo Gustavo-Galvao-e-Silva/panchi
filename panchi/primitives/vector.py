@@ -4,8 +4,8 @@ from collections.abc import Iterator
 from fractions import Fraction
 from math import isqrt
 
-from panchi._latex import vector_to_latex
-from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
+from panchi.utils.latex import vector_to_latex
+from panchi.utils.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
 def _exact_or_float_sqrt(value: Scalar) -> Scalar:

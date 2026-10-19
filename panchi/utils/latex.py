@@ -18,7 +18,7 @@ from typing import TYPE_CHECKING, Protocol, runtime_checkable
 if TYPE_CHECKING:
     from panchi.primitives.matrix import Matrix
     from panchi.primitives.vector import Vector
-    from panchi.types import Scalar
+    from panchi.utils.types import Scalar
 
 
 @runtime_checkable

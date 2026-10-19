@@ -3,11 +3,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import overload
 
-from panchi._latex import scalar_to_latex
 from panchi.primitives.factories import identity
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
-from panchi.types import SCALAR_TYPES, Scalar
+from panchi.utils.latex import scalar_to_latex
+from panchi.utils.types import SCALAR_TYPES, Scalar
 
 
 class RowOperation(ABC):

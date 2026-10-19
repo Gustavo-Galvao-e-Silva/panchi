@@ -4,9 +4,9 @@ from collections.abc import Iterator
 from fractions import Fraction
 from typing import overload
 
-from panchi._latex import matrix_to_latex
 from panchi.primitives.vector import Vector
-from panchi.types import SCALAR_TYPES, Scalar, parse_scalar
+from panchi.utils.latex import matrix_to_latex
+from panchi.utils.types import SCALAR_TYPES, Scalar, parse_scalar
 
 
 class Matrix:
@@ -1043,6 +1043,26 @@ class Matrix:
         [[1, 2], [3, 4]]
         """
         return [row.copy() for row in self.data]
+
+    def to_tuple(self) -> tuple[tuple[Scalar, ...], ...]:
+        """
+        Convert the matrix to a tuple of row tuples.
+
+        The result is an immutable snapshot of the matrix data, suitable
+        for use as a cache key or a hashable-ish value representation.
+
+        Returns
+        -------
+        tuple[tuple[int | float | Fraction, ...], ...]
+            The matrix data as a tuple of row tuples.
+
+        Examples
+        --------
+        >>> m = Matrix([[1, 2], [3, 4]])
+        >>> m.to_tuple()
+        ((1, 2), (3, 4))
+        """
+        return tuple(tuple(row) for row in self.data)
 
     def copy(self) -> Matrix:
         """

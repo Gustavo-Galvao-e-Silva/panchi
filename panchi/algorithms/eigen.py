@@ -13,7 +13,7 @@ from panchi.primitives.vector_space import VectorSpace
 from panchi.symbolic.polynomial import Polynomial
 from panchi.symbolic.quadratic_number import QuadraticNumber
 from panchi.symbolic.roots import exact_roots
-from panchi.types import Scalar
+from panchi.utils.types import Scalar
 
 
 def _validate_exact_small_square(matrix: Matrix, task: str) -> None:

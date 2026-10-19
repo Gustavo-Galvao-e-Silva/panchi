@@ -1,15 +1,15 @@
 from fractions import Fraction
 
 from panchi import Matrix, Vector, VectorSpace, exact_vector
-from panchi._latex import (
-    matrix_to_latex,
-    scalar_to_latex,
-    vector_to_latex,
-)
 from panchi.algorithms import eigen_qr, inverse, lu, qr_decomposition, solve
 from panchi.algorithms.reductions import rref
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
 from panchi.symbolic import sqrt
+from panchi.utils.latex import (
+    matrix_to_latex,
+    scalar_to_latex,
+    vector_to_latex,
+)
 
 
 class TestScalarToLatex:

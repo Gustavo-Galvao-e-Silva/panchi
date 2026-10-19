@@ -810,6 +810,29 @@ class TestMatrixConversions:
         print(f"\n✓ to_list() returns copy: m[0][0] = {m[0][0]} (expected 1)")
         assert m[0][0] == 1
 
+    def test_to_tuple(self):
+        m = Matrix([[1, 2], [3, 4]])
+        result = m.to_tuple()
+        print(f"\n\u2713 to_tuple() = {result} (expected ((1,2),(3,4)))")
+        assert result == ((1, 2), (3, 4))
+        assert isinstance(result, tuple)
+        assert all(isinstance(row, tuple) for row in result)
+
+    def test_to_tuple_single_entry(self):
+        m = Matrix([[5]])
+        result = m.to_tuple()
+        print(f"\n\u2713 to_tuple() on 1x1 = {result} (expected ((5,),))")
+        assert result == ((5,),)
+
+    def test_to_tuple_snapshot(self):
+        m = Matrix([[1, 2], [3, 4]])
+        snapshot = m.to_tuple()
+        m[0, 0] = 99
+        print(
+            f"\n\u2713 to_tuple() snapshot unchanged: {snapshot} (expected ((1,2),(3,4)))"
+        )
+        assert snapshot == ((1, 2), (3, 4))
+
 
 class TestMatrixCopy:
     """Test cases for Matrix copy method."""

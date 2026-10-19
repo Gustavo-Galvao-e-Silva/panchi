@@ -3,8 +3,8 @@ from __future__ import annotations
 from fractions import Fraction
 from math import isqrt, lcm
 
-from panchi._latex import scalar_to_latex
 from panchi.symbolic.quadratic_number import QuadraticNumber, Scalar
+from panchi.utils.latex import scalar_to_latex
 
 _SUPERSCRIPTS = str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹")
 _LATEX_VARIABLES = {"λ": "\\lambda"}

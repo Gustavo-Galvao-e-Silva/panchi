@@ -2,21 +2,21 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from panchi._latex import (
-    matrix_to_latex,
-    scalar_to_latex,
-    vector_to_latex,
-)
 from panchi.algorithms.row_operations import RowOperation
 from panchi.primitives.factories import diagonal, vector_column_matrix
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.symbolic.quadratic_number import QuadraticNumber
+from panchi.utils.latex import (
+    matrix_to_latex,
+    scalar_to_latex,
+    vector_to_latex,
+)
 
 if TYPE_CHECKING:
     from panchi.primitives.vector_space import VectorSpace
     from panchi.symbolic.polynomial import Polynomial
-    from panchi.types import Scalar
+    from panchi.utils.types import Scalar
 
 
 class Reduction:
