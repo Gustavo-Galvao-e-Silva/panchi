@@ -6,10 +6,13 @@ from panchi.algorithms.row_operations import RowOperation
 from panchi.primitives.factories import diagonal, vector_column_matrix
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
+from panchi.symbolic.polynomial import _SUPERSCRIPTS
 from panchi.symbolic.quadratic_number import QuadraticNumber
 from panchi.utils.latex import (
+    aligned_to_latex,
     matrix_to_latex,
     scalar_to_latex,
+    span_to_latex,
     vector_to_latex,
 )
 
@@ -171,8 +174,7 @@ class Reduction:
             lines.append(
                 f"&\\xrightarrow{{{step._latex()}}} {matrix_to_latex(current)}"
             )
-        body = " \\\\\n".join(lines)
-        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+        return aligned_to_latex(lines)
 
 
 class LUDecomposition:
@@ -611,11 +613,11 @@ class Solution:
             return header + f"\nx = {self.solution}"
 
         if self.particular is not None and self.null_space is not None:
-            return header + "\n" + self._format_general_solution()
+            return header + "\n" + self._general_solution(latex=False)
 
         return header
 
-    def _format_general_solution(self) -> str:
+    def _general_solution(self, latex: bool) -> str:
         basis = list(self.null_space)
         n = len(basis)
 
@@ -624,15 +626,15 @@ class Solution:
         elif n == 2:
             params = ["s", "t"]
         else:
-            params = [f"t{i + 1}" for i in range(n)]
+            params = [f"t_{{{i + 1}}}" if latex else f"t{i + 1}" for i in range(n)]
 
-        is_zero = all(self.particular[i] == 0 for i in range(self.particular.dims))
-
+        render = vector_to_latex if latex else str
+        times = "\\," if latex else "·"
         parts = []
-        if not is_zero:
-            parts.append(str(self.particular))
+        if any(x != 0 for x in self.particular):
+            parts.append(render(self.particular))
         for param, vec in zip(params, basis, strict=False):
-            parts.append(f"{param}·{vec}")
+            parts.append(f"{param}{times}{render(vec)}")
 
         return "x = " + " + ".join(parts)
 
@@ -662,28 +664,8 @@ class Solution:
         if self.solution is not None:
             return f"$x = {vector_to_latex(self.solution)}$"
         if self.particular is not None and self.null_space is not None:
-            return f"$${self._general_solution_latex()}$$"
+            return f"$${self._general_solution(latex=True)}$$"
         return "$\\text{No solution (inconsistent system).}$"
-
-    def _general_solution_latex(self) -> str:
-        basis = list(self.null_space)
-        n = len(basis)
-        if n == 1:
-            params = ["t"]
-        elif n == 2:
-            params = ["s", "t"]
-        else:
-            params = [f"t_{{{i + 1}}}" for i in range(n)]
-
-        is_zero = all(self.particular[i] == 0 for i in range(self.particular.dims))
-
-        parts = []
-        if not is_zero:
-            parts.append(vector_to_latex(self.particular))
-        for param, vec in zip(params, basis, strict=False):
-            parts.append(f"{param}\\,{vector_to_latex(vec)}")
-
-        return "x = " + " + ".join(parts)
 
 
 class QREigenResult:
@@ -820,8 +802,7 @@ class QREigenResult:
                 f"\\lambda_{{{i + 1}}} = {scalar_to_latex(round(value, 6))}, "
                 f"\\quad v_{{{i + 1}}} = {vector_to_latex(vector)}"
             )
-        body = " \\\\\n".join(lines)
-        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+        return aligned_to_latex(lines)
 
 
 def _linear_factor(root: Scalar, variable: str, latex: bool) -> str:
@@ -845,7 +826,7 @@ def _power(base: str, exponent: int, latex: bool) -> str:
         return base
     if latex:
         return f"{base}^{{{exponent}}}"
-    return base + str(exponent).translate(str.maketrans("0123456789", "⁰¹²³⁴⁵⁶⁷⁸⁹"))
+    return base + str(exponent).translate(_SUPERSCRIPTS)
 
 
 class EigenResult:
@@ -1056,11 +1037,8 @@ class EigenResult:
         for i, (value, space) in enumerate(
             zip(self.eigenvalues, self.eigenspaces, strict=True)
         ):
-            generators = r",\; ".join(vector_to_latex(v) for v in space)
             lines.append(
                 f"\\lambda_{{{i + 1}}} &= {scalar_to_latex(value)}, "
-                f"\\quad E_{{\\lambda_{{{i + 1}}}}} = "
-                f"\\operatorname{{span}}\\left\\{{ {generators} \\right\\}}"
+                f"\\quad E_{{\\lambda_{{{i + 1}}}}} = {span_to_latex(space)}"
             )
-        body = " \\\\\n".join(lines)
-        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+        return aligned_to_latex(lines)

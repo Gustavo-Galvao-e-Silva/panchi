@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from panchi.primitives.vector import Vector
-from panchi.utils.latex import vector_to_latex
+from panchi.utils.latex import aligned_to_latex, vector_to_latex
 from panchi.utils.types import Scalar
 
 
@@ -184,8 +184,7 @@ class GramSchmidtStep:
             )
         lines.append(f"&\\text{{orthogonal}}: {vector_to_latex(self.orthogonal)}")
         lines.append(f"& q_{{{self.index}}} = {vector_to_latex(self.orthonormal)}")
-        body = " \\\\\n".join(lines)
-        return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"
+        return aligned_to_latex(lines)
 
 
 def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:

@@ -12,6 +12,7 @@ the built-in number types. Any other object renders itself by defining a
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from fractions import Fraction
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
@@ -58,3 +59,15 @@ def vector_to_latex(vector: Vector) -> str:
     """Render a Vector as a column ``bmatrix`` (no surrounding delimiters)."""
     entries = " \\\\ ".join(scalar_to_latex(x) for x in vector.data)
     return f"\\begin{{bmatrix}} {entries} \\end{{bmatrix}}"
+
+
+def span_to_latex(vectors: Iterable[Vector]) -> str:
+    """Render ``span{v1, v2, ...}`` (no surrounding math delimiters)."""
+    generators = r",\; ".join(vector_to_latex(v) for v in vectors)
+    return f"\\operatorname{{span}}\\left\\{{ {generators} \\right\\}}"
+
+
+def aligned_to_latex(lines: Iterable[str]) -> str:
+    """Stack LaTeX lines in a display-math ``aligned`` block."""
+    body = " \\\\\n".join(lines)
+    return f"$$\\begin{{aligned}}\n{body}\n\\end{{aligned}}$$"

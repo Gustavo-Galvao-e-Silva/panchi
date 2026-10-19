@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 
 from panchi.primitives.vector import Vector
-from panchi.utils.latex import vector_to_latex
+from panchi.utils.latex import span_to_latex
 from panchi.utils.types import Scalar
 
 
@@ -298,8 +298,7 @@ class VectorSpace:
 
     def _repr_latex_(self) -> str:
         """Render as ``span{...}`` of its generators for Jupyter/Colab display."""
-        generators = ",\\; ".join(vector_to_latex(v) for v in self.data)
-        return f"$\\operatorname{{span}}\\left\\{{ {generators} \\right\\}}$"
+        return f"${span_to_latex(self.data)}$"
 
     @property
     def ambient_dims(self) -> int:
