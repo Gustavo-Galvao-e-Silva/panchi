@@ -65,6 +65,7 @@ class TestZeroMatrix:
             pan.zero_matrix(-1, 2)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestOneMatrix:
     """Test cases for one matrix creation."""
 
@@ -115,6 +116,7 @@ class TestZeroVector:
             pan.zero_vector(-1)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 class TestOneVector:
     """Test cases for one vector creation."""
 

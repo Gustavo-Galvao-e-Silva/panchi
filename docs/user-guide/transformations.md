@@ -25,12 +25,6 @@ print(A @ v)  # [2, 3]
 
 This scales the x-component by 2 and the y-component by 3. The matrix encodes the transformation; the vector is what gets transformed.
 
-`transform(v)` is an explicit alias for the same operation, useful when you want to be clear about intent:
-
-```python
-print(A.transform(v))  # [2, 3]
-```
-
 ## Rotation matrices
 
 A rotation matrix rotates vectors without changing their magnitude. panchi provides factory functions for 2D and 3D rotations:
