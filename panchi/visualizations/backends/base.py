@@ -6,6 +6,7 @@ from pathlib import Path
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.backends.reduction_plan import ReductionPlan
 
 DEFAULT_COLORS = ["#805B49", "#FFB592", "#3E7C7B", "#D4A15E", "#45423F"]
 
@@ -99,3 +100,16 @@ class _BaseBackend(ABC):
         name: str,
         span_color: str | None = None,
     ) -> object | None: ...
+
+    def animate_reduction(
+        self,
+        plan: ReductionPlan,
+        frames: int,
+        interval: int,
+        name: str,
+        colors: list[str] | None = None,
+    ) -> object | None:
+        raise NotImplementedError(
+            f"animate_reduction is not available for the {type(self).__name__} "
+            f"backend yet. Use the matplotlib backend: Animator2D() or Animator3D()."
+        )
