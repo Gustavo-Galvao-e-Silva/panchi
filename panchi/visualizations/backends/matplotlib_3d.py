@@ -28,6 +28,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _resolve_n_colors,
     _smooth_step,
 )
+from panchi.visualizations.backends.reduction_plan import ReductionPlan
 
 AXIS_LINE_COLOR = "#666666"
 HUD_COLOR = "#333333"
@@ -338,6 +339,114 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
         return self._run_animation(
             fig, animate_frame, frames, interval, name, blit=False
+        )
+
+    def animate_reduction(
+        self,
+        plan: ReductionPlan,
+        frames: int = 40,
+        interval: int = 30,
+        name: str = "animate_reduction",
+        colors: list[str] | None = None,
+    ) -> _InlineAnimation | None:
+        vec_colors = _resolve_n_colors(
+            colors, len(plan.start_columns), tuple(DEFAULT_COLORS)
+        )
+        rng = max(plan.max_extent() * 1.3, 1.5)
+
+        fig = plt.figure(figsize=self.figsize)
+        ax = fig.add_subplot(projection="3d")
+        _setup_coordinate_space_3d(ax, (-rng, rng), grid=False)
+
+        cube = Line3DCollection(
+            [[CUBE_VERTS[i], CUBE_VERTS[j]] for i, j in CUBE_EDGES],
+            colors="#999999",
+            linewidths=1.0,
+            alpha=0.7,
+        )
+        ax.add_collection3d(cube)
+
+        caption = ax.text2D(
+            0.5,
+            0.98,
+            "",
+            transform=ax.transAxes,
+            ha="center",
+            va="top",
+            fontsize=12,
+            fontweight="bold",
+            color=HUD_COLOR,
+        )
+        matrix_text = ax.text2D(
+            0.02,
+            0.02,
+            "",
+            transform=ax.transAxes,
+            va="bottom",
+            family="monospace",
+            fontsize=10,
+            color=HUD_COLOR,
+        )
+
+        state: dict[str, list] = {"arrows": []}
+        stage_count = len(plan.stages)
+        hold = max(1, frames // 3)
+        frames_per_stage = frames + hold
+        total_frames = max(stage_count, 1) * frames_per_stage
+
+        def animate_frame(frame: int) -> tuple:
+            if stage_count == 0:
+                transform = plan.cumulative_after(-1)
+                shown = plan.matrix_after(-1)
+                finished = True
+                caption.set_text(f"No row operations needed: already in {plan.form}")
+            else:
+                stage_index = min(frame // frames_per_stage, stage_count - 1)
+                local = frame - stage_index * frames_per_stage
+                progress = _smooth_step(min(local / (frames - 1), 1.0))
+                transform = plan.transform_at(stage_index, progress)
+                step_done = local >= frames - 1
+                shown = plan.matrix_after(stage_index if step_done else stage_index - 1)
+                finished = step_done and stage_index == stage_count - 1
+                if finished:
+                    caption.set_text(
+                        f"{plan.form} reached (rank {plan.rank}): pivot columns "
+                        f"are now standard basis vectors"
+                    )
+                else:
+                    caption.set_text(
+                        f"Step {stage_index + 1}/{stage_count}: "
+                        f"{plan.stages[stage_index].label}"
+                    )
+
+            matrix_text.set_text(
+                "\n".join(
+                    "[" + "  ".join(f"{value:6.3g}" for value in row) + "]"
+                    for row in shown
+                )
+            )
+
+            corners = [apply_3x3(transform, vertex) for vertex in CUBE_VERTS]
+            cube.set_segments([[corners[i], corners[j]] for i, j in CUBE_EDGES])
+
+            for arrow in state["arrows"]:
+                arrow.remove()
+            state["arrows"] = [
+                _draw_arrow_3d(
+                    ax,
+                    (0, 0, 0),
+                    apply_3x3(transform, column),
+                    color,
+                    linewidth=5 if finished and index in plan.pivot_columns else 3,
+                )
+                for index, (column, color) in enumerate(
+                    zip(plan.start_columns, vec_colors, strict=False)
+                )
+            ]
+            return ()
+
+        return self._run_animation(
+            fig, animate_frame, total_frames, interval, name, blit=False
         )
 
     def plot_span(

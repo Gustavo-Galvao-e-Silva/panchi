@@ -5,7 +5,7 @@ matplotlib.use("Agg")
 import pytest
 
 from panchi import Matrix, Vector, VectorSpace
-from panchi.algorithms import rank
+from panchi.algorithms import rank, ref, rref
 from panchi.symbolic import sqrt
 from panchi.visualizations import Animator2D
 from panchi.visualizations.animator import _to_float_space
@@ -519,3 +519,89 @@ class TestExactIrrationalInputs2D:
         animator = Animator2D()
         with pytest.raises(TypeError, match="real components"):
             animator.plot_vectors([Vector([sqrt(-1), 1])])
+
+
+# ==================== ANIMATE REDUCTION ====================
+
+
+class TestAnimateReduction:
+    """Test cases for Animator2D.animate_reduction."""
+
+    def test_rref_of_square_matrix(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[1, 2], [3, 4]])), frames=4, interval=50
+        )
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_wide_matrix_with_free_column(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[1, 2, 3], [3, 4, 5]])), frames=4, interval=50
+        )
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_ref_is_supported(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(ref(Matrix([[1, 2], [3, 4]])), frames=4, interval=50)
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_row_swap(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[0, 1], [1, 0]])), frames=4, interval=50
+        )
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_rank_deficient_matrix(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[1, 2], [2, 4]])), frames=4, interval=50
+        )
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_exact_fractions(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        matrix = Matrix([["1/2", "1/3"], ["1/4", "1/5"]])
+        animator.animate_reduction(rref(matrix), frames=4, interval=50)
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_already_reduced_matrix_has_nothing_to_do(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[1, 0], [0, 1]])), frames=4, interval=50
+        )
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_custom_name_and_colors(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_reduction(
+            rref(Matrix([[1, 2], [3, 4]])),
+            frames=4,
+            interval=50,
+            name="my_reduction",
+            colors=["#FF0000", "#0000FF"],
+        )
+        assert (tmp_path / "my_reduction.gif").exists()
+
+    def test_rejects_three_row_matrix_and_points_to_3d(self):
+        animator = Animator2D()
+        reduction = rref(Matrix([[1, 2], [3, 4], [5, 6]]))
+        with pytest.raises(ValueError, match="Animator3D"):
+            animator.animate_reduction(reduction)
+
+    def test_rejects_other_row_counts(self):
+        animator = Animator2D()
+        reduction = rref(Matrix([[1, 2], [3, 4], [5, 6], [7, 8]]))
+        with pytest.raises(ValueError, match="2 rows"):
+            animator.animate_reduction(reduction)
+
+    def test_rejects_plain_matrix(self):
+        animator = Animator2D()
+        with pytest.raises(TypeError, match="Reduction"):
+            animator.animate_reduction(Matrix([[1, 2], [3, 4]]))
+
+    def test_rejects_too_few_frames(self):
+        animator = Animator2D()
+        with pytest.raises(ValueError, match="frames"):
+            animator.animate_reduction(rref(Matrix([[1, 2], [3, 4]])), frames=1)

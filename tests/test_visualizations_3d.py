@@ -5,6 +5,7 @@ matplotlib.use("Agg")
 import pytest
 
 from panchi import Matrix, Vector, VectorSpace
+from panchi.algorithms import ref, rref
 from panchi.symbolic import sqrt
 from panchi.visualizations import Animator3D
 
@@ -353,3 +354,38 @@ class TestExactIrrationalInputs3D:
         animator = Animator3D()
         with pytest.raises(TypeError, match="real components"):
             animator.plot_vectors([Vector([sqrt(-1), 1, 0])])
+
+
+# ==================== ANIMATE REDUCTION ====================
+
+
+class TestAnimateReduction3D:
+    """Test cases for Animator3D.animate_reduction."""
+
+    def test_rref_of_square_matrix(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        matrix = Matrix([[1, 2, 3], [2, 5, 7], [0, 1, 2]])
+        animator.animate_reduction(rref(matrix), frames=4, interval=50)
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_augmented_matrix_ref(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        matrix = Matrix([[2, 1, 1, 5], [4, 3, 3, 9], [8, 7, 9, 1]])
+        animator.animate_reduction(ref(matrix), frames=4, interval=50)
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_already_reduced_matrix_has_nothing_to_do(self, tmp_path):
+        animator = Animator3D(save_path=tmp_path)
+        identity = Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+        animator.animate_reduction(rref(identity), frames=4, interval=50)
+        assert (tmp_path / "animate_reduction.gif").exists()
+
+    def test_rejects_two_row_matrix_and_points_to_2d(self):
+        animator = Animator3D()
+        with pytest.raises(ValueError, match="Animator2D"):
+            animator.animate_reduction(rref(Matrix([[1, 2], [3, 4]])))
+
+    def test_rejects_plain_matrix(self):
+        animator = Animator3D()
+        with pytest.raises(TypeError, match="Reduction"):
+            animator.animate_reduction(Matrix([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))

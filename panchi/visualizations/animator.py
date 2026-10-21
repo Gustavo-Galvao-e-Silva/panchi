@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from panchi.algorithms.results import Reduction
 from panchi.algorithms.vector_space_operations import basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.backends.reduction_plan import build_reduction_plan
 
 
 def _build_backend(
@@ -290,6 +292,75 @@ class _Animator:
             colors=colors,
         )
 
+    def animate_reduction(
+        self,
+        reduction: Reduction,
+        frames: int = 40,
+        interval: int = 30,
+        name: str | None = None,
+        colors: list[str] | None = None,
+    ) -> object | None:
+        """Animate every row operation of a row reduction.
+
+        A row operation acts on the columns of a matrix as a linear map, so
+        each step is shown as the elementary matrix ``E`` moving the space:
+        the columns of the matrix are drawn as vectors and slide from where
+        they were to where ``E`` sends them. The deformation accumulates from
+        one step to the next. When the reduction ends, the pivot columns
+        have landed on standard basis vectors.
+
+        Parameters
+        ----------
+        reduction : Reduction
+            The result of ``ref`` or ``rref``. Its matrix must have 2 rows
+            for ``Animator2D`` or 3 rows for ``Animator3D``; any number of
+            columns is fine, so augmented matrices ``[A | b]`` work too.
+        frames : int
+            Animation frames for each row operation. Default ``40``.
+        interval : int
+            Milliseconds between frames. Default ``30``.
+        name : str, optional
+            Output filename (without extension) when saving.
+        colors : list[str], optional
+            One color per matrix column, cycling if fewer are supplied.
+            ``None`` uses the default palette.
+
+        Raises
+        ------
+        TypeError
+            If ``reduction`` is not a ``Reduction``.
+        ValueError
+            If the matrix does not have the right number of rows, or
+            ``frames`` is less than 2.
+
+        Examples
+        --------
+        >>> from panchi import Matrix
+        >>> from panchi.algorithms import rref
+        >>> from panchi.visualizations import Animator2D
+        >>>
+        >>> animator = Animator2D()
+        >>> animator.animate_reduction(rref(Matrix([[1, 2], [3, 4]])))
+        """
+        if not isinstance(reduction, Reduction):
+            raise TypeError(
+                f"animate_reduction expects a Reduction (the result of ref or "
+                f"rref). Got {type(reduction).__name__}."
+            )
+        self._validate_reduction(reduction)
+        if frames < 2:
+            raise ValueError(
+                f"frames must be at least 2 so each step can be drawn. Got {frames}."
+            )
+        plan = build_reduction_plan(reduction)
+        return self._backend.animate_reduction(
+            plan,
+            frames=frames,
+            interval=interval,
+            name=name or "animate_reduction",
+            colors=colors,
+        )
+
     def plot_span(
         self,
         vectors_or_space: list[Vector] | VectorSpace | list[list[Vector] | VectorSpace],
@@ -358,6 +429,20 @@ class _Animator:
             raise ValueError(
                 f"Only {n}x{n} matrices are supported for transformation "
                 f"visualization. Got shape {matrix.rows}x{matrix.cols}."
+            )
+
+    def _validate_reduction(self, reduction: Reduction) -> None:
+        n = self._dims
+        rows = reduction.original.rows
+        if rows != n:
+            other = "Animator3D" if rows == 3 else "Animator2D"
+            hint = (
+                f" Use {other} for matrices with {rows} rows." if rows in (2, 3) else ""
+            )
+            raise ValueError(
+                f"{type(self).__name__} can only animate reductions of matrices "
+                f"with {n} rows, because the columns are drawn as vectors in "
+                f"R{n}. Got a {rows}x{reduction.original.cols} matrix.{hint}"
             )
 
 
