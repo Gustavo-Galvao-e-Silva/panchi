@@ -138,7 +138,20 @@ animator.animate_transform(
 
 Only 2x2 matrices are supported — a `ValueError` is raised for other shapes.
 
-Optional parameters: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
+Optional parameters: `vectors`, `frames`, `interval`, `name`, `colors` (one per transformed vector, cycling if fewer are supplied), and `show_matrix` / `show_labels`.
+
+To make the motion the whole question, hide the matrix and the coordinate labels. For example, ask "which of these has no real eigenvector?" and let students decide by watching:
+
+```python
+animator.animate_transform(
+    Matrix([[0, -1], [1, 0]]),
+    vectors=[Vector([1, 0]), Vector([1, 1])],
+    show_matrix=False,
+    show_labels=False,
+)
+```
+
+`show_matrix` hides the matrix in the corner (the matplotlib 2D backend never draws one). `show_labels` hides the tip labels (the 3D backends have none).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_shear.gif" alt="Example output: a coordinate grid shearing">
