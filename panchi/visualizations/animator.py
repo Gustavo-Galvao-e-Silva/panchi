@@ -254,6 +254,8 @@ class _Animator:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> object | None:
         """Animate a linear transformation (2x2 for Animator2D, 3x3 for Animator3D).
 
@@ -277,10 +279,41 @@ class _Animator:
         colors : list[str], optional
             One color per transformed vector, cycling if fewer are supplied.
             ``None`` uses the default palette.
+        show_matrix : bool
+            Draw the matrix in the corner of the frame. Default ``True``. Turn it
+            off to show only the motion, e.g. when students should judge a
+            transformation by eye before computing anything. (The matplotlib 2D
+            backend never draws the matrix.)
+        show_labels : bool
+            Label each vector tip with its coordinates. Default ``True``. (The 3D
+            backends never label tips.)
+
+        Raises
+        ------
+        TypeError
+            If ``show_matrix`` or ``show_labels`` is not a bool.
+
+        Examples
+        --------
+        Watch a shear without giving its entries away:
+
+        >>> animator = Animator2D(backend="manim")
+        >>> animator.animate_transform(
+        ...     Matrix([[1, 1], [0, 1]]), show_matrix=False, show_labels=False
+        ... )  # doctest: +SKIP
         """
         self._validate_matrix(matrix)
         if vectors is not None:
             self._validate_vectors(vectors)
+        for flag_name, flag in (
+            ("show_matrix", show_matrix),
+            ("show_labels", show_labels),
+        ):
+            if not isinstance(flag, bool):
+                raise TypeError(
+                    f"{flag_name} must be True or False. Got {type(flag).__name__}: "
+                    f"{flag!r}."
+                )
         return self._backend.animate_transform(
             matrix,
             vectors=None if vectors is None else [_to_float_vector(v) for v in vectors],
@@ -288,6 +321,8 @@ class _Animator:
             interval=interval,
             name=name or "animate_transform",
             colors=colors,
+            show_matrix=show_matrix,
+            show_labels=show_labels,
         )
 
     def plot_span(

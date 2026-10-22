@@ -245,6 +245,8 @@ class _ManimBackend3D(_ManimBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _ManimOutput:
         vecs = (
             [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
@@ -271,8 +273,9 @@ class _ManimBackend3D(_ManimBackendBase):
                 color=MATRIX_HUD_COLOR,
             ).scale(0.7)
             matrix_tex.to_corner(manim.UR, buff=0.4)
-            scene.add_fixed_in_frame_mobjects(matrix_tex)
-            scene.play(Write(matrix_tex), run_time=0.6)
+            if show_matrix:
+                scene.add_fixed_in_frame_mobjects(matrix_tex)
+                scene.play(Write(matrix_tex), run_time=0.6)
 
             arrows = [
                 Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*v), color=color)

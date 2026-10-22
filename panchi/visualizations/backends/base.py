@@ -83,10 +83,13 @@ class _BaseBackend(ABC):
     def animate_transform(
         self,
         matrix: Matrix,
+        vectors: list[Vector] | None,
         frames: int,
         interval: int,
         name: str,
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> object | None: ...
 
     @abstractmethod
