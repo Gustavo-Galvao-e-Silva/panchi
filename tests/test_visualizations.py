@@ -254,6 +254,49 @@ class TestAnimateTransform:
                 Matrix([[1, 0], [0, 1]]), vectors=[Vector([1, 2, 3])]
             )
 
+    def test_hide_labels_draws_no_tip_text(self, tmp_path, monkeypatch):
+        import matplotlib.axes
+
+        calls = []
+        original_text = matplotlib.axes.Axes.text
+
+        def counting_text(self, *args, **kwargs):
+            calls.append(args)
+            return original_text(self, *args, **kwargs)
+
+        monkeypatch.setattr(matplotlib.axes.Axes, "text", counting_text)
+        animator = Animator2D(save_path=tmp_path)
+        vectors = [Vector([1, 0]), Vector([0, 1]), Vector([1, 1])]
+
+        animator.animate_transform(
+            Matrix([[2, 1], [0, 1]]), vectors=vectors, frames=5, name="labelled"
+        )
+        with_labels = len(calls)
+        calls.clear()
+        animator.animate_transform(
+            Matrix([[2, 1], [0, 1]]),
+            vectors=vectors,
+            frames=5,
+            name="unlabelled",
+            show_labels=False,
+        )
+        print("\n✓ show_labels=False → one fewer text per vector")
+        assert with_labels - len(calls) == len(vectors)
+        assert (tmp_path / "unlabelled.gif").exists()
+
+    def test_hide_matrix_accepted(self, tmp_path):
+        animator = Animator2D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[0, -1], [1, 0]]), frames=5, show_matrix=False
+        )
+        assert (tmp_path / "animate_transform.gif").exists()
+
+    @pytest.mark.parametrize("flag", ["show_matrix", "show_labels"])
+    def test_rejects_non_bool_flags(self, flag):
+        animator = Animator2D()
+        with pytest.raises(TypeError, match=f"{flag} must be True or False"):
+            animator.animate_transform(Matrix([[1, 0], [0, 1]]), **{flag: "no"})
+
 
 # ==================== PLOT SPAN ====================
 

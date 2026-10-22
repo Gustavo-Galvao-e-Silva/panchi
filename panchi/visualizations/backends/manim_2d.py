@@ -343,6 +343,8 @@ class _ManimBackend2D(_ManimBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _ManimOutput:
         vecs = (
             [(float(v[0]), float(v[1])) for v in vectors]
@@ -377,16 +379,21 @@ class _ManimBackend2D(_ManimBackendBase):
                 color=MATRIX_HUD_COLOR,
             ).scale(0.9)
             matrix_tex.to_corner(manim.UR, buff=0.5)
-            scene.play(Write(matrix_tex), run_time=0.8)
+            if show_matrix:
+                scene.play(Write(matrix_tex), run_time=0.8)
 
             arrows = [
                 _arrow(plane, (0, 0), (vx, vy), color, 7, tip_ratio=0.2)
                 for (vx, vy), color in zip(vecs, vec_colors, strict=False)
             ]
-            labels = [
-                MathTex(f"[{vx:.3g}, {vy:.3g}]", color=color).scale(0.7)
-                for (vx, vy), color in zip(vecs, vec_colors, strict=False)
-            ]
+            labels = (
+                [
+                    MathTex(f"[{vx:.3g}, {vy:.3g}]", color=color).scale(0.7)
+                    for (vx, vy), color in zip(vecs, vec_colors, strict=False)
+                ]
+                if show_labels
+                else []
+            )
             for arrow, label in zip(arrows, labels, strict=False):
                 label.next_to(arrow.get_end(), manim.UR, buff=0.2)
 

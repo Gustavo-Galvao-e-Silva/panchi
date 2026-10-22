@@ -260,6 +260,8 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _InlineAnimation | None:
         vecs = (
             [(float(v[0]), float(v[1])) for v in vectors]
@@ -311,16 +313,17 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         for (vx, vy), color in zip(vecs, vec_colors, strict=False):
             arrow = _create_vector_arrow((0, 0), (vx, vy), color, linewidth=3.5)
             ax.add_patch(arrow)
-            label = ax.text(
-                vx + 0.15,
-                vy + 0.15,
-                f"[{vx:.3g}, {vy:.3g}]",
-                fontsize=12,
-                fontweight="bold",
-                color=color,
-            )
             arrows.append(arrow)
-            labels.append(label)
+            if show_labels:
+                label = ax.text(
+                    vx + 0.15,
+                    vy + 0.15,
+                    f"[{vx:.3g}, {vy:.3g}]",
+                    fontsize=12,
+                    fontweight="bold",
+                    color=color,
+                )
+                labels.append(label)
 
         def animate_frame(frame: int) -> tuple:
             t = _smooth_step(frame / frames)
@@ -339,13 +342,14 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
 
             grid_collection.set_segments(transformed_lines)
 
-            for (vx, vy), arrow, label in zip(vecs, arrows, labels, strict=False):
+            for i, ((vx, vy), arrow) in enumerate(zip(vecs, arrows, strict=False)):
                 tx = mt_a * vx + mt_b * vy
                 ty = mt_c * vx + mt_d * vy
                 arrow.set_positions((0, 0), (tx, ty))
-                label.set_position((tx + 0.15, ty + 0.15))
-                if t > 0.9:
-                    label.set_text(f"[{tx:.3g}, {ty:.3g}]")
+                if show_labels:
+                    labels[i].set_position((tx + 0.15, ty + 0.15))
+                    if t > 0.9:
+                        labels[i].set_text(f"[{tx:.3g}, {ty:.3g}]")
 
             return (grid_collection, *arrows, *labels)
 

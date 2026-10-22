@@ -283,6 +283,8 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _InlineAnimation | None:
         vecs = (
             [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
@@ -304,16 +306,17 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
             "[" + "  ".join(f"{target[i][j]:+.2g}" for j in range(3)) + "]"
             for i in range(3)
         )
-        ax.text2D(
-            0.02,
-            0.98,
-            matrix_text,
-            transform=ax.transAxes,
-            va="top",
-            family="monospace",
-            fontsize=11,
-            color=HUD_COLOR,
-        )
+        if show_matrix:
+            ax.text2D(
+                0.02,
+                0.98,
+                matrix_text,
+                transform=ax.transAxes,
+                va="top",
+                family="monospace",
+                fontsize=11,
+                color=HUD_COLOR,
+            )
 
         state = {"arrows": []}
 
