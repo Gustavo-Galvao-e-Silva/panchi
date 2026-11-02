@@ -208,7 +208,41 @@ animator.plot_span(
 
 With multiple spans, `colors` gives one color per span and `labels` names them in the legend; `span_color` applies to the single-span case only.
 
-Optional parameters: `colors`, `labels`, `grid`, `name`, and `span_color` (the shade of the span region, single span only).
+Optional parameters: `colors`, `labels`, `grid`, `name`, `span_color` (the shade of the span region, single span only), and the options in the next section.
+
+### Showing vectors against a span
+
+Use `vectors` to draw arrows on top of a span. Unlike the span's own basis arrows, they don't have to lie in it. Use `gaps` to join two points with a dashed line, which shows how far one is from the other:
+
+```python
+from panchi import Matrix, Vector, qr_decomposition
+from panchi.visualizations import Animator3D
+
+X = Matrix([[1.0, 0.65], [1.0, 2.05], [1.0, 3.35]])
+y = Vector([33.9, 10.4, 15.0])
+
+q = qr_decomposition(X).q
+p = q @ (q.T @ y)                   # the projection of y onto the plane
+
+animator = Animator3D()
+animator.plot_span(
+    X.col_vectors,
+    labels=["1", "x"],
+    vectors=[y, p],
+    vector_labels=["y", "p"],
+    gaps=[(y, p)],
+    view="edge",
+)
+```
+
+`p` is the point of the plane closest to `y`, so the dashed gap meets the plane at a right angle. This is the picture behind least squares. Try a different `p` in the plane to see the gap grow and tilt.
+
+`view` sets the camera for `Animator3D`:
+
+- `view="edge"` looks across a single plane, turned so the plane reads as the horizon and anything off the plane rises straight up.
+- `view=(elevation, azimuth)` or `view=(elevation, azimuth, roll)` sets the angles yourself, in degrees.
+
+Optional parameters: `vectors`, `vector_colors`, `vector_labels`, `gaps`, and `view`. These work with both backends. In `Animator2D` you can use everything except `view`.
 
 ---
 

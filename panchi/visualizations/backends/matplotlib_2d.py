@@ -13,6 +13,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
+    GAP_COLOR,
     GRID_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
@@ -23,6 +24,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _resolve_colors,
     _resolve_n_colors,
     _smooth_step,
+    _SpanOverlay,
 )
 
 
@@ -363,12 +365,15 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         grid: bool,
         name: str,
         span_color: str | None = None,
+        overlay: _SpanOverlay | None = None,
+        view: tuple[float, ...] | None = None,
     ) -> None:
+        overlay = overlay or _SpanOverlay()
         per_space = [(compute_basis(s), rank(s)) for s in spaces]
-        all_basis = [v for basis, _ in per_space for v in basis]
+        plotted = [v for basis, _ in per_space for v in basis] + overlay.points()
 
         fig, ax = plt.subplots(figsize=self.figsize)
-        axis_range = _calculate_axis_range(all_basis) if all_basis else (-3.0, 3.0)
+        axis_range = _calculate_axis_range(plotted) if plotted else (-3.0, 3.0)
         _setup_coordinate_plane(ax, axis_range, axis_range, grid)
 
         if len(per_space) == 1:
@@ -401,8 +406,29 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                     shade_label=label,
                 )
 
+        self._draw_overlay_2d(ax, overlay)
         ax.legend(loc="upper left", fontsize=10)
         self._finalize_figure(fig, name)
+
+    def _draw_overlay_2d(self, ax: plt.Axes, overlay: _SpanOverlay) -> None:
+        for vec, color, label in zip(
+            overlay.vectors, overlay.colors, overlay.labels, strict=True
+        ):
+            tip = (float(vec[0]), float(vec[1]))
+            ax.add_patch(_create_vector_arrow((0, 0), tip, color))
+            if label:
+                offset_x = 0.15 if tip[0] >= 0 else -0.15
+                offset_y = 0.15 if tip[1] >= 0 else -0.15
+                _add_vector_label(ax, tip, label, color, (offset_x, offset_y))
+        for start, end in overlay.gaps:
+            ax.plot(
+                [start[0], end[0]],
+                [start[1], end[1]],
+                color=GAP_COLOR,
+                linestyle="--",
+                linewidth=2,
+                zorder=4,
+            )
 
     def _draw_span_2d(
         self,
