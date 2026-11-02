@@ -5,7 +5,7 @@ A vector space (or subspace) is the set of all linear combinations of a collecti
 In panchi, `VectorSpace` is a **slim container**: it holds the spanning set and validates it, nothing more. The derived structure — basis, rank, membership, complements — is computed on demand by free functions in `panchi.algorithms`:
 
 ```python
-from panchi import Vector, VectorSpace
+from panchi import Matrix, Vector, VectorSpace
 from panchi.algorithms import (
     basis,
     rank,

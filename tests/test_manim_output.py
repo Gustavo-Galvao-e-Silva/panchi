@@ -101,6 +101,26 @@ class TestManimRender:
         ).animate_transform(Matrix([[0, -1], [1, 0]]), name="second")
         assert second.path.suffix == ".mp4"
 
+    def test_transform_without_matrix_or_labels(self, tmp_path):
+        output = Animator2D(
+            backend="manim", save_path=tmp_path, quality="low"
+        ).animate_transform(
+            Matrix([[1, -2], [1, 3]]),
+            vectors=[Vector([1, 0]), Vector([1, 1])],
+            name="bare",
+            show_matrix=False,
+            show_labels=False,
+        )
+        assert output.path.exists()
+
+    def test_3d_transform_without_matrix(self, tmp_path):
+        output = Animator3D(
+            backend="manim", save_path=tmp_path, quality="low"
+        ).animate_transform(
+            Matrix([[1, 0, 0], [0, 0, -1], [0, 1, 0]]), show_matrix=False
+        )
+        assert output.path.exists()
+
     def test_plot_span_overlay_2d(self, tmp_path):
         y, p = Vector([3, 4]), Vector([3, 0])
         output = Animator2D(

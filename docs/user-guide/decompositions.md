@@ -1,10 +1,10 @@
 # Decompositions
 
-A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi implements **LU** decomposition with partial pivoting, **QR** decomposition via Gram-Schmidt, and numerical eigenvalue computation via the **QR algorithm** (exact eigenvalues have [their own page](eigenvalues.md)).
+A matrix decomposition factors a matrix into simpler pieces that reveal its structure. panchi implements **LU** decomposition with row swaps, **QR** decomposition via Gram-Schmidt, and numerical eigenvalue computation via the **QR algorithm** (exact eigenvalues have [their own page](eigenvalues.md)).
 
 ## LU Decomposition
 
-LU decomposition factors a square matrix A into a lower triangular matrix L and an upper triangular matrix U. Because row swaps are often necessary for numerical stability, panchi uses **partial pivoting**, which introduces a permutation matrix P:
+LU decomposition factors a square matrix A into a lower triangular matrix L and an upper triangular matrix U. Elimination can land on a zero pivot, so panchi swaps rows when it has to, which introduces a permutation matrix P:
 
 $$P A = L U$$
 
@@ -57,15 +57,15 @@ print(decomp)
 # ...
 ```
 
-## What partial pivoting means
+## When rows are swapped
 
-At each step of elimination, partial pivoting swaps rows so that the entry with the largest absolute value in the current pivot column becomes the pivot. This avoids division by small numbers and keeps the decomposition numerically well-behaved.
+At each step of elimination, panchi keeps the current pivot unless it is zero. If it is zero, the row is swapped with the first row below that has a non-zero entry in the pivot column. This is the rule you would use by hand, and it is not partial pivoting, which always moves the largest entry into the pivot position to limit rounding error. A small non-zero pivot is kept, so for floating-point matrices L and U can pick up more rounding error than they would with partial pivoting.
 
-The row swaps are recorded in P, so the factorisation relationship remains exact even after pivoting.
+The row swaps are recorded in P, so the factorisation relationship remains exact even after swapping.
 
 ## What L and U encode
 
-U is the result of Gaussian elimination applied to P @ A — it is the REF of the permuted matrix. L encodes the elimination steps: each entry below the diagonal in column j of L is the scalar that was used to zero out that row's entry in column j.
+U is the result of Gaussian elimination applied to P @ A — it is the REF of the permuted matrix. L encodes the elimination steps: each entry below the diagonal in column j of L is the negative of the scalar that was used to zero out that row's entry in column j.
 
 This means the steps recorded in `decomp.steps` and the entries of L are two ways of reading the same information.
 

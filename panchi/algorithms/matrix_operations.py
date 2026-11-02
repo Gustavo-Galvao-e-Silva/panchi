@@ -211,7 +211,7 @@ def determinant_lu(matrix: Matrix) -> float:
     Deprecated since 3.1.0. Use ``determinant`` or the exact
     ``determinant_by_reduction`` instead. Removed in 4.0.
 
-    Factors the matrix into P, L, and U using partial pivoting, then
+    Factors the matrix into P, L, and U with row swaps, then
     multiplies the main diagonal entries of U by the parity of the
     permutation. Each row swap in P contributes a factor of -1 to the
     determinant, so the sign is adjusted by counting the number of swaps

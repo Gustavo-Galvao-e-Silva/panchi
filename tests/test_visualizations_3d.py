@@ -170,6 +170,21 @@ class TestAnimations3D:
         print("\n✓ 3D transform with custom vectors saved")
         assert (tmp_path / "animate_transform.gif").exists()
 
+    def test_animate_transform_hide_matrix(self, tmp_path, monkeypatch):
+        from mpl_toolkits.mplot3d import Axes3D
+
+        texts = []
+        monkeypatch.setattr(
+            Axes3D, "text2D", lambda self, *args, **kwargs: texts.append(args)
+        )
+        animator = Animator3D(save_path=tmp_path)
+        animator.animate_transform(
+            Matrix([[2, 0, 0], [0, 1, 0], [0, 1, 1]]), frames=6, show_matrix=False
+        )
+        print("\n✓ 3D show_matrix=False → no matrix text")
+        assert texts == []
+        assert (tmp_path / "animate_transform.gif").exists()
+
     def test_animate_transform_rejects_non_3d_vectors(self, tmp_path):
         animator = Animator3D(save_path=tmp_path)
         with pytest.raises(ValueError, match="Only 3D vectors"):

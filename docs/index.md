@@ -32,12 +32,15 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 ## What panchi covers
 
 - `Vector` and `Matrix` numeric primitives with natural operator syntax
-- Factory functions: identity, zero and ones matrices, diagonal, rotation matrices, and more
+- Exact fractions that stay exact through every algorithm
+- Factory functions: identity and zero matrices, diagonal, rotation matrices, and more
+- `VectorSpace` subspaces: span, basis, rank, the fundamental subspaces, and orthogonal complements
 - Elementary row operations as first-class objects
 - Row reduction to REF and RREF
 - LU and QR decomposition (QR via Gram-Schmidt)
 - Exact eigenvalues and eigenvectors for 2×2 and 3×3 matrices, including irrational and complex ones, plus a numerical QR algorithm for any size
 - Matrix inverse and linear system solving (with an optional numerical tolerance)
+- Determinants step by step: cofactor expansion, row reduction, the adjugate, and Cramer's rule
 - Rich result formats for algorithms, allowing for step-by-step inspection
 - [2D and 3D visualization](user-guide/visualizations.md) of vectors, linear transformations, and spans via Matplotlib, with optional Manim backend
 

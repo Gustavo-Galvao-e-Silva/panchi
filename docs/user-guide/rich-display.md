@@ -40,9 +40,9 @@ rref(pan.Matrix([[1, 2], [3, 4]]))
 
 $$\begin{aligned}
 & \begin{bmatrix} 1 & 2 \\ 3 & 4 \end{bmatrix} \\
-&\xrightarrow{R_{1} \to R_{1} + (-3.0)\,R_{0}} \begin{bmatrix} 1 & 2 \\ 0 & -2.0 \end{bmatrix} \\
-&\xrightarrow{R_{1} \to -0.5\,R_{1}} \begin{bmatrix} 1 & 2 \\ 0 & 1.0 \end{bmatrix} \\
-&\xrightarrow{R_{0} \to R_{0} + (-2.0)\,R_{1}} \begin{bmatrix} 1 & 0 \\ 0 & 1.0 \end{bmatrix}
+&\xrightarrow{R_{1} \to R_{1} + (-3.0)\,R_{0}} \begin{bmatrix} 1 & 2 \\ 0.0 & -2.0 \end{bmatrix} \\
+&\xrightarrow{R_{1} \to -0.5\,R_{1}} \begin{bmatrix} 1.0 & 2.0 \\ 0.0 & 1.0 \end{bmatrix} \\
+&\xrightarrow{R_{0} \to R_{0} + (-2.0)\,R_{1}} \begin{bmatrix} 1.0 & 0.0 \\ 0.0 & 1.0 \end{bmatrix}
 \end{aligned}$$
 
 The same holds across the library:

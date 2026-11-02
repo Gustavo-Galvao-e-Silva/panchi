@@ -45,7 +45,7 @@ def _calculate_p(n: int, steps: list[RowOperation]) -> Matrix:
 
     Constructs P by applying each RowSwap in the step sequence to the
     n×n identity matrix in order. The result encodes all row swaps made
-    during partial pivoting, satisfying P @ A == L @ U.
+    during elimination, satisfying P @ A == L @ U.
 
     RowAdd and RowScale operations are ignored here — only swaps affect P.
 
@@ -71,16 +71,15 @@ def _calculate_p(n: int, steps: list[RowOperation]) -> Matrix:
 
 def lu(matrix: Matrix) -> LUDecomposition:
     """
-    Compute the LU decomposition of a square matrix with partial pivoting.
+    Compute the LU decomposition of a square matrix, swapping rows as needed.
 
     Factors the matrix into a lower triangular matrix L, an upper triangular
     matrix U, and a permutation matrix P such that P @ matrix == L @ U.
 
-    Partial pivoting swaps rows before each elimination step to place the
-    largest available entry in the pivot column at the pivot position. This
-    improves numerical stability and avoids division by zero or near-zero
-    values. The swaps are recorded in P so the factorisation relationship
-    holds exactly.
+    A row swap happens only when the current pivot is zero, using the first
+    row below with a non-zero entry in the pivot column. This is not partial
+    pivoting: a small non-zero pivot is kept. The swaps are recorded in P so
+    the factorisation relationship holds exactly.
 
     L is lower triangular with ones on the diagonal. Its off-diagonal
     entries are the elimination multipliers used during Gaussian elimination.
