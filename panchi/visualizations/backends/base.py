@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from panchi.primitives.matrix import Matrix
@@ -16,6 +17,23 @@ SCALING_COLORS = ("#805B49", "#FFB592")  # original, scaled
 TRANSFORM_COLORS = ("#805B49", "#FFB592")  # e1, e2 (2D)
 TRANSFORM_COLORS_3D = ("#805B49", "#FFB592", "#3E7C7B")  # e1, e2, e3 (3D)
 SPAN_COLOR = "#805B49"
+OVERLAY_COLORS = ("#C44536", "#3E7C7B", "#D4A15E", "#45423F")
+GAP_COLOR = "#222222"
+
+
+@dataclass
+class _SpanOverlay:
+    """Arrows and dashed gaps drawn on top of a ``plot_span`` figure."""
+
+    vectors: list[Vector] = field(default_factory=list)
+    colors: list[str] = field(default_factory=list)
+    labels: list[str | None] = field(default_factory=list)
+    gaps: list[tuple[Vector, Vector]] = field(default_factory=list)
+
+    def points(self) -> list[Vector]:
+        """Every point the overlay touches, so the axes can make room for it."""
+        endpoints = [point for gap in self.gaps for point in gap]
+        return self.vectors + endpoints
 
 
 def _resolve_colors(colors: list[str] | None, defaults: tuple[str, ...]) -> list[str]:
@@ -98,4 +116,6 @@ class _BaseBackend(ABC):
         grid: bool,
         name: str,
         span_color: str | None = None,
+        overlay: _SpanOverlay | None = None,
+        view: tuple[float, ...] | None = None,
     ) -> object | None: ...
