@@ -118,6 +118,9 @@ class TestManimRender:
             backend="manim", save_path=tmp_path, quality="low"
         ).animate_transform(
             Matrix([[1, 0, 0], [0, 0, -1], [0, 1, 0]]), show_matrix=False
+        )
+        assert output.path.exists()
+
     def test_plot_span_overlay_2d(self, tmp_path):
         y, p = Vector([3, 4]), Vector([3, 0])
         output = Animator2D(

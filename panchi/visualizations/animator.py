@@ -624,7 +624,8 @@ class Animator3D(_Animator):
         Directory for saving output. If ``None``, matplotlib displays
         interactively and manim saves to ``./media``.
     quality : str
-        Render quality: ``"low"``, ``"medium"`` (default), or ``"high"``.
+        Render quality: ``"low"``, ``"medium"`` (default), ``"high"``,
+        or ``"production"`` (manim only).
     figsize : tuple[int, int]
         Figure size in inches (matplotlib only). Default ``(8, 8)``.
     include_extra_files : bool

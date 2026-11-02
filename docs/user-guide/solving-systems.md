@@ -100,7 +100,7 @@ For homogeneous systems (b = 0), the particular solution is the zero vector and 
 
 - If a pivot appears in the last (b) column, the system is inconsistent.
 - If there are fewer pivots than variables, there are free variables and infinite solutions.
-- Otherwise, back-substitution yields the unique solution.
+- Otherwise, every variable has a pivot, and the last column of the RREF is the unique solution.
 
 ## Numerical tolerance
 

@@ -179,18 +179,15 @@ class Reduction:
 
 class LUDecomposition:
     """
-    The result of an LU decomposition with partial pivoting.
+    The result of an LU decomposition with row swaps.
 
     Stores the original matrix, the lower triangular matrix L, the upper
     triangular matrix U, and the permutation matrix P encoding any row
-    swaps applied for numerical stability. The decomposition satisfies
+    swaps applied during elimination. The decomposition satisfies
     P @ original == L @ U.
 
-    Partial pivoting swaps rows before each elimination step so that the
-    largest available entry in the pivot column is used as the pivot.
-    This avoids division by small numbers and produces a more numerically
-    stable result. The swaps are recorded in P so that the factorisation
-    relationship is exact.
+    A row swap happens only when the current pivot is zero. The swaps are
+    recorded in P so that the factorisation relationship is exact.
 
     Parameters
     ----------

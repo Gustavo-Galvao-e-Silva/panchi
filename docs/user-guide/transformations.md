@@ -67,7 +67,7 @@ rotate = pan.rotation_matrix_2d(pi / 2)
 composed = rotate @ scale
 
 v = pan.Vector([1, 0])
-print(composed @ v)  # [0, 2]
+print(composed @ v)  # [~0.0, 2.0]
 ```
 
 ## Verifying mathematical identities

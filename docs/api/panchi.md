@@ -12,6 +12,8 @@ import panchi as pan
 
 ::: panchi.Matrix
 
+::: panchi.VectorSpace
+
 ## Factory functions
 
 ::: panchi.identity
@@ -41,6 +43,8 @@ import panchi as pan
 ::: panchi.rotation_matrix_2d
 
 ::: panchi.rotation_matrix_3d
+
+::: panchi.vector_column_matrix
 
 ## Exact arithmetic factories
 

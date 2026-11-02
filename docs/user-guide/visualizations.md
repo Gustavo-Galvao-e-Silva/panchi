@@ -33,8 +33,8 @@ The `backend` parameter selects which rendering engine to use. Manim is only imp
 | Parameter   | Default         | Description |
 |-------------|-----------------|-------------|
 | `backend`   | `"matplotlib"`  | `"matplotlib"` or `"manim"` |
-| `save_path` | `None`          | Directory for output files. If `None`, matplotlib shows interactively. |
-| `quality`   | `"medium"`      | Render quality: `"low"`, `"medium"`, `"high"`, `"production"` (manim only) |
+| `save_path` | `None`          | Directory for output files. If `None`, matplotlib shows interactively and manim saves to `./media`. |
+| `quality`   | `"medium"`      | Render quality: `"low"`, `"medium"`, `"high"`, or `"production"` (manim only) |
 | `figsize`   | `(8, 8)`        | Figure size in inches (matplotlib only) |
 | `include_extra_files` | `False` | Keep manim's scratch directories next to the output (manim only) |
 | `output_format` | `None` | `"mp4"` (the default) or `"gif"` (manim only) |
@@ -53,7 +53,7 @@ v3 = Vector([2, -1])
 animator.plot_vectors([v1, v2, v3], labels=["v1", "v2", "v3"])
 ```
 
-Pass any number of 2D vectors as positional arguments. Optional parameters:
+Pass any number of 2D vectors as a single list. Optional parameters:
 
 - `colors` — list of hex color strings (e.g. `["#FF0000", "#0000FF"]`)
 - `labels` — list of label strings
@@ -261,6 +261,8 @@ animator.animate_transform(Matrix([[0, -1], [1, 0]]), name="rotation")
 # → ./output/rotation.mp4  (manim)
 ```
 
+The `name` parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. `"plot_vectors"`, `"animate_transform"`).
+
 ### manim as GIFs
 
 GIFs embed anywhere a video can't: READMEs, slides, LMS pages, chat. Ask manim for one with `output_format`:
@@ -272,8 +274,6 @@ print(clip.path)  # ./output/shear.gif
 ```
 
 Every manim method returns the saved file this way, as an object with a `.path`. GIFs are larger than `.mp4` and limited to 256 colours, so faint details such as grid lines come out a little dimmer.
-
-The `name` parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. `"plot_vectors"`, `"animate_transform"`).
 
 ---
 
@@ -287,7 +287,7 @@ The `name` parameter controls the filename (without extension). If omitted, it d
 | Plays inline in Jupyter | Yes | Yes (the saved file is embedded) |
 | Grid morph quality | Good (LineCollection interpolation) | Excellent (native NumberPlane) |
 | LaTeX labels | No | Yes |
-| Parallelogram in addition | No | Yes |
+| Parallelogram in addition | 3D only | Yes |
 | Render speed | Fast | Slower (video encoding) |
 
 Both backends support all five visualization methods with the same API, for both `Animator2D` and `Animator3D`.
@@ -307,7 +307,7 @@ animator = Animator3D(save_path="./output")      # save .png / .gif
 animator = Animator3D(backend="manim", save_path="./videos")
 ```
 
-The constructor takes the same parameters as `Animator2D` (`backend`, `save_path`, `quality`, `figsize`). The only difference: for 3D the `quality` tiers are `"low"`, `"medium"`, and `"high"` — there is no `"production"` tier.
+The constructor takes the same parameters as `Animator2D`.
 
 All vectors passed to `Animator3D` must be 3D; a 2D vector raises a `ValueError`.
 
@@ -369,7 +369,7 @@ animator.animate_transform(
 )
 ```
 
-Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
+Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `vectors`, `frames`, `interval`, `name`, `colors` (one per transformed vector, cycling if fewer are supplied), and `show_matrix`. `show_labels` is accepted too, but has no effect because 3D tips are never labelled.
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_3d.gif" alt="Example output: the unit cube morphing under a 3x3 matrix">
@@ -400,7 +400,7 @@ animator.plot_span(
 )
 ```
 
-Options: `colors`, `labels`, `grid`, `name`, and `span_color`.
+Options: `colors`, `labels`, `grid`, `name`, `span_color`, and the `vectors`, `vector_colors`, `vector_labels`, `gaps`, and `view` options from [Showing vectors against a span](#showing-vectors-against-a-span).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/span_plane_3d.png" alt="Example output: two 3D vectors shading the plane they span">
