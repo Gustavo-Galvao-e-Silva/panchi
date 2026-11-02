@@ -30,6 +30,7 @@ from panchi.visualizations.backends.manim_base import (
     AXIS_COLOR,
     DEFAULT_COLORS,
     GUIDE_COLOR,
+    MANIM_GAP_COLOR,
     MATRIX_HUD_COLOR,
     PARALLELOGRAM_COLOR,
     SCALING_COLORS,
@@ -41,6 +42,7 @@ from panchi.visualizations.backends.manim_base import (
     _ManimOutput,
     _resolve_colors,
     _resolve_n_colors,
+    _SpanOverlay,
 )
 
 _USABLE_WIDTH = 12.0
@@ -431,9 +433,12 @@ class _ManimBackend2D(_ManimBackendBase):
         grid: bool,
         name: str,
         span_color: str | None = None,
+        overlay: _SpanOverlay | None = None,
+        view: tuple[float, ...] | None = None,
     ) -> _ManimOutput:
+        overlay = overlay or _SpanOverlay()
         per_space = [(compute_basis(s), rank(s)) for s in spaces]
-        all_basis = [v for basis, _ in per_space for v in basis]
+        plotted = [v for basis, _ in per_space for v in basis] + overlay.points()
         single = len(per_space) == 1
 
         if single:
@@ -455,8 +460,8 @@ class _ManimBackend2D(_ManimBackendBase):
             ]
 
         def build(scene: _VectorScene) -> None:
-            if all_basis:
-                range_val = _axis_range(c for v in all_basis for c in (v[0], v[1]))
+            if plotted:
+                range_val = _axis_range(c for v in plotted for c in (v[0], v[1]))
             else:
                 range_val = 3
             scene.setup_axes((-range_val, range_val), (-range_val, range_val))
@@ -497,6 +502,18 @@ class _ManimBackend2D(_ManimBackendBase):
                     basis, arrow_color_sets[idx], arrow_label_sets[idx], strict=False
                 ):
                     scene.add_vector((vec[0], vec[1]), color, label)
+
+            for vec, color, tip_label in zip(
+                overlay.vectors, overlay.colors, overlay.labels, strict=True
+            ):
+                scene.add_vector((vec[0], vec[1]), color, tip_label)
+            for start, end in overlay.gaps:
+                gap = DashedLine(
+                    scene.axes.c2p(start[0], start[1]),
+                    scene.axes.c2p(end[0], end[1]),
+                    color=MANIM_GAP_COLOR,
+                )
+                scene.play(Create(gap), run_time=0.8)
 
             scene.wait(1.5)
 

@@ -39,7 +39,7 @@ classifiers = [
   "Typing :: Typed",
 ]
 
-dependencies = ["matplotlib>=3.5.0"]
+dependencies = ["matplotlib>=3.6.0"]
 
 [project.urls]
 Homepage = "https://github.com/Gustavo-Galvao-e-Silva/panchi"

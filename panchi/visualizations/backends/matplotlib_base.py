@@ -9,6 +9,7 @@ from panchi.primitives.vector import Vector
 from panchi.visualizations.backends.base import (  # noqa: F401
     ADDITION_COLORS,
     DEFAULT_COLORS,
+    GAP_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS,
@@ -16,6 +17,7 @@ from panchi.visualizations.backends.base import (  # noqa: F401
     _BaseBackend,
     _resolve_colors,
     _resolve_n_colors,
+    _SpanOverlay,
 )
 
 GRID_COLOR = "#CCCCCC"
