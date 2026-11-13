@@ -11,6 +11,7 @@ never need to know about row operations, fractions, or panchi matrices.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 
 from panchi.algorithms.results import Reduction
@@ -80,6 +81,28 @@ class ReductionStage:
 
 
 @dataclass(frozen=True)
+class ReductionFrame:
+    """What to draw on one frame of a reduction animation.
+
+    Attributes
+    ----------
+    transform : list[list[float]]
+        The total transformation applied to the space on this frame.
+    matrix : list[list[float]]
+        The matrix (as rows) to show on screen.
+    caption : str
+        The text describing the current step.
+    finished : bool
+        True once the last row operation has completed.
+    """
+
+    transform: FloatMatrix
+    matrix: FloatMatrix
+    caption: str
+    finished: bool
+
+
+@dataclass(frozen=True)
 class ReductionPlan:
     """Everything a backend needs to animate a reduction.
 
@@ -142,6 +165,69 @@ class ReductionPlan:
             for i in range(self.dims)
         ]
         return _matmul(blended, self.cumulative_after(stage_index - 1))
+
+    def frames_per_stage(self, frames: int) -> int:
+        """Frames for one row operation plus the pause that follows it."""
+        return frames + max(1, frames // 3)
+
+    def total_frames(self, frames: int) -> int:
+        """Number of frames in the whole animation."""
+        return max(len(self.stages), 1) * self.frames_per_stage(frames)
+
+    def final_caption(self) -> str:
+        """The caption shown once the reduction is complete."""
+        if self.form == "RREF":
+            return (
+                f"RREF reached (rank {self.rank}): pivot columns are now "
+                f"standard basis vectors"
+            )
+        return f"REF reached (rank {self.rank}): every pivot has only zeros below it"
+
+    def frame_at(
+        self,
+        frame: int,
+        frames: int,
+        ease: Callable[[float], float],
+    ) -> ReductionFrame:
+        """Describe frame number ``frame`` of the animation.
+
+        Parameters
+        ----------
+        frame : int
+            The frame index, from 0 to ``total_frames(frames) - 1``.
+        frames : int
+            Frames used to animate each row operation.
+        ease : Callable[[float], float]
+            Maps linear progress in [0, 1] to eased progress.
+        """
+        if not self.stages:
+            return ReductionFrame(
+                transform=self.cumulative_after(-1),
+                matrix=self.matrix_after(-1),
+                caption=f"No row operations needed: already in {self.form}",
+                finished=True,
+            )
+
+        stage_count = len(self.stages)
+        per_stage = self.frames_per_stage(frames)
+        stage_index = min(frame // per_stage, stage_count - 1)
+        local = frame - stage_index * per_stage
+        progress = ease(min(local / (frames - 1), 1.0))
+        step_done = local >= frames - 1
+        finished = step_done and stage_index == stage_count - 1
+
+        if finished:
+            caption = self.final_caption()
+        else:
+            label = self.stages[stage_index].label
+            caption = f"Step {stage_index + 1}/{stage_count}: {label}"
+
+        return ReductionFrame(
+            transform=self.transform_at(stage_index, progress),
+            matrix=self.matrix_after(stage_index if step_done else stage_index - 1),
+            caption=caption,
+            finished=finished,
+        )
 
     def max_extent(self) -> float:
         """Largest absolute coordinate any column reaches during the reduction."""

@@ -436,35 +436,14 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
             zorder=5,
         )
 
-        stage_count = len(plan.stages)
-        hold = max(1, frames // 3)
-        frames_per_stage = frames + hold
-        total_frames = max(stage_count, 1) * frames_per_stage
+        total_frames = plan.total_frames(frames)
 
         def animate_frame(frame: int) -> tuple:
-            if stage_count == 0:
-                transform = plan.cumulative_after(-1)
-                shown = plan.matrix_after(-1)
-                finished = True
-                caption.set_text(f"No row operations needed: already in {plan.form}")
-            else:
-                stage_index = min(frame // frames_per_stage, stage_count - 1)
-                local = frame - stage_index * frames_per_stage
-                progress = _smooth_step(min(local / (frames - 1), 1.0))
-                transform = plan.transform_at(stage_index, progress)
-                step_done = local >= frames - 1
-                shown = plan.matrix_after(stage_index if step_done else stage_index - 1)
-                finished = step_done and stage_index == stage_count - 1
-                if finished:
-                    caption.set_text(
-                        f"{plan.form} reached (rank {plan.rank}): pivot columns "
-                        f"are now standard basis vectors"
-                    )
-                else:
-                    caption.set_text(
-                        f"Step {stage_index + 1}/{stage_count}: "
-                        f"{plan.stages[stage_index].label}"
-                    )
+            current = plan.frame_at(frame, frames, _smooth_step)
+            transform = current.transform
+            shown = current.matrix
+            finished = current.finished
+            caption.set_text(current.caption)
 
             matrix_text.set_text(
                 "\n".join(

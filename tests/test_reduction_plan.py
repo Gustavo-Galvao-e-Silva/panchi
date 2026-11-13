@@ -88,6 +88,50 @@ class TestBuildReductionPlan:
             build_reduction_plan(Matrix([[1, 2], [3, 4]]))
 
 
+def _linear(t):
+    return t
+
+
+class TestFrameAt:
+    def test_first_frame_shows_the_original(self):
+        plan = build_reduction_plan(rref(Matrix([[1, 2], [3, 4]])))
+        current = plan.frame_at(0, 10, _linear)
+        assert _close(current.transform, plan.cumulative_after(-1))
+        assert current.matrix == plan.matrix_after(-1)
+        assert current.caption.startswith("Step 1/")
+        assert not current.finished
+
+    def test_last_frame_is_finished_and_shows_the_result(self):
+        reduction = rref(Matrix([[1, 2], [3, 4]]))
+        plan = build_reduction_plan(reduction)
+        current = plan.frame_at(plan.total_frames(10) - 1, 10, _linear)
+        assert current.finished
+        assert _close(current.transform, plan.stages[-1].cumulative)
+        assert current.matrix == plan.matrix_after(len(plan.stages) - 1)
+
+    def test_rref_caption_mentions_standard_basis(self):
+        plan = build_reduction_plan(rref(Matrix([[2, 1], [4, 3]])))
+        caption = plan.frame_at(plan.total_frames(10) - 1, 10, _linear).caption
+        assert caption.startswith("RREF reached")
+        assert "standard basis" in caption
+
+    def test_ref_caption_does_not_claim_standard_basis(self):
+        plan = build_reduction_plan(ref(Matrix([[2, 1], [4, 3]])))
+        caption = plan.frame_at(plan.total_frames(10) - 1, 10, _linear).caption
+        assert caption.startswith("REF reached")
+        assert "standard basis" not in caption
+
+    def test_already_reduced_is_finished_from_the_start(self):
+        plan = build_reduction_plan(rref(Matrix([[1, 0], [0, 1]])))
+        current = plan.frame_at(0, 10, _linear)
+        assert current.finished
+        assert current.caption.startswith("No row operations needed")
+
+    def test_total_frames_includes_a_pause_per_step(self):
+        plan = build_reduction_plan(rref(Matrix([[1, 2], [3, 4]])))
+        assert plan.total_frames(9) == len(plan.stages) * (9 + 3)
+
+
 class TestTransformAt:
     def test_progress_zero_is_the_state_before_the_step(self):
         plan = build_reduction_plan(rref(Matrix([[1, 2, 3], [3, 4, 5]])))

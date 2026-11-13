@@ -172,7 +172,7 @@ animator.animate_reduction(reduction)
 
 Every row operation is a linear map: if `E` is the elementary matrix of one step, the matrix after the step has columns `E @ column`. `animate_reduction` draws the columns of the matrix as vectors and plays each step as `E` moving the space, with the coordinate grid deforming along with them. The deformation accumulates from step to step, a caption names the operation (for example `R1 -> R1 + (-3.0) * R0`), and the current matrix is shown in the corner.
 
-When the reduction finishes, the pivot columns have landed on standard basis vectors and are drawn thicker. The grid you are left with is the coordinate grid of the pivot columns.
+When the reduction finishes, the pivot columns are drawn thicker. For an `rref` result they have landed on standard basis vectors; for a `ref` result every pivot has only zeros below it. The grid shows where the accumulated row operations send the original coordinate grid: it is the image of the standard grid under the product of every elementary matrix so far. When `A` is square and invertible, that product ends as `A⁻¹`.
 
 The matrix needs 2 rows for `Animator2D` or 3 rows for `Animator3D`, with any number of columns, so augmented matrices `[A | b]` work too. Both `ref` and `rref` results are accepted. `Animator3D` has no grid, so it shows the column vectors together with the image of the unit cube.
 

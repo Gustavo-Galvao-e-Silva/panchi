@@ -351,8 +351,9 @@ class _Animator:
         each step is shown as the elementary matrix ``E`` moving the space:
         the columns of the matrix are drawn as vectors and slide from where
         they were to where ``E`` sends them. The deformation accumulates from
-        one step to the next. When the reduction ends, the pivot columns
-        have landed on standard basis vectors.
+        one step to the next. For an ``rref`` result the pivot columns end on
+        standard basis vectors; for ``ref`` every pivot ends with only zeros
+        below it.
 
         Parameters
         ----------
