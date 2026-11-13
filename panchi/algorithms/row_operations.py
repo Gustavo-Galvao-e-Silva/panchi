@@ -246,17 +246,17 @@ class RowOperation(ABC):
         TypeError
             If n is not an integer.
         ValueError
-            If n is less than 2.
+            If n is less than 1.
         """
         if not isinstance(n, int):
             raise TypeError(
                 f"Matrix size n must be an integer. Got {type(n).__name__}."
             )
 
-        if n < 2:
+        if n < 1:
             raise ValueError(
-                f"Matrix size n must be at least 2. Got {n}. "
-                f"Row operations require at least two rows to be meaningful."
+                f"Matrix size n must be at least 1. Got {n}. "
+                f"A row operation needs at least one row to act on."
             )
 
     @staticmethod
@@ -387,7 +387,7 @@ class RowSwap(RowOperation):
         Parameters
         ----------
         n : int
-            Size of the elementary matrix. Must be at least 2, and large
+            Size of the elementary matrix. Must be at least 1, and large
             enough so that both row indices are in range.
 
         Returns
@@ -518,7 +518,7 @@ class RowScale(RowOperation):
         Parameters
         ----------
         n : int
-            Size of the elementary matrix. Must be at least 2, and large
+            Size of the elementary matrix. Must be at least 1, and large
             enough so that the row index is in range.
 
         Returns
@@ -658,7 +658,7 @@ class RowAdd(RowOperation):
         Parameters
         ----------
         n : int
-            Size of the elementary matrix. Must be at least 2 and large
+            Size of the elementary matrix. Must be at least 1 and large
             enough so that both row indices are in range.
 
         Returns
