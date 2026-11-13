@@ -33,11 +33,11 @@ Think of it as a **lab**, not a production engine.
 
 ## Philosophy
 
-1. **Explicit over implicit** – Algorithms are implemented directly, not delegated to opaque backends
-2. **Readable over clever** – Code prioritizes clarity and educational value over terse optimizations and pythonisms
-3. **Mathematical over computational** – Objects behave like mathematical entities with proper operator overloading
-4. **Visual by default** – Visualization is a first-class feature, not an afterthought
-5. **Informative errors** – Error messages guide learning by explaining what went wrong and why
+1. **Explicit over implicit:** Algorithms are implemented directly, not delegated to opaque backends
+2. **Readable over clever:** Code prioritizes clarity and educational value over terse optimizations and pythonisms
+3. **Mathematical over computational:** Objects behave like mathematical entities with proper operator overloading
+4. **Visual by default:** Visualizations are a first-class feature, not an afterthought
+5. **Informative errors*:* Error messages guide learning by explaining what went wrong and why
 
 ---
 
@@ -47,8 +47,7 @@ Think of it as a **lab**, not a production engine.
 pip install panchi
 ```
 
-Requires Python 3.10+. For optional Manim-powered visualizations:
-
+Requires Python 3.10+. And for optional (but very pretty) Manim-powered visualizations:
 ```bash
 pip install panchi[manim]
 ```
@@ -85,7 +84,7 @@ animator = Animator2D()
 animator.animate_transform(pan.Matrix([[0, -1], [1, 0]]))  # 90° rotation
 ```
 
-The same tools work in three dimensions via `Animator3D` — vectors, spans, and 3x3 transformations in R³.
+The same tools work in three dimensions via `Animator3D`: vectors, spans, and 3x3 transformations in R³.
 
 ---
 
@@ -98,7 +97,7 @@ Full documentation, user guides, and the API reference are available at
 
 ## Contributing
 
-panchi welcomes contributions that align with its educational mission. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Thanks to all of our contributors, whose names can be found in [CONTRIBUTORS.md](CONTRIBUTORS.md).
+panchi welcomes contributions that align with its educational mission. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. The deepest thanks to all of our contributors, whose names can be found in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 ---
 
@@ -110,4 +109,4 @@ MIT License – see [LICENSE](LICENSE) for details.
 
 ## Acknowledgments
 
-panchi is inspired by Gilbert Strang's *Introduction to Linear Algebra* and 3Blue1Brown's *Essence of Linear Algebra* — resources that make the subject visible, not just computable.
+panchi is inspired by Gilbert Strang's *Introduction to Linear Algebra* and 3Blue1Brown's *Essence of Linear Algebra*, resources that make the subject visible, not just computable.
