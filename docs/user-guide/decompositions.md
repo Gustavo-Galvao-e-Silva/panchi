@@ -61,7 +61,7 @@ print(decomp)
 
 At each step of elimination, panchi keeps the current pivot unless it is zero. If it is zero, the row is swapped with the first row below that has a non-zero entry in the pivot column. This is the rule you would use by hand, and it is not partial pivoting, which always moves the largest entry into the pivot position to limit rounding error. A small non-zero pivot is kept, so for floating-point matrices L and U can pick up more rounding error than they would with partial pivoting.
 
-The row swaps are recorded in P, so the factorisation relationship remains exact even after swapping.
+The row swaps are recorded in P, so the factorisation relationship remains exact even after swapping. When a swap happens after some elimination steps, the multipliers already written into L for those two rows are swapped too, so each multiplier stays with the row it was computed for. This is the step that is easiest to miss when computing PA = LU by hand.
 
 ## What L and U encode
 

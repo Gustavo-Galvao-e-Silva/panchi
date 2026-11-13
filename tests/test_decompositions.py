@@ -1,5 +1,7 @@
+import random
+
 from panchi.algorithms import LUDecomposition, lu
-from panchi.primitives import Matrix, identity
+from panchi.primitives import Matrix, exact_matrix, identity
 
 # ==================== LU RESULT OBJECT TESTS ====================
 
@@ -105,6 +107,33 @@ class TestLUFactorisationInvariant:
         m = Matrix([[1.5, 2.5], [3.5, 4.5]])
         decomp = lu(m)
         assert decomp.permutation @ m == decomp.lower @ decomp.upper
+
+
+class TestLULateRowSwaps:
+    """Row swaps after elimination has started must carry their multipliers along."""
+
+    def test_swap_after_elimination_3x3(self):
+        m = Matrix([[1, 1, 1], [1, 1, 2], [2, 3, 4]])
+        decomp = lu(m)
+        assert decomp.permutation @ m == decomp.lower @ decomp.upper
+
+    def test_swap_after_elimination_lower_is_exact(self):
+        decomp = lu(exact_matrix([[1, 1, 1], [1, 1, 2], [2, 3, 4]]))
+        assert decomp.lower == Matrix([[1, 0, 0], [2, 1, 0], [1, 0, 1]])
+
+    def test_two_late_swaps_4x4(self):
+        m = exact_matrix([[1, 1, 1, 0], [1, 1, 0, 1], [1, 1, 1, 0], [0, 2, 1, 0]])
+        decomp = lu(m)
+        assert decomp.permutation @ m == decomp.lower @ decomp.upper
+
+    def test_invariant_holds_for_many_small_matrices(self):
+        rng = random.Random(1554)
+        for _ in range(400):
+            n = rng.choice([3, 4])
+            rows = [[rng.choice([0, 0, 1, 2, -1]) for _ in range(n)] for _ in range(n)]
+            m = exact_matrix(rows)
+            decomp = lu(m)
+            assert decomp.permutation @ m == decomp.lower @ decomp.upper, rows
 
 
 # ==================== LU EXACT RESULTS ====================
