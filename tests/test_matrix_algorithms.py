@@ -1,7 +1,8 @@
 import pytest
 
+from panchi import basis, inverse, null_space, orthogonal_complement, solve, span
 from panchi.algorithms import RowAdd, RowScale, RowSwap, ref, rref
-from panchi.primitives import Matrix, Vector, identity
+from panchi.primitives import Matrix, Vector, exact_matrix, exact_vector, identity
 
 # ==================== ROW SWAP TESTS ====================
 
@@ -38,9 +39,13 @@ class TestRowSwapElementaryMatrix:
         with pytest.raises(TypeError):
             RowSwap(0, 1).elementary_matrix(2.0)
 
-    def test_elementary_matrix_n_less_than_2_raises_value_error(self):
+    def test_elementary_matrix_one_row_raises_value_error(self):
         with pytest.raises(ValueError):
             RowSwap(0, 1).elementary_matrix(1)
+
+    def test_elementary_matrix_zero_size_raises_value_error(self):
+        with pytest.raises(ValueError):
+            RowSwap(0, 1).elementary_matrix(0)
 
     def test_elementary_matrix_out_of_range_raises_value_error(self):
         with pytest.raises(ValueError):
@@ -170,9 +175,15 @@ class TestRowScaleElementaryMatrix:
             [[2, 0, 0], [0, 1, 0], [0, 0, 1]]
         )
 
-    def test_elementary_matrix_n_less_than_2_raises_value_error(self):
+    def test_elementary_matrix_one_row(self):
+        assert RowScale(0, 2).elementary_matrix(1) == Matrix([[2]])
+
+    def test_apply_to_one_row_matrix(self):
+        assert RowScale(0, 3).apply(Matrix([[1, 2]])) == Matrix([[3, 6]])
+
+    def test_elementary_matrix_zero_size_raises_value_error(self):
         with pytest.raises(ValueError):
-            RowScale(0, 2).elementary_matrix(1)
+            RowScale(0, 2).elementary_matrix(0)
 
     def test_elementary_matrix_out_of_range_raises_value_error(self):
         with pytest.raises(ValueError):
@@ -307,7 +318,7 @@ class TestRowAddElementaryMatrix:
             [[1, 0, 0], [0, 1, 0], [4, 0, 1]]
         )
 
-    def test_elementary_matrix_n_less_than_2_raises_value_error(self):
+    def test_elementary_matrix_one_row_raises_value_error(self):
         with pytest.raises(ValueError):
             RowAdd(1, 0, 2).elementary_matrix(1)
 
@@ -723,3 +734,32 @@ class TestReductionTolerance:
         # Genuinely rank-deficient matrices reduce identically with tolerance.
         m = Matrix([[1.0, 2.0], [2.0, 4.0]])
         assert rref(m, tolerance=1e-9).rank == 1
+
+
+class TestOneRowMatrices:
+    """Reductions and the functions built on them work for 1-row matrices."""
+
+    def test_rref_of_a_single_row(self):
+        assert rref(exact_matrix([[2, 4]])).result == Matrix([[1, 2]])
+
+    def test_ref_of_a_single_row_is_unchanged(self):
+        assert ref(Matrix([[0, 3]])).result == Matrix([[0, 3]])
+
+    def test_inverse_of_1x1(self):
+        assert inverse(exact_matrix([[2]])).inverse == exact_matrix([["1/2"]])
+
+    def test_solve_1x1(self):
+        result = solve(exact_matrix([[2]]), exact_vector([4]))
+        assert result.status == "unique"
+        assert result.solution == Vector([2])
+
+    def test_solve_1x1_singular(self):
+        assert solve(Matrix([[0]]), Vector([3])).status == "inconsistent"
+        assert solve(Matrix([[0]]), Vector([0])).status == "infinite"
+
+    def test_null_space_of_a_single_row(self):
+        assert basis(null_space(exact_matrix([[2, 4]]))) == [Vector([-2, 1])]
+
+    def test_orthogonal_complement_of_a_line(self):
+        complement = orthogonal_complement(span([exact_vector([2, 0, 0])]))
+        assert complement == span([Vector([0, 1, 0]), Vector([0, 0, 1])])
