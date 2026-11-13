@@ -14,3 +14,4 @@ Thanks to everyone who has contributed to this project! Your work helped panchi 
 - [Rohith Itagi](https://github.com/Rohith-Itagi7)
 - [ADITYA V J](https://github.com/raappo)
 - [M. Haye](https://github.com/mhaye9545)
+- [Hitesh_G](https://github.com/Hitesh-XS)
