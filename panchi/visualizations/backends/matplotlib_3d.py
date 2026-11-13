@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import mpl_toolkits.mplot3d  # noqa: F401  (registers the "3d" projection)
+from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import Line3DCollection, Poly3DCollection
 
 from panchi.algorithms.matrix_operations import rank
@@ -13,11 +14,14 @@ from panchi.visualizations.backends.geometry import (
     CUBE_EDGES,
     CUBE_VERTS,
     apply_3x3,
+    coordinates,
+    plane_in_cube,
 )
 from panchi.visualizations.backends.matplotlib_base import (
     _EPSILON,
     ADDITION_COLORS,
     DEFAULT_COLORS,
+    GAP_COLOR,
     SCALING_COLORS,
     SPAN_COLOR,
     TRANSFORM_COLORS_3D,
@@ -27,6 +31,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _resolve_colors,
     _resolve_n_colors,
     _smooth_step,
+    _SpanOverlay,
 )
 from panchi.visualizations.backends.reduction_plan import ReductionPlan
 
@@ -84,6 +89,23 @@ def _draw_arrow_3d(ax, start, disp, color, linewidth: float = 2.5):
     )
 
 
+def _draw_labeled_arrow_3d(
+    ax: Axes3D, vec: Vector, color: str, label: str | None
+) -> None:
+    """Draw an arrow from the origin to ``vec``, labeled just past its tip."""
+    _draw_arrow_3d(ax, (0, 0, 0), (vec[0], vec[1], vec[2]), color)
+    if label:
+        ax.text(
+            vec[0] * 1.05,
+            vec[1] * 1.05,
+            vec[2] * 1.05,
+            label,
+            fontsize=12,
+            fontweight="bold",
+            color=color,
+        )
+
+
 class _MatplotlibBackend3D(_MatplotlibBackendBase):
     """Matplotlib-based 3D visualization backend."""
 
@@ -107,18 +129,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         _setup_coordinate_space_3d(ax, axis_range, grid)
 
         for vec, color, label in zip(vectors, colors, labels, strict=False):
-            _draw_arrow_3d(ax, (0, 0, 0), (vec[0], vec[1], vec[2]), color)
-
-            if label:
-                ax.text(
-                    vec[0] * 1.05,
-                    vec[1] * 1.05,
-                    vec[2] * 1.05,
-                    label,
-                    fontsize=12,
-                    fontweight="bold",
-                    color=color,
-                )
+            _draw_labeled_arrow_3d(ax, vec, color, label)
 
         self._finalize_figure(fig, name)
 
@@ -284,6 +295,8 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _InlineAnimation | None:
         vecs = (
             [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
@@ -305,16 +318,17 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
             "[" + "  ".join(f"{target[i][j]:+.2g}" for j in range(3)) + "]"
             for i in range(3)
         )
-        ax.text2D(
-            0.02,
-            0.98,
-            matrix_text,
-            transform=ax.transAxes,
-            va="top",
-            family="monospace",
-            fontsize=11,
-            color=HUD_COLOR,
-        )
+        if show_matrix:
+            ax.text2D(
+                0.02,
+                0.98,
+                matrix_text,
+                transform=ax.transAxes,
+                va="top",
+                family="monospace",
+                fontsize=11,
+                color=HUD_COLOR,
+            )
 
         state = {"arrows": []}
 
@@ -457,14 +471,19 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         grid: bool,
         name: str,
         span_color: str | None = None,
+        overlay: _SpanOverlay | None = None,
+        view: tuple[float, ...] | None = None,
     ) -> None:
+        overlay = overlay or _SpanOverlay()
         per_space = [(compute_basis(s), rank(s)) for s in spaces]
-        all_basis = [v for basis, _ in per_space for v in basis]
+        plotted = [v for basis, _ in per_space for v in basis] + overlay.points()
 
         fig = plt.figure(figsize=self.figsize)
         ax = fig.add_subplot(projection="3d")
-        axis_range = _calculate_axis_range(all_basis) if all_basis else (-3.0, 3.0)
+        axis_range = _calculate_axis_range(plotted) if plotted else (-3.0, 3.0)
         _setup_coordinate_space_3d(ax, axis_range, grid)
+        if view is not None:
+            ax.view_init(*view)
 
         if len(per_space) == 1:
             basis, dim = per_space[0]
@@ -511,7 +530,23 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
                     color=span_colors[i],
                 )
 
+        self._draw_overlay_3d(ax, overlay)
         self._finalize_figure(fig, name)
+
+    def _draw_overlay_3d(self, ax: Axes3D, overlay: _SpanOverlay) -> None:
+        for vec, color, label in zip(
+            overlay.vectors, overlay.colors, overlay.labels, strict=True
+        ):
+            _draw_labeled_arrow_3d(ax, vec, color, label)
+        for start, end in overlay.gaps:
+            ax.plot(
+                [start[0], end[0]],
+                [start[1], end[1]],
+                [start[2], end[2]],
+                color=GAP_COLOR,
+                linestyle="--",
+                linewidth=2,
+            )
 
     def _draw_span_3d(
         self,
@@ -541,14 +576,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
                 alpha=0.55,
             )
         elif dim == 2:
-            b1, b2 = basis[0], basis[1]
-            max_comp = max(abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2]))
-            f = hi / max(max_comp, _EPSILON) * 1.3
-
-            def corner(sa, sb):
-                return tuple(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
-
-            patch = [corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)]
+            patch = plane_in_cube(coordinates(basis[0]), coordinates(basis[1]), hi)
             ax.add_collection3d(
                 Poly3DCollection([patch], facecolor=fill_color, alpha=0.22)
             )

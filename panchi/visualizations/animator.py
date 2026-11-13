@@ -2,12 +2,22 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from panchi.algorithms.matrix_operations import rank
 from panchi.algorithms.results import Reduction
+from panchi.algorithms.vector_operations import cross, dot
 from panchi.algorithms.vector_space_operations import basis
 from panchi.primitives.matrix import Matrix
 from panchi.primitives.vector import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.visualizations.backends.base import (
+    OVERLAY_COLORS,
+    _resolve_n_colors,
+    _SpanOverlay,
+)
+from panchi.visualizations.backends.geometry import coordinates, edge_view
 from panchi.visualizations.backends.reduction_plan import build_reduction_plan
+
+_ON_PLANE_TOLERANCE = 1e-12
 
 
 def _build_backend(
@@ -256,6 +266,8 @@ class _Animator:
         interval: int = 30,
         name: str | None = None,
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> object | None:
         """Animate a linear transformation (2x2 for Animator2D, 3x3 for Animator3D).
 
@@ -279,10 +291,41 @@ class _Animator:
         colors : list[str], optional
             One color per transformed vector, cycling if fewer are supplied.
             ``None`` uses the default palette.
+        show_matrix : bool
+            Draw the matrix in the corner of the frame. Default ``True``. Turn it
+            off to show only the motion, e.g. when students should judge a
+            transformation by eye before computing anything. (The matplotlib 2D
+            backend never draws the matrix.)
+        show_labels : bool
+            Label each vector tip with its coordinates. Default ``True``. (The 3D
+            backends never label tips.)
+
+        Raises
+        ------
+        TypeError
+            If ``show_matrix`` or ``show_labels`` is not a bool.
+
+        Examples
+        --------
+        Watch a shear without giving its entries away:
+
+        >>> animator = Animator2D(backend="manim")
+        >>> animator.animate_transform(
+        ...     Matrix([[1, 1], [0, 1]]), show_matrix=False, show_labels=False
+        ... )  # doctest: +SKIP
         """
         self._validate_matrix(matrix)
         if vectors is not None:
             self._validate_vectors(vectors)
+        for flag_name, flag in (
+            ("show_matrix", show_matrix),
+            ("show_labels", show_labels),
+        ):
+            if not isinstance(flag, bool):
+                raise TypeError(
+                    f"{flag_name} must be True or False. Got {type(flag).__name__}: "
+                    f"{flag!r}."
+                )
         return self._backend.animate_transform(
             matrix,
             vectors=None if vectors is None else [_to_float_vector(v) for v in vectors],
@@ -290,6 +333,8 @@ class _Animator:
             interval=interval,
             name=name or "animate_transform",
             colors=colors,
+            show_matrix=show_matrix,
+            show_labels=show_labels,
         )
 
     def animate_reduction(
@@ -370,6 +415,11 @@ class _Animator:
         grid: bool = True,
         name: str | None = None,
         span_color: str | None = None,
+        vectors: list[Vector] | None = None,
+        vector_colors: list[str] | None = None,
+        vector_labels: list[str | None] | None = None,
+        gaps: list[tuple[Vector, Vector]] | None = None,
+        view: tuple[float, ...] | str | None = None,
     ) -> object | None:
         """Visualize the span of vectors with a shaded region and basis arrows.
 
@@ -379,6 +429,11 @@ class _Animator:
         origin, a 2D subspace as a plane (in 2D it shades the whole view), and
         a 3D subspace as a translucent volume. With multiple spans each is
         drawn in its own color with a legend.
+
+        ``vectors`` and ``gaps`` add to the same figure, which shows how
+        vectors sit relative to the span. Drawing ``y``, a candidate ``p`` and
+        the gap between them makes least squares something you can see: ``p``
+        is the best approximation when the gap meets the plane at a right angle.
 
         Parameters
         ----------
@@ -397,18 +452,177 @@ class _Animator:
         span_color : str, optional
             Color of the shaded region (single span only). ``None`` uses the
             default.
+        vectors : list[Vector], optional
+            Extra arrows from the origin, drawn on top of the span. Unlike the
+            basis arrows, these don't have to lie in the span.
+        vector_colors : list[str], optional
+            Colors for ``vectors``. Cycles if shorter than ``vectors``.
+        vector_labels : list[str or None], optional
+            One label per vector in ``vectors``. Use ``None`` to skip a label.
+        gaps : list[tuple[Vector, Vector]], optional
+            Pairs of points to join with a dashed line, such as ``(y, p)``.
+        view : tuple[float, ...] or str, optional
+            Camera position (``Animator3D`` only). Either ``(elevation,
+            azimuth)`` or ``(elevation, azimuth, roll)`` in degrees, or
+            ``"edge"``, which needs a single plane and looks across it so
+            anything off the plane is easy to see.
+
+        Raises
+        ------
+        TypeError
+            If ``vectors``, ``gaps`` or ``view`` have the wrong type.
+        ValueError
+            If a vector has the wrong dimension, ``vector_labels`` has the
+            wrong length, ``view`` is used in 2D, or ``view="edge"`` isn't
+            given a single plane.
+
+        Examples
+        --------
+        >>> from panchi import Vector
+        >>> from panchi.visualizations import Animator3D
+        >>>
+        >>> u, v = Vector([1, 0, 0]), Vector([0, 1, 0])
+        >>> y, p = Vector([1, 2, 3]), Vector([1, 2, 0])
+        >>> Animator3D().plot_span(
+        ...     [u, v],
+        ...     vectors=[y, p],
+        ...     vector_labels=["y", "p"],
+        ...     gaps=[(y, p)],
+        ...     view="edge",
+        ... )  # doctest: +SKIP
         """
         spans = _resolve_span_inputs(vectors_or_space)
-        for vectors, _ in spans:
-            self._validate_vectors(vectors)
+        for span_vectors, _ in spans:
+            self._validate_vectors(span_vectors)
+        spaces = [_to_float_space(space) for _, space in spans]
+        overlay = self._build_overlay(vectors, vector_colors, vector_labels, gaps)
         return self._backend.plot_span(
-            [_to_float_space(space) for _, space in spans],
+            spaces,
             colors=colors,
             labels=labels,
             grid=grid,
             name=name or "plot_span",
             span_color=span_color,
+            overlay=overlay,
+            view=self._resolve_view(view, spaces, overlay),
         )
+
+    def _build_overlay(
+        self,
+        vectors: list[Vector] | None,
+        colors: list[str] | None,
+        labels: list[str | None] | None,
+        gaps: list[tuple[Vector, Vector]] | None,
+    ) -> _SpanOverlay:
+        """Validate the ``plot_span`` extras and convert them for drawing."""
+        vectors = [] if vectors is None else vectors
+        gaps = [] if gaps is None else gaps
+
+        if not isinstance(vectors, list):
+            raise TypeError(
+                f"vectors must be a list. Wrap a single vector as [v]. "
+                f"Got {type(vectors).__name__}."
+            )
+        for vector in vectors:
+            if not isinstance(vector, Vector):
+                raise TypeError(
+                    f"vectors must contain only Vector objects. "
+                    f"Got {type(vector).__name__}."
+                )
+        self._validate_vectors(vectors)
+
+        if labels is not None and len(labels) != len(vectors):
+            raise ValueError(
+                f"vector_labels needs one label per vector: got {len(labels)} "
+                f"labels for {len(vectors)} vectors."
+            )
+
+        if not isinstance(gaps, list):
+            raise TypeError(
+                f"gaps must be a list of (start, end) pairs of vectors. "
+                f"Got {type(gaps).__name__}."
+            )
+        float_gaps = []
+        for gap in gaps:
+            if (
+                not isinstance(gap, tuple)
+                or len(gap) != 2
+                or not all(isinstance(point, Vector) for point in gap)
+            ):
+                raise TypeError(
+                    f"Each gap must be a (start, end) pair of vectors. Got {gap!r}."
+                )
+            self._validate_vectors(list(gap))
+            float_gaps.append((_to_float_vector(gap[0]), _to_float_vector(gap[1])))
+
+        return _SpanOverlay(
+            vectors=[_to_float_vector(vector) for vector in vectors],
+            colors=_resolve_n_colors(colors, len(vectors), OVERLAY_COLORS),
+            labels=[None] * len(vectors) if labels is None else list(labels),
+            gaps=float_gaps,
+        )
+
+    def _resolve_view(
+        self,
+        view: tuple[float, ...] | str | None,
+        spaces: list[VectorSpace],
+        overlay: _SpanOverlay,
+    ) -> tuple[float, ...] | None:
+        """Turn a ``view`` argument into camera angles for the backend."""
+        if view is None:
+            return None
+
+        if self._dims != 3:
+            raise ValueError(
+                f"view sets a 3D camera, so {type(self).__name__} can't use it. "
+                f"Use Animator3D, or remove view."
+            )
+
+        if view == "edge":
+            return self._edge_view(spaces, overlay)
+
+        if not isinstance(view, tuple):
+            raise TypeError(
+                f'view must be "edge" or a tuple of angles in degrees. Got {view!r}.'
+            )
+        if len(view) not in (2, 3):
+            raise ValueError(
+                f"view must be (elevation, azimuth) or (elevation, azimuth, roll). "
+                f"Got {len(view)} values: {view!r}."
+            )
+        for angle in view:
+            if isinstance(angle, bool) or not isinstance(angle, (int, float)):
+                raise TypeError(f"view angles must be numbers. Got {angle!r}.")
+        return view
+
+    def _edge_view(
+        self, spaces: list[VectorSpace], overlay: _SpanOverlay
+    ) -> tuple[float, ...]:
+        if len(spaces) != 1 or rank(spaces[0]) != 2:
+            raise ValueError(
+                'view="edge" looks across a plane, so it needs a single span of '
+                "dimension 2. Pass (elevation, azimuth) instead."
+            )
+
+        b1, b2 = basis(spaces[0])
+        normal = cross(b1, b2)
+        along = b1
+        along_found = False
+        highest = 0.0
+
+        for point in overlay.points():
+            height = float(dot(point, normal) / dot(normal, normal))
+            shadow = point - normal * height
+            if not along_found and dot(shadow, shadow) > _ON_PLANE_TOLERANCE:
+                along = shadow
+                along_found = True
+            if abs(height) > abs(highest):
+                highest = height
+
+        if highest < 0:
+            normal = normal * -1
+
+        return edge_view(coordinates(normal), coordinates(along))
 
     def _validate_vectors(self, vectors: list[Vector]) -> None:
         if not isinstance(vectors, list):
@@ -495,7 +709,8 @@ class Animator3D(_Animator):
         Directory for saving output. If ``None``, matplotlib displays
         interactively and manim saves to ``./media``.
     quality : str
-        Render quality: ``"low"``, ``"medium"`` (default), or ``"high"``.
+        Render quality: ``"low"``, ``"medium"`` (default), ``"high"``,
+        or ``"production"`` (manim only).
     figsize : tuple[int, int]
         Figure size in inches (matplotlib only). Default ``(8, 8)``.
     include_extra_files : bool

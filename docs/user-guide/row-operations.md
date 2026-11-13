@@ -29,9 +29,9 @@ from panchi.algorithms import RowScale
 
 op = RowScale(1, 3)
 print(op.apply(m))
-# [[1,  2],
+# [[1, 2],
 #  [9, 12],
-#  [5,  6]]
+#  [5, 6]]
 ```
 
 **RowAdd** — add a scalar multiple of one row to another:
@@ -44,7 +44,7 @@ from panchi.algorithms import RowAdd
 m = pan.Matrix([[1, 2], [3, 4]])
 op = RowAdd(target=1, source=0, scalar=-3)
 print(op.apply(m))
-# [[1,  2],
+# [[1, 2],
 #  [0, -2]]
 ```
 

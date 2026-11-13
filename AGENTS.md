@@ -40,8 +40,10 @@ public function needs full type hints**.
 
 ```
 panchi/
-├── primitives/       # Vector, Matrix, and factory functions
+├── primitives/       # Vector, Matrix, VectorSpace, and factory functions
 ├── algorithms/       # reductions, decompositions, other algorithms
+├── symbolic/         # exact numbers and polynomials (QuadraticNumber, Polynomial)
+├── utils/            # shared helpers (LaTeX rendering, deprecation, types)
 └── visualizations/   # Animator2D / Animator3D and backends/ (matplotlib, manim)
 tests/                # mirrors the package; test_*.py, Test* classes, test_* funcs
 docs/                 # mkdocs-material sources

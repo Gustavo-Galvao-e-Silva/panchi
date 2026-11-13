@@ -23,12 +23,14 @@ from panchi.visualizations.backends.base import (  # noqa: F401
     _BaseBackend,
     _resolve_colors,
     _resolve_n_colors,
+    _SpanOverlay,
 )
 
 AXIS_COLOR = manim.GREY_B
 GUIDE_COLOR = manim.GREY
 PARALLELOGRAM_COLOR = manim.BLUE_E
 MATRIX_HUD_COLOR = manim.YELLOW
+MANIM_GAP_COLOR = manim.WHITE
 
 AXIS_PADDING = 1.4
 _EPSILON = 1e-12

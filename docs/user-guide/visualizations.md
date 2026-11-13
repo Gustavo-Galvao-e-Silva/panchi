@@ -33,8 +33,8 @@ The `backend` parameter selects which rendering engine to use. Manim is only imp
 | Parameter   | Default         | Description |
 |-------------|-----------------|-------------|
 | `backend`   | `"matplotlib"`  | `"matplotlib"` or `"manim"` |
-| `save_path` | `None`          | Directory for output files. If `None`, matplotlib shows interactively. |
-| `quality`   | `"medium"`      | Render quality: `"low"`, `"medium"`, `"high"`, `"production"` (manim only) |
+| `save_path` | `None`          | Directory for output files. If `None`, matplotlib shows interactively and manim saves to `./media`. |
+| `quality`   | `"medium"`      | Render quality: `"low"`, `"medium"`, `"high"`, or `"production"` (manim only) |
 | `figsize`   | `(8, 8)`        | Figure size in inches (matplotlib only) |
 | `include_extra_files` | `False` | Keep manim's scratch directories next to the output (manim only) |
 | `output_format` | `None` | `"mp4"` (the default) or `"gif"` (manim only) |
@@ -53,7 +53,7 @@ v3 = Vector([2, -1])
 animator.plot_vectors([v1, v2, v3], labels=["v1", "v2", "v3"])
 ```
 
-Pass any number of 2D vectors as positional arguments. Optional parameters:
+Pass any number of 2D vectors as a single list. Optional parameters:
 
 - `colors` — list of hex color strings (e.g. `["#FF0000", "#0000FF"]`)
 - `labels` — list of label strings
@@ -138,7 +138,20 @@ animator.animate_transform(
 
 Only 2x2 matrices are supported — a `ValueError` is raised for other shapes.
 
-Optional parameters: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
+Optional parameters: `vectors`, `frames`, `interval`, `name`, `colors` (one per transformed vector, cycling if fewer are supplied), and `show_matrix` / `show_labels`.
+
+To make the motion the whole question, hide the matrix and the coordinate labels. For example, ask "which of these has no real eigenvector?" and let students decide by watching:
+
+```python
+animator.animate_transform(
+    Matrix([[0, -1], [1, 0]]),
+    vectors=[Vector([1, 0]), Vector([1, 1])],
+    show_matrix=False,
+    show_labels=False,
+)
+```
+
+`show_matrix` hides the matrix in the corner (the matplotlib 2D backend never draws one). `show_labels` hides the tip labels (the 3D backends have none).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_shear.gif" alt="Example output: a coordinate grid shearing">
@@ -226,7 +239,41 @@ animator.plot_span(
 
 With multiple spans, `colors` gives one color per span and `labels` names them in the legend; `span_color` applies to the single-span case only.
 
-Optional parameters: `colors`, `labels`, `grid`, `name`, and `span_color` (the shade of the span region, single span only).
+Optional parameters: `colors`, `labels`, `grid`, `name`, `span_color` (the shade of the span region, single span only), and the options in the next section.
+
+### Showing vectors against a span
+
+Use `vectors` to draw arrows on top of a span. Unlike the span's own basis arrows, they don't have to lie in it. Use `gaps` to join two points with a dashed line, which shows how far one is from the other:
+
+```python
+from panchi import Matrix, Vector, qr_decomposition
+from panchi.visualizations import Animator3D
+
+X = Matrix([[1.0, 0.65], [1.0, 2.05], [1.0, 3.35]])
+y = Vector([33.9, 10.4, 15.0])
+
+q = qr_decomposition(X).q
+p = q @ (q.T @ y)                   # the projection of y onto the plane
+
+animator = Animator3D()
+animator.plot_span(
+    X.col_vectors,
+    labels=["1", "x"],
+    vectors=[y, p],
+    vector_labels=["y", "p"],
+    gaps=[(y, p)],
+    view="edge",
+)
+```
+
+`p` is the point of the plane closest to `y`, so the dashed gap meets the plane at a right angle. This is the picture behind least squares. Try a different `p` in the plane to see the gap grow and tilt.
+
+`view` sets the camera for `Animator3D`:
+
+- `view="edge"` looks across a single plane, turned so the plane reads as the horizon and anything off the plane rises straight up.
+- `view=(elevation, azimuth)` or `view=(elevation, azimuth, roll)` sets the angles yourself, in degrees.
+
+Optional parameters: `vectors`, `vector_colors`, `vector_labels`, `gaps`, and `view`. These work with both backends. In `Animator2D` you can use everything except `view`.
 
 ---
 
@@ -245,6 +292,8 @@ animator.animate_transform(Matrix([[0, -1], [1, 0]]), name="rotation")
 # → ./output/rotation.mp4  (manim)
 ```
 
+The `name` parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. `"plot_vectors"`, `"animate_transform"`).
+
 ### manim as GIFs
 
 GIFs embed anywhere a video can't: READMEs, slides, LMS pages, chat. Ask manim for one with `output_format`:
@@ -256,8 +305,6 @@ print(clip.path)  # ./output/shear.gif
 ```
 
 Every manim method returns the saved file this way, as an object with a `.path`. GIFs are larger than `.mp4` and limited to 256 colours, so faint details such as grid lines come out a little dimmer.
-
-The `name` parameter controls the filename (without extension). If omitted, it defaults to the method name (e.g. `"plot_vectors"`, `"animate_transform"`).
 
 ---
 
@@ -271,7 +318,7 @@ The `name` parameter controls the filename (without extension). If omitted, it d
 | Plays inline in Jupyter | Yes | Yes (the saved file is embedded) |
 | Grid morph quality | Good (LineCollection interpolation) | Excellent (native NumberPlane) |
 | LaTeX labels | No | Yes |
-| Parallelogram in addition | No | Yes |
+| Parallelogram in addition | 3D only | Yes |
 | Render speed | Fast | Slower (video encoding) |
 
 Both backends support `plot_vectors`, `animate_addition`, `animate_scaling`, `animate_transform` and `plot_span` with the same API, for both `Animator2D` and `Animator3D`. `animate_reduction` is currently matplotlib-only.
@@ -291,7 +338,7 @@ animator = Animator3D(save_path="./output")      # save .png / .gif
 animator = Animator3D(backend="manim", save_path="./videos")
 ```
 
-The constructor takes the same parameters as `Animator2D` (`backend`, `save_path`, `quality`, `figsize`). The only difference: for 3D the `quality` tiers are `"low"`, `"medium"`, and `"high"` — there is no `"production"` tier.
+The constructor takes the same parameters as `Animator2D`.
 
 All vectors passed to `Animator3D` must be 3D; a 2D vector raises a `ValueError`.
 
@@ -353,7 +400,7 @@ animator.animate_transform(
 )
 ```
 
-Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `vectors`, `frames`, `interval`, `name`, and `colors` (one per transformed vector, cycling if fewer are supplied).
+Only **3x3** matrices are supported — a `ValueError` is raised for other shapes. Options: `vectors`, `frames`, `interval`, `name`, `colors` (one per transformed vector, cycling if fewer are supplied), and `show_matrix`. `show_labels` is accepted too, but has no effect because 3D tips are never labelled.
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/transform_3d.gif" alt="Example output: the unit cube morphing under a 3x3 matrix">
@@ -384,7 +431,7 @@ animator.plot_span(
 )
 ```
 
-Options: `colors`, `labels`, `grid`, `name`, and `span_color`.
+Options: `colors`, `labels`, `grid`, `name`, `span_color`, and the `vectors`, `vector_colors`, `vector_labels`, `gaps`, and `view` options from [Showing vectors against a span](#showing-vectors-against-a-span).
 
 <figure class="viz" markdown="span">
   <img src="../../assets/viz/span_plane_3d.png" alt="Example output: two 3D vectors shading the plane they span">

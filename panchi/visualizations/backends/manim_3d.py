@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+from typing import Any
+
 import manim
 from manim import (
     DEGREES,
     Arrow3D,
     Create,
+    DashedLine,
     Dot3D,
     FadeIn,
     Line3D,
@@ -27,12 +30,15 @@ from panchi.visualizations.backends.geometry import (
     CUBE_EDGES,
     CUBE_VERTS,
     apply_3x3,
+    coordinates,
+    plane_in_cube,
 )
 from panchi.visualizations.backends.manim_base import (
     _EPSILON,
     ADDITION_COLORS,
     AXIS_COLOR,
     DEFAULT_COLORS,
+    MANIM_GAP_COLOR,
     MATRIX_HUD_COLOR,
     PARALLELOGRAM_COLOR,
     SCALING_COLORS,
@@ -44,10 +50,13 @@ from panchi.visualizations.backends.manim_base import (
     _ManimOutput,
     _resolve_colors,
     _resolve_n_colors,
+    _SpanOverlay,
 )
 
 CAMERA_PHI = 70 * DEGREES
 CAMERA_THETA = -45 * DEGREES
+# Equal lengths keep right angles looking right from any camera angle.
+EQUAL_AXIS_LENGTH = 7
 
 
 class _VectorScene3D(ThreeDScene):
@@ -58,11 +67,18 @@ class _VectorScene3D(ThreeDScene):
         x_range: tuple[int, int],
         y_range: tuple[int, int],
         z_range: tuple[int, int],
+        view: tuple[float, ...] | None = None,
     ) -> None:
+        lengths: dict[str, Any] = {}
+        if view is not None:
+            lengths = dict.fromkeys(
+                ("x_length", "y_length", "z_length"), EQUAL_AXIS_LENGTH
+            )
         self.axes = ThreeDAxes(
             x_range=[*x_range, 1],
             y_range=[*y_range, 1],
             z_range=[*z_range, 1],
+            **lengths,
             axis_config={
                 "color": AXIS_COLOR,
                 "stroke_width": 2,
@@ -70,7 +86,15 @@ class _VectorScene3D(ThreeDScene):
             },
         )
 
-        self.set_camera_orientation(phi=CAMERA_PHI, theta=CAMERA_THETA)
+        if view is None:
+            self.set_camera_orientation(phi=CAMERA_PHI, theta=CAMERA_THETA)
+        else:
+            elevation, azimuth, *roll = view
+            self.set_camera_orientation(
+                phi=(90 - elevation) * DEGREES,
+                theta=azimuth * DEGREES,
+                gamma=(roll[0] if roll else 0) * DEGREES,
+            )
         self.play(Create(self.axes))
 
         # Labels sit just past each axis tip and face the camera (fixed
@@ -245,6 +269,8 @@ class _ManimBackend3D(_ManimBackendBase):
         interval: int = 30,
         name: str = "animate_transform",
         colors: list[str] | None = None,
+        show_matrix: bool = True,
+        show_labels: bool = True,
     ) -> _ManimOutput:
         vecs = (
             [(float(v[0]), float(v[1]), float(v[2])) for v in vectors]
@@ -271,8 +297,9 @@ class _ManimBackend3D(_ManimBackendBase):
                 color=MATRIX_HUD_COLOR,
             ).scale(0.7)
             matrix_tex.to_corner(manim.UR, buff=0.4)
-            scene.add_fixed_in_frame_mobjects(matrix_tex)
-            scene.play(Write(matrix_tex), run_time=0.6)
+            if show_matrix:
+                scene.add_fixed_in_frame_mobjects(matrix_tex)
+                scene.play(Write(matrix_tex), run_time=0.6)
 
             arrows = [
                 Arrow3D(scene.axes.c2p(0, 0, 0), scene.axes.c2p(*v), color=color)
@@ -308,9 +335,12 @@ class _ManimBackend3D(_ManimBackendBase):
         grid: bool,
         name: str,
         span_color: str | None = None,
+        overlay: _SpanOverlay | None = None,
+        view: tuple[float, ...] | None = None,
     ) -> _ManimOutput:
+        overlay = overlay or _SpanOverlay()
         per_space = [(compute_basis(s), rank(s)) for s in spaces]
-        all_basis = [v for basis, _ in per_space for v in basis]
+        plotted = [v for basis, _ in per_space for v in basis] + overlay.points()
         single = len(per_space) == 1
 
         if single:
@@ -332,14 +362,12 @@ class _ManimBackend3D(_ManimBackendBase):
             ]
 
         def build(scene: _VectorScene3D) -> None:
-            if all_basis:
-                range_val = _axis_range(
-                    c for v in all_basis for c in (v[0], v[1], v[2])
-                )
+            if plotted:
+                range_val = _axis_range(c for v in plotted for c in (v[0], v[1], v[2]))
             else:
                 range_val = 3
             axis_range = (-range_val, range_val)
-            scene.setup_axes(axis_range, axis_range, axis_range)
+            scene.setup_axes(axis_range, axis_range, axis_range, view)
 
             for idx, (basis, dim) in enumerate(per_space):
                 fill = fill_colors[idx]
@@ -358,22 +386,11 @@ class _ManimBackend3D(_ManimBackendBase):
                     )
                     scene.play(Create(line))
                 elif dim == 2:
-                    b1, b2 = basis[0], basis[1]
-                    max_comp = max(
-                        abs(c) for c in (b1[0], b1[1], b1[2], b2[0], b2[1], b2[2])
+                    corners = plane_in_cube(
+                        coordinates(basis[0]), coordinates(basis[1]), range_val
                     )
-                    f = range_val / max(max_comp, _EPSILON) * 1.3
-
-                    def corner(sa, sb, b1=b1, b2=b2, f=f):
-                        return scene.axes.c2p(
-                            *(sa * f * b1[k] + sb * f * b2[k] for k in range(3))
-                        )
-
                     plane = Polygon(
-                        corner(-1, -1),
-                        corner(1, -1),
-                        corner(1, 1),
-                        corner(-1, 1),
+                        *[scene.axes.c2p(*corner) for corner in corners],
                         color=fill,
                         fill_opacity=0.25,
                         stroke_opacity=0.4,
@@ -399,6 +416,18 @@ class _ManimBackend3D(_ManimBackendBase):
                     basis, arrow_color_sets[idx], arrow_label_sets[idx], strict=False
                 ):
                     scene.add_vector((vec[0], vec[1], vec[2]), color, label)
+
+            for vec, color, tip_label in zip(
+                overlay.vectors, overlay.colors, overlay.labels, strict=True
+            ):
+                scene.add_vector((vec[0], vec[1], vec[2]), color, tip_label)
+            for start, end in overlay.gaps:
+                gap = DashedLine(
+                    scene.axes.c2p(*coordinates(start)),
+                    scene.axes.c2p(*coordinates(end)),
+                    color=MANIM_GAP_COLOR,
+                )
+                scene.play(Create(gap), run_time=0.8)
 
             scene.wait(1.5)
 

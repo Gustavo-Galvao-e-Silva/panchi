@@ -49,11 +49,11 @@ Printing the `Reduction` object produces a full step-by-step walkthrough:
 
 ```python
 print(reduction)
-# RREF of 3×3 matrix — 6 steps, rank 3
+# RREF of 3×3 matrix — 9 steps, rank 3
 #
 # Step 1: R1 -> R1 + (1.5) * R0
 # [[2, 1, -1],
-#  [0, 0.5, 0.5],
+#  [0.0, 0.5, 0.5],
 #  [-2, 1, 2]]
 # ...
 ```

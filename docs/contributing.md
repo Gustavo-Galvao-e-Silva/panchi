@@ -125,9 +125,11 @@ git checkout -b feature/your-feature-name
 ### File Organization
 ```
 panchi/
-├── primitives/        # Core classes (Vector, Matrix) and factory functions
+├── primitives/        # Core classes (Vector, Matrix, VectorSpace) and factory functions
 ├── algorithms/        # Reductions, decompositions, and other complex algorithms
-└── visualizations/    # Animator2D and backends (matplotlib, manim)
+├── symbolic/          # Exact numbers and polynomials (QuadraticNumber, Polynomial)
+├── utils/             # Shared helpers (LaTeX rendering, deprecation, types)
+└── visualizations/    # Animator2D, Animator3D and backends (matplotlib, manim)
 ```
 
 ### Naming Conventions
@@ -235,8 +237,8 @@ tests/
 ├── test_matrix.py             # Matrix class tests
 ├── test_matrix_algorithms.py  # Matrix algorithm tests
 ├── test_matrix_operations.py  # Matrix operation tests
-├── test_operations.py         # Operations function tests
-└── test_vector.py             # Vector class tests
+├── test_vector.py             # Vector class tests
+└── ...                        # One file per topic; add to the closest match
 ```
 
 ### Test Naming Convention
@@ -435,20 +437,10 @@ Reviewers may request changes. This is normal and helps maintain quality.
 
 ### High Priority Contributions
 
-#### 1. QR Decomposition
-Implement using Gram-Schmidt process.
+#### Visualization Enhancements
+The `Animator2D` and `Animator3D` classes (see [Visualizations](user-guide/visualizations.md)) cover vectors, addition, scaling, linear transformations, and spans. Contributions welcome for:
 
-**Requirements:**
-- Returns Q (orthogonal) and R (upper triangular)
-- Clear step-by-step implementation
-- Verification tests
-
-#### 2. Visualization Enhancements
-The `Animator2D` class (see [Visualizations](user-guide/visualizations.md)) covers vectors, addition, scaling, linear transformations, and spans. Contributions welcome for:
-
-- 3D visualization support
 - RREF step-by-step animation
-- Projection visualization
 - Additional animation styles or color themes
 
 ### Also Welcome
