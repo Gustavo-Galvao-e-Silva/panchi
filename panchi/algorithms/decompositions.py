@@ -17,7 +17,10 @@ def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
     encodes the elimination multipliers used during Gaussian elimination,
     which is the standard way to read L from the steps of REF.
 
-    RowSwap operations are ignored here — they are captured in P instead.
+    A RowSwap that happens after elimination has started also swaps the
+    multipliers already recorded for those two rows, so each multiplier
+    stays with the row it was computed for. The swap itself is captured
+    in P.
 
     Parameters
     ----------
@@ -33,7 +36,12 @@ def _calculate_l(n: int, steps: list[RowOperation]) -> Matrix:
     """
     l = identity(n)
     for step in steps:
-        if isinstance(step, RowAdd):
+        if isinstance(step, RowSwap):
+            for column in range(min(step.a, step.b)):
+                multiplier_a = l[step.a, column]
+                l[step.a, column] = l[step.b, column]
+                l[step.b, column] = multiplier_a
+        elif isinstance(step, RowAdd):
             l[step.target, step.source] = -step.scalar
 
     return l
