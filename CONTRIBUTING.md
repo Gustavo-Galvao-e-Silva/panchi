@@ -15,9 +15,14 @@ Using a coding agent (Claude Code, Cursor, Copilot, …)? Point it at
 project layout and exact commands.
 
 ```bash
-pip install -e ".[dev]"     # setup (inside a virtual environment)
-pytest tests/               # run tests
-ruff check panchi tests     # lint
-black panchi tests          # format
-mypy panchi                 # type check (strict)
+pip install -e ".[dev]"       # setup (inside a virtual environment)
+pre-commit install            # optional: run ruff + black on every commit
+pytest tests/ -m "not manim"  # fast tests (skips manim rendering)
+pytest tests/                 # full test suite
+ruff check panchi tests       # lint (CI blocks on this)
+black panchi tests            # format (CI blocks on this)
+mypy panchi/path/to/file.py   # type check the files you touch
 ```
+
+The codebase has known mypy errors that are being cleaned up, so `mypy panchi` isn't
+clean yet. Just don't add new mypy errors in the files you touch.
