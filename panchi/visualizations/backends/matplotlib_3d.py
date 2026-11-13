@@ -33,6 +33,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _smooth_step,
     _SpanOverlay,
 )
+from panchi.visualizations.backends.reduction_plan import ReductionPlan
 
 AXIS_LINE_COLOR = "#666666"
 HUD_COLOR = "#333333"
@@ -352,6 +353,93 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
 
         return self._run_animation(
             fig, animate_frame, frames, interval, name, blit=False
+        )
+
+    def animate_reduction(
+        self,
+        plan: ReductionPlan,
+        frames: int = 40,
+        interval: int = 30,
+        name: str = "animate_reduction",
+        colors: list[str] | None = None,
+    ) -> _InlineAnimation | None:
+        vec_colors = _resolve_n_colors(
+            colors, len(plan.start_columns), tuple(DEFAULT_COLORS)
+        )
+        rng = max(plan.max_extent() * 1.3, 1.5)
+
+        fig = plt.figure(figsize=self.figsize)
+        ax = fig.add_subplot(projection="3d")
+        _setup_coordinate_space_3d(ax, (-rng, rng), grid=False)
+
+        cube = Line3DCollection(
+            [[CUBE_VERTS[i], CUBE_VERTS[j]] for i, j in CUBE_EDGES],
+            colors="#999999",
+            linewidths=1.0,
+            alpha=0.7,
+        )
+        ax.add_collection3d(cube)
+
+        caption = ax.text2D(
+            0.5,
+            0.98,
+            "",
+            transform=ax.transAxes,
+            ha="center",
+            va="top",
+            fontsize=12,
+            fontweight="bold",
+            color=HUD_COLOR,
+        )
+        matrix_text = ax.text2D(
+            0.02,
+            0.02,
+            "",
+            transform=ax.transAxes,
+            va="bottom",
+            family="monospace",
+            fontsize=10,
+            color=HUD_COLOR,
+        )
+
+        state: dict[str, list] = {"arrows": []}
+        total_frames = plan.total_frames(frames)
+
+        def animate_frame(frame: int) -> tuple:
+            current = plan.frame_at(frame, frames, _smooth_step)
+            transform = current.transform
+            shown = current.matrix
+            finished = current.finished
+            caption.set_text(current.caption)
+
+            matrix_text.set_text(
+                "\n".join(
+                    "[" + "  ".join(f"{value:6.3g}" for value in row) + "]"
+                    for row in shown
+                )
+            )
+
+            corners = [apply_3x3(transform, vertex) for vertex in CUBE_VERTS]
+            cube.set_segments([[corners[i], corners[j]] for i, j in CUBE_EDGES])
+
+            for arrow in state["arrows"]:
+                arrow.remove()
+            state["arrows"] = [
+                _draw_arrow_3d(
+                    ax,
+                    (0, 0, 0),
+                    apply_3x3(transform, column),
+                    color,
+                    linewidth=5 if finished and index in plan.pivot_columns else 3,
+                )
+                for index, (column, color) in enumerate(
+                    zip(plan.start_columns, vec_colors, strict=False)
+                )
+            ]
+            return ()
+
+        return self._run_animation(
+            fig, animate_frame, total_frames, interval, name, blit=False
         )
 
     def plot_span(

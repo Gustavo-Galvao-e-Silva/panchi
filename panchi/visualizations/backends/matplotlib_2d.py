@@ -26,6 +26,7 @@ from panchi.visualizations.backends.matplotlib_base import (
     _smooth_step,
     _SpanOverlay,
 )
+from panchi.visualizations.backends.reduction_plan import ReductionPlan
 
 
 def _setup_coordinate_plane(
@@ -356,6 +357,126 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
             return (grid_collection, *arrows, *labels)
 
         return self._run_animation(fig, animate_frame, frames, interval, name)
+
+    def animate_reduction(
+        self,
+        plan: ReductionPlan,
+        frames: int = 40,
+        interval: int = 30,
+        name: str = "animate_reduction",
+        colors: list[str] | None = None,
+    ) -> _InlineAnimation | None:
+        vec_colors = _resolve_n_colors(
+            colors, len(plan.start_columns), tuple(DEFAULT_COLORS)
+        )
+        grid_range = max(int(plan.max_extent() * 1.5) + 2, 6)
+
+        fig, ax = plt.subplots(figsize=self.figsize)
+        _setup_coordinate_plane(
+            ax,
+            (-grid_range, grid_range),
+            (-grid_range, grid_range),
+            grid=False,
+        )
+
+        source_extent = grid_range * 3
+        spacing = max(1, source_extent // 30)
+        grid_lines_init = []
+        for i in range(-source_extent, source_extent + 1, spacing):
+            grid_lines_init.append([(i, -source_extent), (i, source_extent)])
+            grid_lines_init.append([(-source_extent, i), (source_extent, i)])
+
+        grid_collection = LineCollection(
+            grid_lines_init,
+            colors=GRID_COLOR,
+            linewidths=0.8,
+            alpha=0.6,
+            zorder=1,
+        )
+        ax.add_collection(grid_collection)
+
+        arrows = []
+        labels = []
+        for (vx, vy), color in zip(plan.start_columns, vec_colors, strict=False):
+            arrow = _create_vector_arrow((0, 0), (vx, vy), color, linewidth=3.5)
+            ax.add_patch(arrow)
+            label = ax.text(
+                vx + 0.15,
+                vy + 0.15,
+                f"[{vx:.3g}, {vy:.3g}]",
+                fontsize=11,
+                fontweight="bold",
+                color=color,
+            )
+            arrows.append(arrow)
+            labels.append(label)
+
+        caption = ax.text(
+            0.5,
+            0.97,
+            "",
+            transform=ax.transAxes,
+            ha="center",
+            va="top",
+            fontsize=13,
+            fontweight="bold",
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8},
+            zorder=5,
+        )
+        matrix_text = ax.text(
+            0.02,
+            0.03,
+            "",
+            transform=ax.transAxes,
+            ha="left",
+            va="bottom",
+            family="monospace",
+            fontsize=11,
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.8},
+            zorder=5,
+        )
+
+        total_frames = plan.total_frames(frames)
+
+        def animate_frame(frame: int) -> tuple:
+            current = plan.frame_at(frame, frames, _smooth_step)
+            transform = current.transform
+            shown = current.matrix
+            finished = current.finished
+            caption.set_text(current.caption)
+
+            matrix_text.set_text(
+                "\n".join(
+                    "[" + "  ".join(f"{value:6.3g}" for value in row) + "]"
+                    for row in shown
+                )
+            )
+
+            m = transform
+            transformed_lines = [
+                [
+                    (m[0][0] * x + m[0][1] * y, m[1][0] * x + m[1][1] * y)
+                    for x, y in line
+                ]
+                for line in grid_lines_init
+            ]
+            grid_collection.set_segments(transformed_lines)
+
+            for index, ((vx, vy), arrow, label) in enumerate(
+                zip(plan.start_columns, arrows, labels, strict=False)
+            ):
+                tx = m[0][0] * vx + m[0][1] * vy
+                ty = m[1][0] * vx + m[1][1] * vy
+                arrow.set_positions((0, 0), (tx, ty))
+                arrow.set_linewidth(
+                    6.0 if finished and index in plan.pivot_columns else 3.5
+                )
+                label.set_position((tx + 0.15, ty + 0.15))
+                label.set_text(f"[{tx:.3g}, {ty:.3g}]")
+
+            return (grid_collection, *arrows, *labels, caption, matrix_text)
+
+        return self._run_animation(fig, animate_frame, total_frames, interval, name)
 
     def plot_span(
         self,

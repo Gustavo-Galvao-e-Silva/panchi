@@ -1,6 +1,6 @@
 # Visualizations
 
-panchi includes a built-in visualization system for vectors, linear transformations, and vector spaces. Two-dimensional visualizations are accessed through `Animator2D`, and three-dimensional ones through `Animator3D` — the two classes share the same five-method API, differing only in dimension. This page documents `Animator2D` first, then covers what changes in [`Animator3D`](#3d-visualizations-animator3d).
+panchi includes a built-in visualization system for vectors, linear transformations, and vector spaces. Two-dimensional visualizations are accessed through `Animator2D`, and three-dimensional ones through `Animator3D` — the two classes share the same six-method API, differing only in dimension. This page documents `Animator2D` first, then covers what changes in [`Animator3D`](#3d-visualizations-animator3d).
 
 ## Setup
 
@@ -160,6 +160,37 @@ animator.animate_transform(
 
 ---
 
+## Animating row reduction
+
+```python
+from panchi import Matrix
+from panchi.algorithms import rref
+
+reduction = rref(Matrix([[1, 2, 3], [3, 4, 5]]))
+animator.animate_reduction(reduction)
+```
+
+Every row operation is a linear map: if `E` is the elementary matrix of one step, the matrix after the step has columns `E @ column`. `animate_reduction` draws the columns of the matrix as vectors and plays each step as `E` moving the space, with the coordinate grid deforming along with them. The deformation accumulates from step to step, a caption names the operation (for example `R1 -> R1 + (-3.0) * R0`), and the current matrix is shown in the corner.
+
+When the reduction finishes, the pivot columns are drawn thicker. For an `rref` result they have landed on standard basis vectors; for a `ref` result every pivot has only zeros below it. The grid shows where the accumulated row operations send the original coordinate grid: it is the image of the standard grid under the product of every elementary matrix so far. When `A` is square and invertible, that product ends as `A⁻¹`.
+
+The matrix needs 2 rows for `Animator2D` or 3 rows for `Animator3D`, with any number of columns, so augmented matrices `[A | b]` work too. Both `ref` and `rref` results are accepted. `Animator3D` has no grid, so it shows the column vectors together with the image of the unit cube.
+
+Optional parameters:
+
+- `frames` — animation frames per row operation (default `40`)
+- `interval` — milliseconds between frames (default `30`)
+- `colors` — one color per matrix column
+- `name` — output filename when saving (default `"animate_reduction"`)
+
+!!! note
+    A row swap is a reflection, so the space flattens momentarily halfway through a swap before opening back up. Rank-deficient matrices end with their columns collapsed onto a line or a point. Both are expected.
+
+!!! note
+    `animate_reduction` is currently available with the matplotlib backend only.
+
+---
+
 ## Visualizing spans
 
 `plot_span` draws the subspace spanned by a set of vectors, with a shaded region and basis vector arrows.
@@ -290,13 +321,13 @@ Every manim method returns the saved file this way, as an object with a `.path`.
 | Parallelogram in addition | 3D only | Yes |
 | Render speed | Fast | Slower (video encoding) |
 
-Both backends support all five visualization methods with the same API, for both `Animator2D` and `Animator3D`.
+Both backends support `plot_vectors`, `animate_addition`, `animate_scaling`, `animate_transform` and `plot_span` with the same API, for both `Animator2D` and `Animator3D`. `animate_reduction` is currently matplotlib-only.
 
 ---
 
 ## 3D visualizations (`Animator3D`)
 
-`Animator3D` mirrors `Animator2D` for vectors in **R³**. It exposes the same five methods — `plot_vectors`, `animate_addition`, `animate_scaling`, `animate_transform`, and `plot_span` — with identical signatures. Everything above about backends, `save_path`, output formats, and the `name` parameter applies unchanged; only the geometry becomes three-dimensional.
+`Animator3D` mirrors `Animator2D` for vectors in **R³**. It exposes the same six methods — `plot_vectors`, `animate_addition`, `animate_scaling`, `animate_transform`, `plot_span`, and `animate_reduction` — with identical signatures. Everything above about backends, `save_path`, output formats, and the `name` parameter applies unchanged; only the geometry becomes three-dimensional.
 
 ```python
 from panchi import Vector, Matrix, VectorSpace
@@ -406,3 +437,14 @@ Options: `colors`, `labels`, `grid`, `name`, `span_color`, and the `vectors`, `v
   <img src="../../assets/viz/span_plane_3d.png" alt="Example output: two 3D vectors shading the plane they span">
   <figcaption>Example output — two independent vectors spanning a plane in R³.</figcaption>
 </figure>
+
+### Animating row reduction
+
+```python
+from panchi import Matrix
+from panchi.algorithms import rref
+
+animator.animate_reduction(rref(Matrix([[1, 2, 3], [2, 5, 7], [0, 1, 2]])))
+```
+
+The matrix needs 3 rows, with any number of columns. The columns are drawn as 3D arrows together with the image of the unit cube, which shows how each row operation deforms space. Captions, the on-screen matrix, and the thick pivot columns at the end work as in 2D. A `ValueError` is raised for any other number of rows.
