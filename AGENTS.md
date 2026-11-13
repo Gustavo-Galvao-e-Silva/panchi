@@ -18,6 +18,7 @@ never for speed or cleverness.
 python -m venv .venv
 source .venv/bin/activate          # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
+pre-commit install                 # optional: ruff + black on every commit
 ```
 
 ## Commands
@@ -25,16 +26,19 @@ pip install -e ".[dev]"
 Run all of these from the repository root, inside the virtual environment.
 
 ```bash
-pytest tests/                 # run the test suite
+pytest tests/ -m "not manim"  # fast loop (skips manim rendering tests)
+pytest tests/                 # full test suite
 pytest tests/ --cov=panchi    # with coverage
-ruff check panchi tests       # lint
-black panchi tests            # format (line length 88)
-mypy panchi                   # type check (strict)
+ruff check panchi tests       # lint (CI blocks on this)
+black panchi tests            # format, line length 88 (CI blocks on this)
+mypy panchi/path/to/file.py   # type check the files you touch
+mkdocs build --strict         # if docs or docstrings changed (needs .[docs])
 ```
 
 Config lives in `pyproject.toml`: black and ruff use line length 88; ruff selects
-`E, W, F, I, B, C4, UP` (ignoring `E501`, `B008`); mypy runs strict, so **every
-public function needs full type hints**.
+`E, W, F, I, B, C4, UP` (ignoring `E501`, `B008`, `E741`); mypy runs strict, so **every
+public function needs full type hints**. The existing codebase still has known mypy
+errors, so `mypy panchi` is not clean. Don't introduce new mypy errors in files you touch.
 
 ## Project layout
 
@@ -77,9 +81,12 @@ docs/                 # mkdocs-material sources
 ## Before opening a pull request
 
 - `pytest tests/` passes.
-- `ruff check panchi tests`, `black panchi tests`, and `mypy panchi` are clean.
+- `ruff check panchi tests` and `black --check panchi tests` are clean.
+- No new mypy errors in the files you touched.
+- `mkdocs build --strict` passes if docs or docstrings changed.
 - Docstrings added/updated for any changed public API.
-- Branch named `feature/…`, `bug-fix/…`, or `documentation/…`.
+- Branch named `feature/…`, `fix/…`, `docs/…`, `refactor/…`, or `chore/…`.
+- Commit messages follow Conventional Commits (`feat(scope): …`, `fix: …`, `docs: …`).
 - Fill in the pull request template and link any related issue.
 
 The [full contributing guide](https://gustavo-galvao-e-silva.github.io/panchi/contributing)

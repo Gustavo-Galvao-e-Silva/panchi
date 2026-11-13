@@ -54,7 +54,7 @@ Implementations must match standard mathematical definitions and textbook algori
 Error messages should explain what went wrong and why, helping users learn.
 
 ### 5. Minimal External Dependencies
-The core library (i.e. vector and matrix implementations and operations/algorithms) esclusively uses Python's standard library to remain transparent and accessible. 
+The core library (i.e. vector and matrix implementations and operations/algorithms) exclusively uses Python's standard library to remain transparent and accessible. 
 
 Additional features such as visualizations should strive to minimize dependencies, especially those that rely on packages that are not solely setup with pip (e.g. Manim, which relies on C libraries, though this case is provided as an optional package for prettier visualizations, and greatly improves learning).
 
@@ -90,10 +90,12 @@ Although these are guides, if they are blocking the advancement of this library'
     project layout and the exact `pytest` / `ruff` / `black` / `mypy` commands.
 
 ### 1. Fork and Clone
+Fork the repository on GitHub, then clone **your fork** and point `upstream` at the main repository:
+
 ```bash
-# Fork the repository on GitHub, then:
-git clone https://github.com/Gustavo-Galvao-e-Silva/panchi.git
+git clone https://github.com/<your-username>/panchi.git
 cd panchi
+git remote add upstream https://github.com/Gustavo-Galvao-e-Silva/panchi.git
 ```
 
 ### 2. Create Virtual Environment
@@ -107,15 +109,30 @@ source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
 ```
 
-### 4. Verify Installation
+### 4. Install the Pre-commit Hooks (Recommended)
 ```bash
-python -c "from panchi.primitives import Vector; print(Vector([1, 2, 3]))"
-pytest tests/ -v
+pre-commit install
 ```
 
-### 5. Create Feature Branch
+This runs ruff and black on every commit, so formatting problems are fixed before CI sees them.
+
+### 5. Verify Installation
+```bash
+python -c "from panchi.primitives import Vector; print(Vector([1, 2, 3]))"
+pytest tests/ -m "not manim"
+```
+
+### 6. Create a Branch
 ```bash
 git checkout -b feature/your-feature-name
+```
+
+Use one of these prefixes: `feature/`, `fix/`, `docs/`, `refactor/`, `chore/`.
+
+### 7. Keep Your Branch Up to Date
+```bash
+git fetch upstream
+git rebase upstream/main
 ```
 
 ---
@@ -140,6 +157,12 @@ panchi/
 
 ### Type Hints
 Always include type hints and guards. They're documentation and help catch errors.
+
+mypy runs in strict mode. The existing codebase is still being cleaned up and has known mypy errors, so don't expect `mypy panchi` to be clean. The rule is: **don't introduce new mypy errors in the files you touch.** Check a single file with:
+
+```bash
+mypy panchi/path/to/file.py
+```
 
 ```python
 def zero_vector(dims: int) -> Vector:
@@ -200,7 +223,7 @@ def reduce(m: Matrix):
 Never commit code with `print()` statements for debugging. Use proper logging if necessary, or remove them entirely.
 
 ### Explicit Over Implicit
-Be clear about what operations are happening.
+Be clear about what operations are happening. A simple comprehension is fine; nested comprehensions that build a matrix in one line are not.
 
 **Good:**
 ```python
@@ -280,7 +303,10 @@ def test_add_different_dimensions(self):
 
 ### Run Tests Before Submitting
 ```bash
-# Run all tests
+# Everyday loop: skip the slow manim rendering tests
+pytest tests/ -m "not manim"
+
+# Run all tests (renders manim videos if manim is installed)
 pytest tests/
 
 # Run specific test file
@@ -383,6 +409,8 @@ Before starting work, create an issue describing:
 
 This helps avoid duplicate work and ensures alignment with project goals.
 
+For larger features (roughly 300+ lines), please agree on the design in an issue **before** opening the pull request. Large PRs that arrive without discussion are much slower to review.
+
 ### 2. Write Your Code
 Follow all code standards and write tests as you go.
 
@@ -391,21 +419,24 @@ Follow all code standards and write tests as you go.
 - Update API documentation if needed
 - Add examples if relevant
 
-### 4. Run Tests
+### 4. Run Checks
 ```bash
-pytest tests/ -v
+pytest tests/
+ruff check panchi tests
+black --check panchi tests
+mkdocs build --strict   # only if you changed docs or docstrings (needs pip install -e ".[docs]")
 ```
 
-All tests must pass before submitting.
+All tests must pass before submitting. CI runs the tests, ruff, and black on every pull request and blocks the merge if any of them fail.
 
 ### 5. Commit Your Changes
-Write clear, descriptive commit messages:
+We use [Conventional Commits](https://www.conventionalcommits.org/): a type, an optional scope, and a clear summary.
 
 ```bash
 # Good commit messages
-git commit -m "Add determinant calculation for square matrices"
-git commit -m "Fix dimension check in matrix multiplication"
-git commit -m "Improve error message for incompatible vector addition"
+git commit -m "feat(determinants): add step-by-step cofactor expansion"
+git commit -m "fix: check dimensions in matrix multiplication"
+git commit -m "docs: improve the row reduction guide"
 
 # Avoid vague messages
 git commit -m "Update code"
@@ -413,13 +444,11 @@ git commit -m "Fix bug"
 git commit -m "Changes"
 ```
 
+Common types: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
+
 ### 6. Push and Create Pull Request
 ```bash
 git push origin feature/your-feature-name
-OR
-git push origin bug-fix/bug-name
-OR
-git push origin documentation/change-name
 ```
 
 Then create a pull request on GitHub with:
@@ -429,6 +458,8 @@ Then create a pull request on GitHub with:
 - Examples of the new functionality
 
 ### 7. Respond to Review Feedback
+A maintainer aims to respond to every pull request within about a week. If you haven't heard back after that, feel free to leave a comment on the PR.
+
 Reviewers may request changes. This is normal and helps maintain quality.
 
 ---
@@ -475,7 +506,7 @@ The `Animator2D` and `Animator3D` classes (see [Visualizations](user-guide/visua
 ### Approval Requirements
 
 Pull requests need:
-- ✅ All tests passing
+- ✅ All tests, ruff, and black passing in CI
 - ✅ At least one maintainer approval
 - ✅ No unresolved conversations
 - ✅ Updated documentation
@@ -519,7 +550,7 @@ In short:
 - **Questions about implementation:** Open a GitHub issue
 - **Clarifying requirements:** Comment on relevant issue/PR
 - **General discussion:** Use GitHub Discussions
-- **Private concerns:** Email maintainers (coming soon)
+- **Private concerns:** Use the contact listed in the [Code of Conduct](https://github.com/Gustavo-Galvao-e-Silva/panchi/blob/main/CODE_OF_CONDUCT.md)
 
 ---
 
