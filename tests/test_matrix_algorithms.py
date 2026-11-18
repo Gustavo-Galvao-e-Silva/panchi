@@ -23,6 +23,14 @@ class TestRowSwapInit:
         with pytest.raises(TypeError):
             RowSwap(0, "1")
 
+    def test_negative_row_a_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            RowSwap(-1, 0)
+
+    def test_negative_row_b_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            RowSwap(0, -1)
+
 
 class TestRowSwapElementaryMatrix:
     """Test RowSwap elementary matrix construction."""
@@ -162,6 +170,10 @@ class TestRowScaleInit:
     def test_zero_scalar_raises_value_error(self):
         with pytest.raises(ValueError):
             RowScale(0, 0)
+
+    def test_negative_row_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            RowScale(-1, 2)
 
 
 class TestRowScaleElementaryMatrix:
@@ -303,6 +315,18 @@ class TestRowAddInit:
     def test_non_numeric_scalar_raises_type_error(self):
         with pytest.raises(TypeError):
             RowAdd(1, 0, None)
+
+    def test_negative_target_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            RowAdd(-1, 0, 2)
+
+    def test_negative_source_raises_value_error(self):
+        with pytest.raises(ValueError, match="non-negative"):
+            RowAdd(1, -1, 2)
+
+    def test_same_target_and_source_raises_value_error(self):
+        with pytest.raises(ValueError, match="different"):
+            RowAdd(0, 0, 1)
 
 
 class TestRowAddElementaryMatrix:
