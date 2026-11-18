@@ -262,7 +262,7 @@ class RowOperation(ABC):
     @staticmethod
     def _validate_index_type(index: int, name: str | None = None) -> None:
         """
-        Validate that a row index is an integer.
+        Validate that a row index is a non-negative integer.
 
         Parameters
         ----------
@@ -275,12 +275,17 @@ class RowOperation(ABC):
         ------
         TypeError
             If index is not an integer.
+        ValueError
+            If index is negative.
         """
         if not isinstance(index, int):
             where = f" for {name}" if name else ""
             raise TypeError(
                 f"Row index must be an integer. Got {type(index).__name__}{where}."
             )
+        if index < 0:
+            where = f" for {name}" if name else ""
+            raise ValueError(f"Row indices must be non-negative. Got {index}{where}.")
 
     @staticmethod
     def _validate_in_range(index: int, n: int, label: str = "Row") -> None:
@@ -344,6 +349,13 @@ class RowSwap(RowOperation):
         Index of the first row to swap (0-based).
     row_b : int
         Index of the second row to swap (0-based).
+
+    Raises
+    ------
+    TypeError
+        If either row index is not an integer.
+    ValueError
+        If either row index is negative.
 
     Examples
     --------
@@ -474,6 +486,13 @@ class RowScale(RowOperation):
         Index of the row to scale (0-based).
     scalar : int | float | Fraction
         The non-zero value to multiply the row by.
+
+    Raises
+    ------
+    TypeError
+        If row is not an integer or scalar is not a number.
+    ValueError
+        If row is negative or scalar is zero.
 
     Examples
     --------
@@ -610,6 +629,13 @@ class RowAdd(RowOperation):
     scalar : int | float | Fraction
         The value to multiply the source row by before adding.
 
+    Raises
+    ------
+    TypeError
+        If target or source is not an integer, or scalar is not a number.
+    ValueError
+        If target or source is negative, or target and source are equal.
+
     Examples
     --------
     >>> m = Matrix([[1, 2], [3, 4]])
@@ -636,6 +662,11 @@ class RowAdd(RowOperation):
         self._validate_index_type(self.target, "target")
         self._validate_index_type(self.source, "source")
         self._validate_scalar_type(self.scalar)
+        if self.target == self.source:
+            raise ValueError(
+                f"Target and source rows must be different. Both are row "
+                f"{self.target}. To scale a row, use RowScale instead."
+            )
 
     def _validate_indices(self, n: int) -> None:
         self._validate_in_range(self.target, n, "Target row")
