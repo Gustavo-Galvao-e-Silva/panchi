@@ -66,3 +66,43 @@ class TestGramSchmidt:
         q = gram_schmidt([exact_vector([3, 4]), exact_vector([4, 3])])
         assert all(isinstance(x, Fraction) for vec in q for x in vec.data)
         assert q[0].to_list() == [Fraction(3, 5), Fraction(4, 5)]
+
+
+class TestGramSchmidtUnnormalized:
+    """Test cases from Gram-Scmidt orthogonalization without normalization."""
+
+    def test_lay_example_exact(self):
+        from fractions import Fraction
+
+        from panchi import exact_vector
+
+        q = gram_schmidt(
+            [exact_vector([3, 6, 0]), exact_vector([1, 2, 2])], normalize=False
+        )
+
+        assert all(isinstance(x, Fraction) for vec in q for x in vec.data)
+        assert q[0].to_list() == [3, 6, 0]
+        assert q[1].to_list() == [0, 0, 2]
+
+    def test_pairwise_dot_is_exactly_zero(self):
+        from panchi import exact_vector
+
+        q = gram_schmidt(
+            [exact_vector([1, 1, 0]), exact_vector([1, 1, 1])],
+            normalize=False,
+        )
+
+        for i in range(len(q)):
+            for j in range(i + 1, len(q)):
+                assert dot(q[i], q[j]) == 0
+
+    def test_default_output_unchanged(self):
+        vectors = [Vector([3, 6, 0]), Vector([1, 2, 2])]
+        default = gram_schmidt(vectors)
+        explicit = gram_schmidt(vectors, normalize=True)
+
+        for d, e in zip(default, explicit, strict=True):
+            assert d.to_list() == pytest.approx(e.to_list())
+
+        assert default[0].to_list() == pytest.approx([5**-0.5, 2 * 5**-0.5, 0.0])
+        assert default[1].to_list() == pytest.approx([0.0, 0.0, 1.0])
