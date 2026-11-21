@@ -217,21 +217,26 @@ def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:
     return steps
 
 
-def gram_schmidt(vectors: list[Vector]) -> list[Vector]:
+def gram_schmidt(vectors: list[Vector], normalize: bool = True) -> list[Vector]:
     """
-    Orthonormalize a list of vectors using the Gram-Schmidt process.
+    Orthogonalize (and optionally normalize) a list of vectors using the
+    Gram-Schmidt process.
 
-    Given a list of linearly independent vectors, produces an orthonormal
-    list spanning the same subspace: each output vector has unit length and
-    is orthogonal to all the others. Each input vector has its components
-    along the previously produced directions removed, and the remainder is
-    normalized.
+    Given a list of linearly independent vectors, produces an orthogonal
+    list spanning the same subspace: each output vector is orthogonal to
+    all the others. Each input vector has its components along the
+    previously produced directions removed. By default, each remainder is
+    then normalized to unit length, giving an orthonormal list. With
+    normalize = False, the unnormalized orthogonal remainders are returned
+    as is, which keeps exact inputs exact.
 
     Parameters
     ----------
     vectors : list[Vector]
-        The vectors to orthonormalize. Must be non-empty; the vectors are
+        The vectors to orthogonalize. Must be non-empty; the vectors are
         expected to be linearly independent.
+    normalize: bool, optional
+        Whether to return vectors normalized to unit length
 
     Returns
     -------
@@ -256,5 +261,16 @@ def gram_schmidt(vectors: list[Vector]) -> list[Vector]:
     0.0
     >>> round(q[0].magnitude, 10)
     1.0
+
+    >>> a = Vector([3, 6, 0])
+    >>> b = Vector([1, 2, 2,])
+    >>> g = gram_schmidt([a, b], normalize=False)
+    >>> round(dot(p[0], p[1]), 10)
+    0.0
+    >>> round(p[1].magnitude, 10)
+    2.0
     """
-    return [step.orthonormal for step in _gram_schmidt_steps(vectors)]
+    if normalize:
+        return [step.orthonormal for step in _gram_schmidt_steps(vectors)]
+    else:
+        return [step.orthogonal for step in _gram_schmidt_steps(vectors)]
