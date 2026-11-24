@@ -5,11 +5,11 @@ panchi prioritizes clarity and understanding over performance, making it ideal
 for students, educators, and anyone who wants to see how linear algebra really works.
 """
 
-__version__ = "3.2.1"
+__version__ = "3.3.0"
 
 from fractions import Fraction
 
-from panchi.algorithms.decompositions import qr_decomposition
+from panchi.algorithms.decompositions import qr_decomposition, svd
 from panchi.algorithms.eigen import characteristic_polynomial, eigen, eigen_qr
 from panchi.algorithms.matrix_operations import (
     adjugate,
@@ -25,6 +25,7 @@ from panchi.algorithms.matrix_operations import (
     rank,
     solve,
 )
+from panchi.algorithms.results import JacobiRotation, JacobiSweep, SVDResult
 from panchi.algorithms.vector_operations import (
     cross,
     dot,
@@ -111,6 +112,10 @@ __all__ = [
     "adjugate",
     "cramer",
     "qr_decomposition",
+    "svd",
+    "SVDResult",
+    "JacobiSweep",
+    "JacobiRotation",
     "eigen_qr",
     "eigen",
     "characteristic_polynomial",

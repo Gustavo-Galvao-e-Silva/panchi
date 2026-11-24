@@ -1,10 +1,11 @@
 # panchi.algorithms
 
 ```python
-from panchi.algorithms import ref, rref, lu, qr_decomposition
+from panchi.algorithms import ref, rref, lu, qr_decomposition, svd
 from panchi.algorithms import RowSwap, RowScale, RowAdd
 from panchi.algorithms import Reduction, LUDecomposition, QRDecomposition
 from panchi.algorithms import InverseResult, Solution, EigenResult, QREigenResult
+from panchi.algorithms import SVDResult, JacobiSweep, JacobiRotation
 from panchi.algorithms import inverse, solve, determinant
 from panchi.algorithms import cofactor_expansion, determinant_by_reduction, adjugate, cramer
 from panchi.algorithms import eigen, characteristic_polynomial, eigen_qr
@@ -33,6 +34,8 @@ from panchi.algorithms import gram_schmidt, vector_projection
 ::: panchi.algorithms.lu
 
 ::: panchi.algorithms.qr_decomposition
+
+::: panchi.algorithms.svd
 
 ## Eigenvalues
 
@@ -126,3 +129,9 @@ from panchi.algorithms import gram_schmidt, vector_projection
 ::: panchi.algorithms.EigenResult
 
 ::: panchi.algorithms.QREigenResult
+
+::: panchi.algorithms.SVDResult
+
+::: panchi.algorithms.JacobiSweep
+
+::: panchi.algorithms.JacobiRotation
