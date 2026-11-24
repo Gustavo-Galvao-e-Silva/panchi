@@ -277,6 +277,26 @@ Optional parameters: `vectors`, `vector_colors`, `vector_labels`, `gaps`, and `v
 
 ---
 
+## SVD image compression
+
+`plot_compression` treats a matrix as a grayscale image and shows how well its low-rank SVD approximations reproduce it. It's a standalone function, not an `Animator` method, because it draws images instead of vectors:
+
+```python
+from panchi import Matrix, svd
+from panchi.visualizations import plot_compression
+
+A = Matrix([[1 if 4 <= c <= 11 and 3 <= r <= 9 else 0 for c in range(16)]
+            for r in range(16)])
+result = svd(A)
+
+plot_compression(result, [1, 3, 8])
+plot_compression(result, [1, 3, 8], save_path="compression.png")
+```
+
+The top row shows the original next to the rank-k approximation `A_k = σ₁u₁v₁ᵀ + … + σₖuₖvₖᵀ` for each k, and each panel is labelled with its relative error and the share of energy it captures. The bottom panel plots both quantities for every k, so you can see where adding more singular values stops helping. Pass `cmap` to choose a different matplotlib colormap.
+
+---
+
 ## Saving output
 
 When `save_path` is set, every method saves its output to that directory:

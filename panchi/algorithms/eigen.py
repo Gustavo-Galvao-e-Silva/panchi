@@ -269,6 +269,11 @@ def eigen_qr(
     ValueError
         If matrix is not square.
 
+    See Also
+    --------
+    svd : Singular values via one-sided Jacobi, reliable for rank-deficient
+        matrices.
+
     Examples
     --------
     >>> result = eigen_qr(Matrix([[2, 1], [1, 2]]))

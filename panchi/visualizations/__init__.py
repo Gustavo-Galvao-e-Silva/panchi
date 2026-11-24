@@ -37,8 +37,17 @@ The same methods work in three dimensions with ``Animator3D``:
 >>> animator = Animator3D()
 >>> animator.plot_vectors([Vector([3, 2, 1]), Vector([1, 3, 2])])
 >>> animator.animate_transform(Matrix([[1, -1, 0], [1, 1, 0], [0, 0, 1]]))
+
+``plot_compression`` shows low-rank SVD approximations of a matrix image:
+
+>>> from panchi import svd
+>>> from panchi.visualizations import plot_compression
+>>>
+>>> image = Matrix([[1 if 2 <= c <= 5 else 0 for c in range(8)] for r in range(8)])
+>>> plot_compression(svd(image), [1, 2])
 """
 
 from panchi.visualizations.animator import Animator2D, Animator3D
+from panchi.visualizations.compression import plot_compression
 
-__all__ = ["Animator2D", "Animator3D"]
+__all__ = ["Animator2D", "Animator3D", "plot_compression"]
