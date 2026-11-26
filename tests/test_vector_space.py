@@ -9,6 +9,7 @@ from panchi.algorithms.vector_space_operations import (
 )
 from panchi.primitives import Vector
 from panchi.primitives.vector_space import VectorSpace
+from panchi.symbolic import sqrt
 
 # ==================== VECTOR SPACE TESTS ====================
 
@@ -309,6 +310,24 @@ class TestVectorSpaceEquality:
         vs = VectorSpace([Vector([1, 0])])
         print("\n✓ VectorSpace != list → NotImplemented")
         assert vs.__eq__([Vector([1, 0])]) is NotImplemented
+
+    def test_equal_complex_distinct_instances_swapped(self):
+        vs1 = VectorSpace([Vector([sqrt(-1), 1]), Vector([-sqrt(-1), 1])])
+        vs2 = VectorSpace([Vector([-sqrt(-1), 1]), Vector([sqrt(-1), 1])])
+        assert vs1 == vs2
+
+    def test_not_equal_different_complex_vectors(self):
+        i = sqrt(-1)
+        vs1 = VectorSpace([Vector([i, 1]), Vector([1, i])])
+        vs2 = VectorSpace([Vector([i, 2]), Vector([1, i])])
+        assert vs1 != vs2
+
+    def test_not_equal_different_multiplicity(self):
+        i = sqrt(-1)
+        v, w = Vector([i, 1]), Vector([1, i])
+        vs1 = VectorSpace([v, v, w])
+        vs2 = VectorSpace([v, w, w])
+        assert vs1 != vs2
 
 
 class TestVectorSpaceStrRepr:

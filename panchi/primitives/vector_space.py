@@ -214,8 +214,8 @@ class VectorSpace:
         """
         Check if two VectorSpaces are equal.
 
-        Two VectorSpaces are equal if their generating sets contain the
-        same vectors, regardless of order.
+        Two VectorSpaces are equal if their generator lists contain the
+        same vectors with the same multiplicities, regardless of order.
 
         Parameters
         ----------
@@ -225,7 +225,7 @@ class VectorSpace:
         Returns
         -------
         bool
-            True if both spaces have the same generating sets, False otherwise.
+            True if both spaces have the same generator lists, False otherwise.
 
         Examples
         --------
@@ -241,9 +241,13 @@ class VectorSpace:
         if len(self.data) != len(other.data):
             return False
 
-        return sorted(v.to_list() for v in self.data) == sorted(
-            v.to_list() for v in other.data
-        )
+        remaining = list(other.data)
+        for vector in self.data:
+            if vector not in remaining:
+                return False
+            remaining.remove(vector)
+
+        return True
 
     def __str__(self) -> str:
         """
