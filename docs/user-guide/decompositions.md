@@ -120,7 +120,7 @@ print(decomp)
 ```
 
 !!! note
-    QR decomposition here is the reduced ("thin") form and assumes the columns of A are linearly independent. Dependent columns produce a zero vector during Gram-Schmidt, which cannot be normalized and raises `ZeroDivisionError`.
+    QR decomposition here is the reduced ("thin") form and assumes the columns of A are linearly independent. Dependent columns produce a zero vector during Gram-Schmidt, which cannot be normalized and raises a `ValueError` that gives the index of the dependent column.
 
 ## Numerical eigenvalues (QR algorithm)
 

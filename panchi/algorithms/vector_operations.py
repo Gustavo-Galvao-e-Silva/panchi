@@ -113,9 +113,8 @@ def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
     Raises
     ------
     ValueError
-        If the vectors have different dimensions.
-    ZeroDivisionError
-        If axis_vector is the zero vector.
+        If the vectors have different dimensions, or if axis_vector is the
+        zero vector.
 
     Examples
     --------
@@ -124,9 +123,15 @@ def vector_projection(projected_vector: Vector, axis_vector: Vector) -> Vector:
     >>> print(vector_projection(v, a))
     [2.0, 0.0]
     """
-    scalar_projection = dot(projected_vector, axis_vector) / dot(
-        axis_vector, axis_vector
-    )
+    numerator = dot(projected_vector, axis_vector)
+    axis_length_squared = dot(axis_vector, axis_vector)
+    if axis_length_squared == 0:
+        raise ValueError(
+            "Cannot project onto axis_vector: axis_vector · axis_vector is 0, "
+            "so the projection formula would divide by zero. For real vectors "
+            "this means axis_vector is the zero vector."
+        )
+    scalar_projection = numerator / axis_length_squared
     return scalar_projection * axis_vector
 
 
@@ -187,6 +192,19 @@ class GramSchmidtStep:
         return aligned_to_latex(lines)
 
 
+class DependentVectorsError(ValueError):
+    """
+    Raised by Gram-Schmidt when a vector reduces to squared length 0.
+
+    Gram-Schmidt removes each vector's projections onto the previously
+    produced orthogonal directions. If the remainder has squared length 0
+    (v · v = 0), it cannot be normalized. For real vectors this means the
+    vector is in the span of the earlier ones. This subclass of ValueError
+    lets callers keep catching ValueError, while eigen_qr catches this class
+    to tell dependent input apart from other errors.
+    """
+
+
 def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:
     """
     Run Gram-Schmidt, recording the derivation of each orthonormal vector.
@@ -207,6 +225,22 @@ def _gram_schmidt_steps(vectors: list[Vector]) -> list[GramSchmidtStep]:
             projection = vector_projection(vector, previous)
             projections.append(projection)
             orthogonal_vector -= projection
+
+        if orthogonal_vector.magnitude_squared == 0:
+            if i == 0:
+                raise DependentVectorsError(
+                    "Vector 0 has squared length 0 (v · v = 0), so it cannot be "
+                    "normalized. For real vectors this means it is the zero "
+                    "vector. Gram-Schmidt needs linearly independent input; "
+                    "try basis(span(vectors)) first."
+                )
+            raise DependentVectorsError(
+                f"Vector {i} has squared length 0 after removing its "
+                "projections onto the earlier vectors, so it cannot be "
+                "normalized. For real vectors this means it is a linear "
+                "combination of the earlier vectors. Gram-Schmidt needs "
+                "linearly independent input; try basis(span(vectors)) first."
+            )
 
         orthogonal_vectors.append(orthogonal_vector)
         orthonormal = orthogonal_vector.normalize()
@@ -247,10 +281,8 @@ def gram_schmidt(vectors: list[Vector], normalize: bool = True) -> list[Vector]:
     Raises
     ------
     ValueError
-        If vectors is empty.
-    ZeroDivisionError
-        If the vectors are linearly dependent (a vector reduces to the zero
-        vector and cannot be normalized).
+        If vectors is empty, or if the vectors are linearly dependent (a
+        vector is the zero vector or reduces to the zero vector).
 
     Examples
     --------
