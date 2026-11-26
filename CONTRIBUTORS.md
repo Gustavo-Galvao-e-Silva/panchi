@@ -22,3 +22,5 @@ None yet. See [MAINTAINERS.md](MAINTAINERS.md) for how to become one.
 - [ADITYA V J](https://github.com/raappo)
 - [M. Haye](https://github.com/mhaye9545)
 - [Hitesh_G](https://github.com/Hitesh-XS)
+- [andrew](https://github.com/andrewb1207)
+- [Mica](https://github.com/bbonura)
