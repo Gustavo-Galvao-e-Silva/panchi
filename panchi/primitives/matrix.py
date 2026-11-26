@@ -243,7 +243,7 @@ class Matrix:
         if not isinstance(value, list):
             raise TypeError(f"Row must be a list. Got {type(value).__name__}.")
 
-        new_row: list[Scalar] = []
+        new_row = []
         for j, elem in enumerate(value):
             try:
                 new_row.append(parse_scalar(elem))
