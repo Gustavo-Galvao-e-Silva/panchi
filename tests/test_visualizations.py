@@ -114,6 +114,18 @@ class TestPlotVectors:
         with pytest.raises(TypeError, match="list"):
             animator.plot_vectors(Vector([1, 2]))
 
+    def test_rejects_non_vector_in_list(self):
+        animator = Animator2D()
+        print("\n✓ Non-Vector in list → raises TypeError")
+        with pytest.raises(TypeError, match="list of Vector objects"):
+            animator.plot_vectors([Vector([1, 2]), [1, 2]])
+
+    def test_rejects_non_matrix(self):
+        animator = Animator2D()
+        print("\n✓ Non-Matrix → raises TypeError")
+        with pytest.raises(TypeError, match="Matrix"):
+            animator.animate_transform([[1, 0], [0, 1]])
+
 
 # ==================== ANIMATE ADDITION ====================
 

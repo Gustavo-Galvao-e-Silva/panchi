@@ -81,6 +81,18 @@ class TestPlotVectors3D:
         print("\n✓ Custom name saved")
         assert (tmp_path / "my_plot.png").exists()
 
+    def test_rejects_non_vector_in_list(self):
+        animator = Animator3D()
+        print("\n✓ Non-Vector in list → raises TypeError")
+        with pytest.raises(TypeError, match="list of Vector objects"):
+            animator.plot_vectors([Vector([1, 2, 3]), [1, 2, 3]])
+
+    def test_rejects_non_matrix(self):
+        animator = Animator3D()
+        print("\n✓ Non-Matrix → raises TypeError")
+        with pytest.raises(TypeError, match="Matrix"):
+            animator.animate_transform([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
 
 # ==================== DIMENSION VALIDATION ====================
 
