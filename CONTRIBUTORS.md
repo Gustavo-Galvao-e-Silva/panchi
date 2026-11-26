@@ -2,9 +2,16 @@
 
 Thanks to everyone who has contributed to this project! Your work helped panchi advance, and made the world just a little better!
 
+Want to take on more? [MAINTAINERS.md](MAINTAINERS.md) lists the roles from contributor
+to lead and what it takes to reach each one.
+
 ## Core Team
 
 - [Gustavo Galvao](https://github.com/Gustavo-Galvao-e-Silva) - Project Lead
+
+## Reviewers
+
+None yet. See [MAINTAINERS.md](MAINTAINERS.md) for how to become one.
 
 ## Contributors
 
