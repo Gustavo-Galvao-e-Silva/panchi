@@ -187,11 +187,12 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         ax.add_collection3d(parallelogram)
 
         half_frames = frames // 2
+        first_half_steps = max(half_frames - 1, 1)
         state = {"tiptail": None, "result": None, "text": None}
 
         def animate_frame(frame: int) -> tuple:
             if frame < half_frames:
-                t = frame / half_frames
+                t = frame / first_half_steps
                 end = (
                     v1[0] + v2[0] * t,
                     v1[1] + v2[1] * t,
@@ -210,7 +211,7 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
             )
 
             if frame >= half_frames:
-                t2 = (frame - half_frames) / half_frames
+                t2 = (frame - half_frames + 1) / (frames - half_frames)
                 rx, ry, rz = result[0] * t2, result[1] * t2, result[2] * t2
 
                 if state["result"] is not None:
@@ -256,9 +257,10 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
         _setup_coordinate_space_3d(ax, axis_range, grid=True)
 
         state = {"arrow": None, "text": None}
+        steps = max(frames - 1, 1)
 
         def animate_frame(frame: int) -> tuple:
-            t = frame / frames
+            t = frame / steps
             scale = 1 + (factor - 1) * t
             vx, vy, vz = vector[0] * scale, vector[1] * scale, vector[2] * scale
 
@@ -331,9 +333,10 @@ class _MatplotlibBackend3D(_MatplotlibBackendBase):
             )
 
         state = {"arrows": []}
+        steps = max(frames - 1, 1)
 
         def animate_frame(frame: int) -> tuple:
-            t = _smooth_step(frame / frames)
+            t = _smooth_step(frame / steps)
             current = [
                 [
                     (1.0 if i == j else 0.0) * (1 - t) + target[i][j] * t
