@@ -193,9 +193,10 @@ class Matrix:
 
         Both paths validate their input like the constructor: elements are
         parsed with ``parse_scalar`` (so string fractions such as ``"1/2"``
-        become ``Fraction``) and must be numbers. ``m[i, j] = x`` is the way to
-        set a single element — ``m[i]`` returns a copy, so ``m[i][j] = x`` would
-        not change the matrix.
+        become ``Fraction``) and must be numbers. Whole-row assignment stores a
+        copy, so later edits to the assigned list do not affect the matrix.
+        ``m[i, j] = x`` is the way to set a single element — ``m[i]`` returns a
+        copy, so ``m[i][j] = x`` would not change the matrix.
 
         Parameters
         ----------
@@ -239,13 +240,13 @@ class Matrix:
                 f"Got {type(index).__name__}."
             )
 
-        new_row = value
-        if not isinstance(new_row, list):
-            raise TypeError(f"Row must be a list. Got {type(new_row).__name__}.")
+        if not isinstance(value, list):
+            raise TypeError(f"Row must be a list. Got {type(value).__name__}.")
 
-        for j, elem in enumerate(new_row):
+        new_row: list[Scalar] = []
+        for j, elem in enumerate(value):
             try:
-                new_row[j] = parse_scalar(elem)
+                new_row.append(parse_scalar(elem))
             except TypeError:
                 raise TypeError(
                     f"All row elements must be numbers (int, float, or Fraction). "

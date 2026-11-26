@@ -163,6 +163,20 @@ class TestMatrixSetItem:
         with pytest.raises(TypeError):
             m[0] = [1, [2]]
 
+    def test_setitem_does_not_alias_source_row(self):
+        m = Matrix([[1, 2], [3, 4]])
+        row = [5, 6]
+        m[0] = row
+        row[0] = "abc"
+        assert m[0] == [5, 6]
+
+    def test_setitem_does_not_parse_source_row_in_place(self):
+        m = Matrix([[1, 2], [3, 4]])
+        row = ["1/2", 6]
+        m[0] = row
+        assert row == ["1/2", 6]
+        assert m[0] == [Fraction(1, 2), 6]
+
 
 class TestMatrixAddition:
     """Test cases for Matrix addition operations."""
