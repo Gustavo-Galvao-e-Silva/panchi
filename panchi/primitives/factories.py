@@ -426,7 +426,7 @@ def rotation_matrix_2d(angle: int | float, radians: bool = True) -> Matrix:
     >>> R = rotation_matrix_2d(math.pi / 2)
     >>> v = Vector([1, 0])
     >>> rotated = R @ v
-    >>> print(rotated)
+    >>> print(Vector([round(x, 10) for x in rotated]))
     [0.0, 1.0]
     """
     angle_radians = angle if radians else (angle * pi / 180)
@@ -472,7 +472,7 @@ def rotation_matrix_3d(
     >>> R = rotation_matrix_3d(math.pi / 2, axis)
     >>> v = Vector([1, 0, 0])
     >>> rotated = R @ v
-    >>> print(rotated)
+    >>> print(Vector([round(x, 10) for x in rotated]))
     [0.0, 1.0, 0.0]
     """
     if axis.magnitude == 0:

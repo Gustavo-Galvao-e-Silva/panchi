@@ -112,11 +112,17 @@ class Reduction:
         --------
         >>> print(ref(Matrix([[1, 2], [3, 4]])))
         REF of 2×2 matrix — 1 steps, rank 2
-
+        <BLANKLINE>
         Step 1: R1 -> R1 + (-3.0) * R0
         [[1, 2],
-         [0, -2.0]]
-        ...
+         [0.0, -2.0]]
+        <BLANKLINE>
+        Result:
+        [[1, 2],
+         [0.0, -2.0]]
+        <BLANKLINE>
+        Pivots: [(0, 0), (1, 1)]
+        Rank: 2  |  Nullity: 0
         """
         header: str = (
             f"{self.form} of {self.original.rows}×{self.original.cols} matrix"
@@ -152,7 +158,7 @@ class Reduction:
         >>> ref(Matrix([[1, 2], [3, 4]]))
         Reduction(form=REF, shape=2×2, rank=2, nullity=0, pivots=[(0, 0), (1, 1)], steps=1)
         [[1, 2],
-         [0, -2.0]]
+         [0.0, -2.0]]
         """
         summary: str = (
             f"Reduction("
@@ -244,21 +250,21 @@ class LUDecomposition:
         --------
         >>> print(lu(Matrix([[2, 1], [4, 3]])))
         LU decomposition of 2×2 matrix — 1 steps
-
+        <BLANKLINE>
         P @ A = L @ U
-
+        <BLANKLINE>
         P:
         [[1, 0],
          [0, 1]]
-
+        <BLANKLINE>
         A:
         [[2, 1],
          [4, 3]]
-
+        <BLANKLINE>
         L:
         [[1, 0],
          [2.0, 1]]
-
+        <BLANKLINE>
         U:
         [[2, 1],
          [0.0, 1.0]]
@@ -470,8 +476,8 @@ class InverseResult:
         Examples
         --------
         >>> print(inverse(Matrix([[1, 2], [3, 4]])))
-        Inverse of 2×2 matrix — 6 steps
-
+        Inverse of 2×2 matrix — 3 steps
+        <BLANKLINE>
         Inverse:
         [[-2.0, 1.0],
          [1.5, -0.5]]
@@ -496,7 +502,7 @@ class InverseResult:
         Examples
         --------
         >>> inverse(Matrix([[1, 2], [3, 4]]))
-        InverseResult(shape=2×2, steps=6)
+        InverseResult(shape=2×2, steps=3)
         [[-2.0, 1.0],
          [1.5, -0.5]]
         """
@@ -792,7 +798,7 @@ class CramerResult:
     >>> result = cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5]))
     >>> result.replaced_determinants
     [4, 7]
-    >>> result.solution
+    >>> print(result.solution)
     [0.8, 1.4]
     """
 
@@ -946,7 +952,7 @@ class Solution:
         --------
         >>> print(solve(Matrix([[1, 2], [3, 4]]), Vector([5, 6])))
         Solution to 2×2 system — unique
-
+        <BLANKLINE>
         x = [-4.0, 4.5]
         """
         header: str = (

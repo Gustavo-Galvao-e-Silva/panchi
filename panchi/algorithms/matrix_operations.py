@@ -239,7 +239,7 @@ def determinant_lu(matrix: Matrix) -> float:
     >>> determinant_lu(Matrix([[1, 2], [3, 4]]))
     -2.0
     >>> determinant_lu(Matrix([[0, 1], [1, 2]]))
-    -1.0
+    -1
 
     See Also
     --------
@@ -526,7 +526,7 @@ def cramer(A: Matrix, b: Vector) -> CramerResult:
 
     Examples
     --------
-    >>> cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5])).solution
+    >>> print(cramer(Matrix([[2, 1], [1, 3]]), Vector([3, 5])).solution)
     [0.8, 1.4]
     """
     _require_square_matrix(A, "Cramer's rule solution")
@@ -740,7 +740,7 @@ def solve(A: Matrix, b: Vector, tolerance: float = 0.0) -> Solution:
     >>> result = solve(A, b)
     >>> result.status
     'unique'
-    >>> result.solution
+    >>> print(result.solution)
     [1.0, -1.0]
     """
     if not isinstance(A, Matrix):

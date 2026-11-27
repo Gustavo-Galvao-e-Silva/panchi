@@ -236,9 +236,9 @@ def ref(matrix: Matrix, tolerance: float = 0.0) -> Reduction:
     >>> m = Matrix([[1, 2, 3], [2, 5, 7], [0, 1, 2]])
     >>> reduction = ref(m)
     >>> print(reduction.result)
-    [[1, 2, 3],
-     [0, 1, 1],
-     [0, 0, 1]]
+    [[1.0, 2.0, 3.0],
+     [0.0, 1.0, 1.0],
+     [0.0, 0.0, 1.0]]
     >>> reduction.rank
     3
     >>> reduction.pivots
@@ -294,9 +294,9 @@ def rref(matrix: Matrix, tolerance: float = 0.0) -> Reduction:
     >>> m = Matrix([[1, 2, 3], [2, 5, 7], [0, 1, 2]])
     >>> reduction = rref(m)
     >>> print(reduction.result)
-    [[1, 0, 0],
-     [0, 1, 0],
-     [0, 0, 1]]
+    [[1.0, 0.0, 0.0],
+     [0.0, 1.0, 0.0],
+     [0.0, 0.0, 1.0]]
     >>> reduction.rank
     3
     >>> reduction.nullity
