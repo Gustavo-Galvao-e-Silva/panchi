@@ -1,9 +1,17 @@
 import random
 
+import panchi
 from panchi.algorithms import LUDecomposition, lu
 from panchi.primitives import Matrix, exact_matrix, identity
 
 # ==================== LU RESULT OBJECT TESTS ====================
+
+
+class TestLUTopLevelExport:
+    """Test that lu is available from the top-level panchi package."""
+
+    def test_lu_matches_algorithms_module(self):
+        assert panchi.lu is panchi.algorithms.lu
 
 
 class TestLUDecompositionProperties:
