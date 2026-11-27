@@ -268,8 +268,20 @@ class Polynomial:
                 continue
             term = self._term(power, latex)
             if isinstance(c, QuadraticNumber):
-                text = self._coefficient_text(c, latex)
-                sign, body = "+", f"({text})" if term else text
+                if c and c.rational <= 0 and c.coefficient <= 0:
+                    sign, qn_magnitude = "-", -c
+                else:
+                    sign, qn_magnitude = "+", c
+                text = self._coefficient_text(qn_magnitude, latex)
+                whole, radical, denominator = qn_magnitude._integer_parts()
+                if term:
+                    is_monomial = whole == 0 and radical != 0 and denominator == 1
+                    if not is_monomial:
+                        text = f"({text})"
+                elif whole != 0 and radical != 0 and denominator == 1:
+                    if sign == "-" or whole < 0:
+                        text = f"({text})"
+                body = text
             else:
                 sign = "-" if c < 0 else "+"
                 magnitude = abs(c)
