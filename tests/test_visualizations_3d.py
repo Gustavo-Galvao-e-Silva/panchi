@@ -9,6 +9,46 @@ from panchi.algorithms import ref, rref
 from panchi.symbolic import sqrt
 from panchi.visualizations import Animator3D
 
+
+def _capture_frame_function(monkeypatch, animator):
+    """Replace playback with a capture of the backend's per-frame function."""
+    import matplotlib.pyplot as plt
+
+    captured = {}
+
+    def fake_run_animation(fig, frame_fn, frames, interval, name, blit=True):
+        captured["frame_fn"] = frame_fn
+        captured["frames"] = frames
+        captured["fig"] = fig
+        plt.close(fig)
+        return None
+
+    monkeypatch.setattr(animator._backend, "_run_animation", fake_run_animation)
+    return captured
+
+
+def _record_arrow_draws(monkeypatch):
+    """Record every ``_draw_arrow_3d`` call so the artists can be inspected."""
+    from panchi.visualizations.backends import matplotlib_3d
+
+    draws = []
+    original = matplotlib_3d._draw_arrow_3d
+
+    def record(ax, start, disp, color, linewidth=2.5):
+        draws.append({"start": start, "disp": disp, "linewidth": linewidth})
+        return original(ax, start, disp, color, linewidth)
+
+    monkeypatch.setattr(matplotlib_3d, "_draw_arrow_3d", record)
+    return draws
+
+
+def _tip(draw):
+    return tuple(
+        start + displacement
+        for start, displacement in zip(draw["start"], draw["disp"], strict=True)
+    )
+
+
 # ==================== ANIMATOR3D INITIALIZATION ====================
 
 
@@ -206,6 +246,121 @@ class TestAnimations3D:
                 vectors=[Vector([1, 2])],
                 frames=6,
             )
+
+
+class TestFinalFrame3D:
+    """The last frame lands exactly on the animation's end state (issue #153)."""
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        import matplotlib.pyplot as plt
+
+        yield
+        plt.close("all")
+
+    def test_addition_last_frame_ends_on_sum(self, monkeypatch):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        draws = _record_arrow_draws(monkeypatch)
+        animator.animate_addition(
+            Vector([3, 1, 0]), Vector([1, 3, 0]), frames=10, interval=100
+        )
+        draws.clear()
+
+        captured["frame_fn"](captured["frames"] - 1)
+
+        tip_draw, result_draw = draws
+        assert tip_draw["start"] == pytest.approx((3, 1, 0))
+        assert _tip(tip_draw) == pytest.approx((4, 4, 0))
+        assert result_draw["start"] == pytest.approx((0, 0, 0))
+        assert _tip(result_draw) == pytest.approx((4, 4, 0))
+
+        label = captured["fig"].axes[0].texts[-1]
+        assert label.get_text() == "v₁+v₂"
+
+    def test_addition_first_half_ends_on_sum(self, monkeypatch):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        draws = _record_arrow_draws(monkeypatch)
+        animator.animate_addition(
+            Vector([3, 1, 0]), Vector([1, 3, 0]), frames=10, interval=100
+        )
+        draws.clear()
+
+        captured["frame_fn"](captured["frames"] // 2 - 1)
+
+        (tail_draw,) = draws
+        assert tail_draw["start"] == pytest.approx((3, 1, 0))
+        assert _tip(tail_draw) == pytest.approx((4, 4, 0))
+
+    def test_scaling_last_frame_ends_on_scaled_vector(self, monkeypatch):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        draws = _record_arrow_draws(monkeypatch)
+        animator.animate_scaling(Vector([2, 1, 1]), 3, frames=10, interval=100)
+        draws.clear()
+
+        captured["frame_fn"](captured["frames"] - 1)
+
+        (draw,) = draws
+        assert _tip(draw) == pytest.approx((6, 3, 3))
+
+        label = captured["fig"].axes[0].texts[-1]
+        assert label.get_text() == "3v"
+
+    def test_transform_last_frame_ends_on_matrix_image(self, monkeypatch):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        draws = _record_arrow_draws(monkeypatch)
+        animator.animate_transform(
+            Matrix([[2, 1, 0], [0, 1, 0], [0, 0, 1]]),
+            frames=10,
+            interval=100,
+        )
+        draws.clear()
+
+        captured["frame_fn"](captured["frames"] - 1)
+
+        e1_draw, e2_draw, e3_draw = draws
+        assert _tip(e1_draw) == pytest.approx((2, 0, 0))
+        assert _tip(e2_draw) == pytest.approx((1, 1, 0))
+        assert _tip(e3_draw) == pytest.approx((0, 0, 1))
+
+    @pytest.mark.parametrize("frames", [1, 2])
+    def test_tiny_frame_counts_do_not_raise(self, monkeypatch, frames):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+
+        animator.animate_scaling(Vector([2, 1, 1]), 3, frames=frames, interval=100)
+        for frame in range(frames):
+            captured["frame_fn"](frame)
+
+        animator.animate_transform(
+            Matrix([[2, 1, 0], [0, 1, 0], [0, 0, 1]]),
+            frames=frames,
+            interval=100,
+        )
+        for frame in range(frames):
+            captured["frame_fn"](frame)
+
+    @pytest.mark.parametrize("frames", [1, 2])
+    def test_addition_tiny_frame_counts_end_on_sum(self, monkeypatch, frames):
+        animator = Animator3D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        draws = _record_arrow_draws(monkeypatch)
+
+        animator.animate_addition(
+            Vector([3, 1, 0]), Vector([1, 3, 0]), frames=frames, interval=100
+        )
+        draws.clear()
+        for frame in range(frames):
+            captured["frame_fn"](frame)
+
+        tip_draw, result_draw = draws[-2:]
+        assert tip_draw["start"] == pytest.approx((3, 1, 0))
+        assert _tip(tip_draw) == pytest.approx((4, 4, 0))
+        assert result_draw["start"] == pytest.approx((0, 0, 0))
+        assert _tip(result_draw) == pytest.approx((4, 4, 0))
 
 
 class TestPlotSpan3D:

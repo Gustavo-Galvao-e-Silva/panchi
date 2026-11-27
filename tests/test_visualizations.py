@@ -10,6 +10,27 @@ from panchi.symbolic import sqrt
 from panchi.visualizations import Animator2D
 from panchi.visualizations.animator import _to_float_space
 
+
+def _capture_frame_function(monkeypatch, animator):
+    """Replace playback with a capture of the backend's per-frame function."""
+    import matplotlib.pyplot as plt
+
+    captured = {}
+
+    def fake_run_animation(fig, frame_fn, frames, interval, name, blit=True):
+        captured["frame_fn"] = frame_fn
+        captured["frames"] = frames
+        plt.close(fig)
+        return None
+
+    monkeypatch.setattr(animator._backend, "_run_animation", fake_run_animation)
+    return captured
+
+
+def _arrow_endpoints(arrow):
+    return arrow._posA_posB
+
+
 # ==================== ANIMATOR2D INITIALIZATION ====================
 
 
@@ -308,6 +329,98 @@ class TestAnimateTransform:
         animator = Animator2D()
         with pytest.raises(TypeError, match=f"{flag} must be True or False"):
             animator.animate_transform(Matrix([[1, 0], [0, 1]]), **{flag: "no"})
+
+
+# ==================== FINAL FRAME ====================
+
+
+class TestFinalFrame:
+    """The last frame lands exactly on the animation's end state (issue #153)."""
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        import matplotlib.pyplot as plt
+
+        yield
+        plt.close("all")
+
+    def test_addition_last_frame_ends_on_sum(self, monkeypatch):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        animator.animate_addition(
+            Vector([3, 1]), Vector([1, 3]), frames=10, interval=100
+        )
+
+        _, result_arrow, result_text = captured["frame_fn"](captured["frames"] - 1)
+
+        assert _arrow_endpoints(result_arrow)[1] == pytest.approx((4, 4))
+        assert result_arrow.get_alpha() == pytest.approx(1)
+        assert result_text.get_alpha() == pytest.approx(1)
+
+    def test_addition_first_half_ends_on_sum(self, monkeypatch):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        animator.animate_addition(
+            Vector([3, 1]), Vector([1, 3]), frames=10, interval=100
+        )
+
+        tail_arrow, _, _ = captured["frame_fn"](captured["frames"] // 2 - 1)
+
+        assert _arrow_endpoints(tail_arrow)[1] == pytest.approx((4, 4))
+
+    def test_scaling_last_frame_ends_on_scaled_vector(self, monkeypatch):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        animator.animate_scaling(Vector([2, 1]), 3, frames=10, interval=100)
+
+        arrow, text = captured["frame_fn"](captured["frames"] - 1)
+
+        assert _arrow_endpoints(arrow)[1] == pytest.approx((6, 3))
+        assert text.get_text() == "3v"
+        assert text.get_alpha() == pytest.approx(1)
+
+    def test_transform_last_frame_ends_on_matrix_image(self, monkeypatch):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+        animator.animate_transform(Matrix([[2, 1], [0, 1]]), frames=10, interval=100)
+
+        artists = captured["frame_fn"](captured["frames"] - 1)
+
+        e1_arrow, e2_arrow = artists[1], artists[2]
+        e1_label, e2_label = artists[3], artists[4]
+        assert _arrow_endpoints(e1_arrow)[1] == pytest.approx((2, 0))
+        assert _arrow_endpoints(e2_arrow)[1] == pytest.approx((1, 1))
+        assert e1_label.get_text() == "[2, 0]"
+        assert e2_label.get_text() == "[1, 1]"
+
+    @pytest.mark.parametrize("frames", [1, 2])
+    def test_tiny_frame_counts_do_not_raise(self, monkeypatch, frames):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+
+        animator.animate_scaling(Vector([2, 1]), 3, frames=frames, interval=100)
+        for frame in range(frames):
+            captured["frame_fn"](frame)
+
+        animator.animate_transform(
+            Matrix([[2, 1], [0, 1]]), frames=frames, interval=100
+        )
+        for frame in range(frames):
+            captured["frame_fn"](frame)
+
+    @pytest.mark.parametrize("frames", [1, 2])
+    def test_addition_tiny_frame_counts_end_on_sum(self, monkeypatch, frames):
+        animator = Animator2D()
+        captured = _capture_frame_function(monkeypatch, animator)
+
+        animator.animate_addition(
+            Vector([3, 1]), Vector([1, 3]), frames=frames, interval=100
+        )
+        for frame in range(frames):
+            _, result_arrow, _ = captured["frame_fn"](frame)
+
+        assert _arrow_endpoints(result_arrow)[1] == pytest.approx((4, 4))
+        assert result_arrow.get_alpha() == pytest.approx(1)
 
 
 # ==================== PLOT SPAN ====================

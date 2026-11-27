@@ -181,15 +181,16 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
         )
 
         half_frames = frames // 2
+        first_half_steps = max(half_frames - 1, 1)
 
         def animate_frame(frame: int) -> tuple:
             if frame < half_frames:
-                t = frame / half_frames
+                t = frame / first_half_steps
                 arrow_v2_from_v1.set_positions(
                     (v1[0], v1[1]), (v1[0] + v2[0] * t, v1[1] + v2[1] * t)
                 )
             else:
-                t = (frame - half_frames) / half_frames
+                t = (frame - half_frames + 1) / (frames - half_frames)
 
                 arrow_v2_from_v1.set_positions((v1[0], v1[1]), (result[0], result[1]))
 
@@ -235,8 +236,10 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
             color=color_start,
         )
 
+        steps = max(frames - 1, 1)
+
         def animate_frame(frame: int) -> tuple:
-            t = frame / frames
+            t = frame / steps
             current_scale = 1 + (factor - 1) * t
             current_x = vector[0] * current_scale
             current_y = vector[1] * current_scale
@@ -328,8 +331,10 @@ class _MatplotlibBackend2D(_MatplotlibBackendBase):
                 )
                 labels.append(label)
 
+        steps = max(frames - 1, 1)
+
         def animate_frame(frame: int) -> tuple:
-            t = _smooth_step(frame / frames)
+            t = _smooth_step(frame / steps)
 
             mt_a = 1 + (a - 1) * t
             mt_b = b * t
