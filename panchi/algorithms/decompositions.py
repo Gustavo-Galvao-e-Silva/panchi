@@ -141,7 +141,7 @@ def qr_decomposition(matrix: Matrix) -> QRDecomposition:
     This is the reduced ("thin") QR decomposition and assumes the columns
     of the matrix are linearly independent. Dependent columns produce a zero
     orthogonal vector during Gram-Schmidt, which cannot be normalized and
-    raises ZeroDivisionError.
+    raises ValueError.
 
     Parameters
     ----------
@@ -157,7 +157,7 @@ def qr_decomposition(matrix: Matrix) -> QRDecomposition:
 
     Raises
     ------
-    ZeroDivisionError
+    ValueError
         If the columns of the matrix are linearly dependent.
 
     Examples

@@ -56,6 +56,10 @@ class TestQRDecompositionCorrectness:
         decomp = qr_decomposition(Matrix([[1, 0], [0, 1]]))
         assert decomp.q @ decomp.r == Matrix([[1, 0], [0, 1]])
 
+    def test_linearly_dependent_columns_raise(self):
+        with pytest.raises(ValueError, match="linearly independent"):
+            qr_decomposition(Matrix([[1, 2], [2, 4]]))
+
 
 class TestQRDecompositionDisplay:
     """Test the string representations of QRDecomposition."""

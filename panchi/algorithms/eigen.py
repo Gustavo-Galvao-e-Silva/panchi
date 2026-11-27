@@ -10,6 +10,7 @@ from panchi.algorithms.matrix_operations import (
     solve,
 )
 from panchi.algorithms.results import EigenResult, QREigenResult
+from panchi.algorithms.vector_operations import DependentVectorsError
 from panchi.algorithms.vector_space_operations import null_space
 from panchi.primitives.factories import exact_matrix, identity, zero_vector
 from panchi.primitives.matrix import Matrix
@@ -293,9 +294,10 @@ def eigen_qr(
             break
         try:
             decomposition = qr_decomposition(current)
-        except ZeroDivisionError:
-            # A singular iterate cannot be orthonormalized by Gram-Schmidt;
-            # treat this as failure to converge rather than crashing.
+        except (DependentVectorsError, ZeroDivisionError):
+            # Gram-Schmidt fails on a singular iterate (DependentVectorsError)
+            # or when a tiny exact norm underflows to 0.0 in the float sqrt
+            # (ZeroDivisionError); treat either as failure to converge.
             break
         current = decomposition.r @ decomposition.q
 

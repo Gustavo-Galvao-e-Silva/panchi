@@ -1,9 +1,11 @@
 import math
+from fractions import Fraction
 
 import pytest
 
 from panchi import Matrix, determinant, eigen_qr
 from panchi.algorithms import QREigenResult
+from panchi.symbolic import sqrt
 
 
 def _sorted_round(values, digits=6):
@@ -115,3 +117,21 @@ class TestEigenConvergence:
     def test_non_converged_has_no_eigenvectors(self):
         result = eigen_qr(Matrix([[0, -1], [1, 0]]), max_iterations=200)
         assert result.eigenvectors == []
+
+    def test_singular_iterate_does_not_raise(self):
+        result = eigen_qr(Matrix([[1, 2], [2, 4]]))
+        assert result.converged is False
+        assert result.eigenvectors == []
+
+    def test_tiny_exact_norm_does_not_raise(self):
+        x = Fraction(1, 10**200)
+        result = eigen_qr(Matrix([[x, 0], [x, x]]), tolerance=1e-250)
+        assert result.converged is False
+
+    def test_unrelated_value_error_is_not_swallowed(self):
+        # The first column has two different radicands and exact length 3, so
+        # Gram-Schmidt keeps exact QuadraticNumbers and raises when it tries
+        # to combine √2 with √7. That error is not a convergence failure.
+        matrix = Matrix([[sqrt(2), 1], [sqrt(7), 1]])
+        with pytest.raises(ValueError, match="Cannot combine"):
+            eigen_qr(matrix)

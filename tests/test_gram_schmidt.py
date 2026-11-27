@@ -26,6 +26,14 @@ class TestVectorProjection:
         with pytest.raises(ValueError):
             vector_projection(Vector([1, 2]), Vector([1, 2, 3]))
 
+    def test_projection_onto_zero_vector_raises(self):
+        with pytest.raises(ValueError, match="zero vector"):
+            vector_projection(Vector([1, 2]), Vector([0, 0]))
+
+    def test_dimension_mismatch_reported_before_zero_axis(self):
+        with pytest.raises(ValueError, match="dimensions must match"):
+            vector_projection(Vector([1, 2]), Vector([0, 0, 0]))
+
 
 class TestGramSchmidt:
     """Test cases for Gram-Schmidt orthonormalization."""
@@ -55,8 +63,12 @@ class TestGramSchmidt:
             gram_schmidt([])
 
     def test_linearly_dependent_raises(self):
-        with pytest.raises(ZeroDivisionError):
+        with pytest.raises(ValueError, match="Vector 1.*linearly independent"):
             gram_schmidt([Vector([1, 0]), Vector([2, 0])])
+
+    def test_zero_first_vector_raises(self):
+        with pytest.raises(ValueError, match="Vector 0"):
+            gram_schmidt([Vector([0, 0]), Vector([1, 1])])
 
     def test_stays_exact_when_all_lengths_rational(self):
         from fractions import Fraction
