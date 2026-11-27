@@ -161,6 +161,18 @@ class TestDisplay:
             "λ² - (5/6)λ + 1/6"
         )
 
+    def test_str_negative_quadratic_constant(self):
+        assert str(Polynomial([-1 - sqrt(2), 0, 1])) == "λ² - (1 + √2)"
+
+    def test_str_negative_quadratic_linear_coefficient(self):
+        assert str(Polynomial([1, -sqrt(2)])) == "-√2λ + 1"
+
+    def test_str_negative_quadratic_binomial_linear_coefficient(self):
+        assert str(Polynomial([1, -1 - sqrt(2), 1])) == "λ² - (1 + √2)λ + 1"
+
+    def test_str_mixed_quadratic_constant(self):
+        assert str(Polynomial([1 - sqrt(2), 0, 1])) == "λ² + 1 - √2"
+
     def test_str_constant(self):
         assert str(Polynomial([0])) == "0"
 
@@ -169,6 +181,27 @@ class TestDisplay:
 
     def test_latex(self):
         assert Polynomial([6, -5, 1])._latex() == "\\lambda^{2} - 5\\lambda + 6"
+
+    def test_latex_negative_quadratic_constant(self):
+        assert (
+            Polynomial([-1 - sqrt(2), 0, 1])._repr_latex_()
+            == "$\\lambda^{2} - (1 + \\sqrt{2})$"
+        )
+
+    def test_latex_negative_quadratic_linear_coefficient(self):
+        assert Polynomial([1, -sqrt(2)])._repr_latex_() == "$-\\sqrt{2}\\lambda + 1$"
+
+    def test_latex_negative_quadratic_binomial_linear_coefficient(self):
+        assert (
+            Polynomial([1, -1 - sqrt(2), 1])._repr_latex_()
+            == "$\\lambda^{2} - (1 + \\sqrt{2})\\lambda + 1$"
+        )
+
+    def test_latex_mixed_quadratic_constant(self):
+        assert (
+            Polynomial([1 - sqrt(2), 0, 1])._repr_latex_()
+            == "$\\lambda^{2} + 1 - \\sqrt{2}$"
+        )
 
     def test_repr(self):
         assert repr(Polynomial([6, -5, 1])) == "Polynomial([6, -5, 1])"
