@@ -6,6 +6,7 @@ from panchi.algorithms.vector_space_operations import (
     contains,
     is_full_rank,
     same_subspace,
+    span,
 )
 from panchi.primitives import Vector
 from panchi.primitives.vector_space import VectorSpace
@@ -45,6 +46,13 @@ class TestVectorSpaceInitialization:
         vs = VectorSpace([v1, v2])
         print(f"\n✓ VectorSpace with float vectors → {len(vs.data)} vectors stored")
         assert len(vs.data) == 2
+
+    def test_does_not_alias_the_caller_list(self):
+        vectors = [Vector([1, 0])]
+        vs = span(vectors)
+        vectors.append(Vector([1, 2, 3]))
+        print(f"\n✓ appended to caller list → space still has {len(vs)} vector(s)")
+        assert len(vs) == 1
 
     def test_invalid_not_a_list(self):
         print("\n✓ VectorSpace(Vector([1,2])) → raises TypeError")

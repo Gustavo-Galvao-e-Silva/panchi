@@ -27,7 +27,7 @@ class VectorSpace:
     Attributes
     ----------
     data : list[Vector]
-        The original spanning set as provided.
+        The provided spanning vectors, stored in a new list.
 
     Raises
     ------
@@ -78,7 +78,7 @@ class VectorSpace:
                     f"but vector {i} has {v.dims}."
                 )
 
-        self.data = vectors
+        self.data = list(vectors)
         self._basis_cache: tuple[tuple, list[Vector]] | None = None
 
     def __getitem__(self, index: int) -> Vector:
