@@ -235,14 +235,16 @@ def gram_schmidt(vectors: list[Vector], normalize: bool = True) -> list[Vector]:
     vectors : list[Vector]
         The vectors to orthogonalize. Must be non-empty; the vectors are
         expected to be linearly independent.
-    normalize: bool, optional
-        Whether to return vectors normalized to unit length
+    normalize : bool, optional
+        If True, each vector is normalized to unit length. If False, the
+        orthogonal vectors are returned unnormalized. Default is True.
 
     Returns
     -------
     list[Vector]
         An orthonormal list of vectors spanning the same subspace, in the
-        same order as the inputs.
+        same order as the inputs. With normalize = False, the vectors are
+        orthogonal but not normalized.
 
     Raises
     ------
@@ -263,11 +265,11 @@ def gram_schmidt(vectors: list[Vector], normalize: bool = True) -> list[Vector]:
     1.0
 
     >>> a = Vector([3, 6, 0])
-    >>> b = Vector([1, 2, 2,])
+    >>> b = Vector([1, 2, 2])
     >>> g = gram_schmidt([a, b], normalize=False)
-    >>> round(dot(p[0], p[1]), 10)
+    >>> round(dot(g[0], g[1]), 10)
     0.0
-    >>> round(p[1].magnitude, 10)
+    >>> round(g[1].magnitude, 10)
     2.0
     """
     if normalize:
