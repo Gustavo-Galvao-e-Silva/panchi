@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING
 
 from panchi.algorithms.row_operations import RowOperation
@@ -1387,3 +1388,609 @@ class EigenResult:
                 f"\\quad E_{{\\lambda_{{{i + 1}}}}} = {span_to_latex(space)}"
             )
         return aligned_to_latex(lines)
+
+
+class JacobiRotation:
+    """
+    One plane rotation applied during a one-sided Jacobi sweep.
+
+    The rotation mixes columns p and q of the working matrix so that they
+    become orthogonal. Before the rotation, alpha and beta are the squared
+    lengths of the two columns and gamma is their dot product. The rotation
+    replaces a_p with cos·a_p − sin·a_q and a_q with sin·a_p + cos·a_q.
+
+    Parameters
+    ----------
+    sweep : int
+        The 1-based index of the sweep this rotation belongs to.
+    p : int
+        The index of the first column, with p < q.
+    q : int
+        The index of the second column.
+    cos : float
+        The cosine of the rotation angle.
+    sin : float
+        The sine of the rotation angle.
+    t : float
+        The tangent of the rotation angle.
+    alpha : float
+        The squared length of column p before the rotation.
+    beta : float
+        The squared length of column q before the rotation.
+    gamma : float
+        The dot product of columns p and q before the rotation.
+
+    Examples
+    --------
+    >>> result = svd(Matrix([[1, 1], [1, 1]]), record="rotations")
+    >>> rotation = result.steps[0].rotations[0]
+    >>> rotation.p, rotation.q
+    (0, 1)
+    """
+
+    def __init__(
+        self,
+        sweep: int,
+        p: int,
+        q: int,
+        cos: float,
+        sin: float,
+        t: float,
+        alpha: float,
+        beta: float,
+        gamma: float,
+    ) -> None:
+        self.sweep = sweep
+        self.p = p
+        self.q = q
+        self.cos = cos
+        self.sin = sin
+        self.t = t
+        self.alpha = alpha
+        self.beta = beta
+        self.gamma = gamma
+
+    def __str__(self) -> str:
+        """
+        Return a readable description of the rotation.
+
+        Returns
+        -------
+        str
+            The rotated column pair, the column statistics and the angle.
+        """
+        return (
+            f"rotate columns {self.p} and {self.q}: "
+            f"‖a_p‖² = {self.alpha:.4g}, ‖a_q‖² = {self.beta:.4g}, "
+            f"a_p·a_q = {self.gamma:.4g} → cos = {self.cos:.6f}, "
+            f"sin = {self.sin:.6f}"
+        )
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this JacobiRotation.
+
+        Returns
+        -------
+        str
+            Compact representation showing the sweep, the pair and the angle.
+        """
+        return (
+            f"JacobiRotation(sweep={self.sweep}, p={self.p}, q={self.q}, "
+            f"cos={self.cos:.6g}, sin={self.sin:.6g})"
+        )
+
+
+class JacobiSweep:
+    """
+    One full sweep of one-sided Jacobi over every column pair.
+
+    A sweep visits each pair (p, q) with p < q once. It records how many
+    pairs were rotated and the largest |cos(angle between columns)| seen,
+    which measures how far the columns were from orthogonal. A sweep with
+    zero rotations means the algorithm has converged.
+
+    Parameters
+    ----------
+    index : int
+        The 1-based index of the sweep.
+    rotation_count : int
+        The number of rotations applied in this sweep.
+    max_off : float
+        The largest |γ| / √(αβ) seen in this sweep, or 0.0 if none.
+    rotations : list[JacobiRotation]
+        Every rotation applied, when recorded with record="rotations".
+        Empty otherwise.
+    matrix : Matrix | None
+        The working matrix after this sweep, when recorded with
+        record="rotations". None otherwise.
+
+    Examples
+    --------
+    >>> result = svd(Matrix([[1, 1], [1, 1]]))
+    >>> print(result.steps[0])
+    Sweep 1: 1 rotation, max |cos(angle between columns)| = 1.0e+00
+    """
+
+    def __init__(
+        self,
+        index: int,
+        rotation_count: int,
+        max_off: float,
+        rotations: list[JacobiRotation],
+        matrix: Matrix | None,
+    ) -> None:
+        self.index = index
+        self.rotation_count = rotation_count
+        self.max_off = max_off
+        self.rotations = rotations
+        self.matrix = matrix
+
+    def __str__(self) -> str:
+        """
+        Return a one-line summary of the sweep.
+
+        Returns
+        -------
+        str
+            The sweep index, rotation count and largest off-orthogonality.
+        """
+        return (
+            f"Sweep {self.index}: {self.rotation_count} "
+            f"rotation{'' if self.rotation_count == 1 else 's'}, "
+            f"max |cos(angle between columns)| = {self.max_off:.1e}"
+        )
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this JacobiSweep.
+
+        Returns
+        -------
+        str
+            Compact representation showing the index, count and max_off.
+        """
+        return (
+            f"JacobiSweep(index={self.index}, "
+            f"rotation_count={self.rotation_count}, max_off={self.max_off:.1e})"
+        )
+
+
+class SVDResult:
+    """
+    The result of a (thin) singular value decomposition.
+
+    Stores the original m×n matrix A and the factors U (m×k, orthonormal
+    columns), Σ (k×k diagonal) and V (n×k, orthonormal columns), with
+    k = min(m, n), so that A = U Σ Vᵀ. The singular values are sorted in
+    descending order. The Jacobi sweeps used to compute the factors are
+    kept in ``steps``.
+
+    The helpers ``approximation``, ``error``, ``energy``, ``storage`` and
+    ``compression_ratio`` describe the best rank-k approximation
+    A_k = σ₀u₀v₀ᵀ + ... + σ_{k-1}u_{k-1}v_{k-1}ᵀ, which is how SVD is used
+    for compression.
+
+    Parameters
+    ----------
+    original : Matrix
+        The matrix that was decomposed.
+    u : Matrix
+        The m×k matrix of left singular vectors.
+    sigma : list[float]
+        The k singular values, in descending order.
+    v : Matrix
+        The n×k matrix of right singular vectors.
+    sweeps : int
+        The number of Jacobi sweeps performed.
+    converged : bool
+        Whether the last sweep made no rotations.
+    steps : list[JacobiSweep]
+        The recorded sweeps.
+    tolerance : float
+        The tolerance used for convergence and for the numerical rank.
+
+    Examples
+    --------
+    >>> result = svd(Matrix([[3, 0], [0, 4]]))
+    >>> result.sigma
+    [4.0, 3.0]
+    >>> result.rank
+    2
+    """
+
+    def __init__(
+        self,
+        original: Matrix,
+        u: Matrix,
+        sigma: list[float],
+        v: Matrix,
+        sweeps: int,
+        converged: bool,
+        steps: list[JacobiSweep],
+        tolerance: float,
+    ) -> None:
+        self.original = original
+        self.u = u
+        self.sigma = sigma
+        self.s = Matrix(
+            [
+                [value if i == j else 0.0 for j in range(len(sigma))]
+                for i, value in enumerate(sigma)
+            ]
+        )
+        self.v = v
+        self.sweeps = sweeps
+        self.converged = converged
+        self.steps = steps
+        self.tolerance = tolerance
+
+    @property
+    def vt(self) -> Matrix:
+        """
+        The transpose of V, the k×n matrix whose rows are the vᵢ.
+
+        Returns
+        -------
+        Matrix
+            Vᵀ.
+        """
+        return self.v.T
+
+    @property
+    def rank(self) -> int:
+        """
+        The numerical rank: the number of σ above tolerance · σ₀ · max(m, n).
+
+        Returns
+        -------
+        int
+            The number of singular values treated as nonzero.
+
+        Examples
+        --------
+        >>> svd(Matrix([[1, 1], [1, 1]])).rank
+        1
+        """
+        if not self.sigma or self.sigma[0] == 0:
+            return 0
+        threshold = (
+            self.tolerance * self.sigma[0] * max(self.original.rows, self.original.cols)
+        )
+        return sum(1 for value in self.sigma if value > threshold)
+
+    @property
+    def pairs(self) -> list[tuple[float, Vector, Vector]]:
+        """
+        The singular triples (σᵢ, uᵢ, vᵢ), in descending order of σ.
+
+        Returns
+        -------
+        list[tuple[float, Vector, Vector]]
+            One tuple per singular value.
+        """
+        u_columns = self.u.col_vectors
+        v_columns = self.v.col_vectors
+        return [
+            (self.sigma[i], u_columns[i], v_columns[i]) for i in range(len(self.sigma))
+        ]
+
+    def _check_rank(self, k: int) -> None:
+        if isinstance(k, bool) or not isinstance(k, int):
+            raise TypeError(f"k must be an int. Got {type(k).__name__}.")
+        if not 0 <= k <= len(self.sigma):
+            raise ValueError(
+                f"k must satisfy 0 <= k <= {len(self.sigma)} "
+                f"(the number of singular values). Got {k}."
+            )
+
+    def component(self, i: int) -> Matrix:
+        """
+        Return the rank-1 component σᵢ uᵢ vᵢᵀ.
+
+        Parameters
+        ----------
+        i : int
+            The 0-based index of the singular value.
+
+        Returns
+        -------
+        Matrix
+            The m×n matrix σᵢ uᵢ vᵢᵀ.
+
+        Raises
+        ------
+        TypeError
+            If i is not an int.
+        ValueError
+            If i is not in 0 <= i < k.
+
+        Examples
+        --------
+        >>> result = svd(Matrix([[3, 0], [0, 4]]))
+        >>> print(result.component(0))
+        [[0.0, 0.0],
+         [0.0, 4.0]]
+        """
+        if isinstance(i, bool) or not isinstance(i, int):
+            raise TypeError(f"i must be an int. Got {type(i).__name__}.")
+        if not 0 <= i < len(self.sigma):
+            raise ValueError(
+                f"i must satisfy 0 <= i < {len(self.sigma)} "
+                f"(the number of singular values). Got {i}."
+            )
+        sigma = self.sigma[i]
+        u_column = [float(row[i]) for row in self.u.to_list()]
+        v_column = [float(row[i]) for row in self.v.to_list()]
+        return Matrix([[sigma * a * b for b in v_column] for a in u_column])
+
+    def approximation(self, k: int) -> Matrix:
+        """
+        Return the best rank-k approximation A_k = Σ_{i<k} σᵢ uᵢ vᵢᵀ.
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values to keep, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        Matrix
+            The m×n matrix A_k. For k = 0 this is the zero matrix.
+
+        Raises
+        ------
+        TypeError
+            If k is not an int.
+        ValueError
+            If k is out of range.
+
+        Examples
+        --------
+        >>> result = svd(Matrix([[3, 0], [0, 4]]))
+        >>> print(result.approximation(1))
+        [[0.0, 0.0],
+         [0.0, 4.0]]
+        """
+        self._check_rank(k)
+        u = self.u.to_list()
+        v = self.v.to_list()
+        return Matrix(
+            [
+                [
+                    sum(
+                        (
+                            self.sigma[i] * float(u[row][i]) * float(v[col][i])
+                            for i in range(k)
+                        ),
+                        0.0,
+                    )
+                    for col in range(self.original.cols)
+                ]
+                for row in range(self.original.rows)
+            ]
+        )
+
+    def error(self, k: int) -> float:
+        """
+        Return ‖A − A_k‖_F, computed as √(Σ_{i>=k} σᵢ²).
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values kept, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        float
+            The Frobenius norm of the approximation error.
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).error(1)
+        3.0
+        """
+        self._check_rank(k)
+        return math.sqrt(sum(value * value for value in self.sigma[k:]))
+
+    def relative_error(self, k: int) -> float:
+        """
+        Return ‖A − A_k‖_F / ‖A‖_F.
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values kept, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        float
+            The relative error, or 0.0 when A is the zero matrix.
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).relative_error(1)
+        0.6
+        """
+        self._check_rank(k)
+        total = self.error(0)
+        if total == 0:
+            return 0.0
+        return self.error(k) / total
+
+    def energy(self, k: int) -> float:
+        """
+        Return the fraction of Σσᵢ² captured by the first k singular values.
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values kept, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        float
+            Σ_{i<k} σᵢ² / Σ σᵢ², or 1.0 when every σ is zero.
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).energy(1)
+        0.64
+        """
+        self._check_rank(k)
+        total = sum(value * value for value in self.sigma)
+        if total == 0:
+            return 1.0
+        return sum(value * value for value in self.sigma[:k]) / total
+
+    def storage(self, k: int) -> int:
+        """
+        Return the number of values needed to store A_k: k · (m + n + 1).
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values kept, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        int
+            The count of stored numbers (k columns of U, k of V, k σ values).
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).storage(1)
+        5
+        """
+        self._check_rank(k)
+        return k * (self.original.rows + self.original.cols + 1)
+
+    def compression_ratio(self, k: int) -> float:
+        """
+        Return storage(k) / (m · n), the cost of A_k relative to A itself.
+
+        Parameters
+        ----------
+        k : int
+            The number of singular values kept, 0 <= k <= len(sigma).
+
+        Returns
+        -------
+        float
+            Values below 1 mean A_k is cheaper to store than A.
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).compression_ratio(1)
+        1.25
+        """
+        self._check_rank(k)
+        return self.storage(k) / (self.original.rows * self.original.cols)
+
+    def rank_for_energy(self, fraction: float) -> int:
+        """
+        Return the smallest k with energy(k) >= fraction.
+
+        Parameters
+        ----------
+        fraction : float
+            The target energy, 0 <= fraction <= 1.
+
+        Returns
+        -------
+        int
+            The smallest number of singular values reaching the target.
+
+        Raises
+        ------
+        TypeError
+            If fraction is not a number.
+        ValueError
+            If fraction is not in [0, 1].
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]])).rank_for_energy(0.5)
+        1
+        """
+        if isinstance(fraction, bool) or not isinstance(fraction, (int, float)):
+            raise TypeError(
+                f"fraction must be a number. Got {type(fraction).__name__}."
+            )
+        if not 0 <= fraction <= 1:
+            raise ValueError(
+                f"fraction must satisfy 0 <= fraction <= 1. Got {fraction}."
+            )
+        for k in range(len(self.sigma) + 1):
+            if self.energy(k) >= fraction:
+                return k
+        return len(self.sigma)
+
+    def __str__(self) -> str:
+        """
+        Return a readable summary of the singular value decomposition.
+
+        Shows the Jacobi sweeps (every rotation for record="rotations" on
+        small matrices), then σ, U, Σ and Vᵀ, and states A = U Σ Vᵀ.
+
+        Returns
+        -------
+        str
+            Human-readable decomposition summary.
+        """
+        rows = self.original.rows
+        cols = self.original.cols
+        sweep_word = "sweep" if self.sweeps == 1 else "sweeps"
+        status = "converged" if self.converged else "not converged"
+        header = f"SVD of {rows}×{cols} matrix — {self.sweeps} {sweep_word}, {status}\n"
+
+        detailed = min(rows, cols) <= 4 and any(
+            step.matrix is not None for step in self.steps
+        )
+        steps_str = ""
+        for step in self.steps:
+            steps_str += f"\n{step}"
+            if detailed:
+                for rotation in step.rotations:
+                    steps_str += f"\n  {rotation}"
+                if step.matrix is not None:
+                    steps_str += f"\n{step.matrix}\n"
+        if steps_str:
+            steps_str += "\n"
+
+        values = ", ".join(f"{value:.6g}" for value in self.sigma)
+        body = (
+            f"\nσ = [{values}]\n"
+            f"\nA = U Σ Vᵀ\n"
+            f"\nU:\n{self.u}\n"
+            f"\nΣ:\n{self.s}\n"
+            f"\nVᵀ:\n{self.vt}"
+        )
+        return header + steps_str + body
+
+    def __repr__(self) -> str:
+        """
+        Return a concise data inspection string for this SVDResult.
+
+        Returns
+        -------
+        str
+            Compact representation showing shape, rank, sweeps and convergence.
+
+        Examples
+        --------
+        >>> svd(Matrix([[3, 0], [0, 4]]))
+        SVDResult(shape=2×2, rank=2, sweeps=1, converged=True)
+        """
+        return (
+            f"SVDResult(shape={self.original.rows}×{self.original.cols}, "
+            f"rank={self.rank}, sweeps={self.sweeps}, converged={self.converged})"
+        )
+
+    def _repr_latex_(self) -> str:
+        """Render the factorization ``A = U Σ Vᵀ`` in LaTeX."""
+        return (
+            f"$${matrix_to_latex(self.original)} = "
+            f"{matrix_to_latex(self.u)}\\,{matrix_to_latex(self.s)}\\,"
+            f"{matrix_to_latex(self.vt)}$$"
+        )

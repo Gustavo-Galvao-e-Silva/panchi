@@ -38,6 +38,7 @@ If you want to understand the concepts behind the code, the [User Guide](user-gu
 - Elementary row operations as first-class objects
 - Row reduction to REF and RREF
 - LU and QR decomposition (QR via Gram-Schmidt)
+- Singular value decomposition (one-sided Jacobi) with rank-k approximation for image compression
 - Exact eigenvalues and eigenvectors for 2×2 and 3×3 matrices, including irrational and complex ones, plus a numerical QR algorithm for any size
 - Matrix inverse and linear system solving (with an optional numerical tolerance)
 - Determinants step by step: cofactor expansion, row reduction, the adjugate, and Cramer's rule

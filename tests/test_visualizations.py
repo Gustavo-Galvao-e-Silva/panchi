@@ -660,3 +660,100 @@ class TestAnimateReduction:
         animator = Animator2D()
         with pytest.raises(ValueError, match="frames"):
             animator.animate_reduction(rref(Matrix([[1, 2], [3, 4]])), frames=1)
+
+
+# ==================== PLOT COMPRESSION ====================
+
+
+def _rectangles_bitmap(size: int = 8) -> Matrix:
+    rows = []
+    for r in range(size):
+        row = []
+        for c in range(size):
+            in_block = 1 <= r <= 4 and 2 <= c <= 5
+            in_bar = r >= 6 and c >= 1
+            row.append(1 if in_block or in_bar else 0)
+        rows.append(row)
+    return Matrix(rows)
+
+
+class TestPlotCompression:
+    """Test cases for plot_compression."""
+
+    @pytest.fixture(autouse=True)
+    def _close_figures(self):
+        import matplotlib.pyplot as plt
+
+        yield
+        plt.close("all")
+
+    @pytest.fixture
+    def result(self):
+        from panchi import svd
+
+        return svd(_rectangles_bitmap())
+
+    def test_returns_figure(self, result):
+        from matplotlib.figure import Figure
+
+        from panchi.visualizations import plot_compression
+
+        fig = plot_compression(result, [1, 2])
+        assert isinstance(fig, Figure)
+
+    def test_one_image_per_rank_plus_original(self, result):
+        from panchi.visualizations import plot_compression
+
+        ranks = [1, 2, 4]
+        fig = plot_compression(result, ranks)
+        image_axes = [ax for ax in fig.axes if ax.images]
+        assert len(image_axes) == len(ranks) + 1
+
+    def test_titles_name_each_rank(self, result):
+        from panchi.visualizations import plot_compression
+
+        ranks = [0, 1, 3]
+        fig = plot_compression(result, ranks)
+        image_axes = [ax for ax in fig.axes if ax.images]
+        assert image_axes[0].get_title().startswith("Original")
+        for ax, k in zip(image_axes[1:], ranks, strict=True):
+            assert f"k = {k}" in ax.get_title()
+
+    def test_curves_cover_every_rank(self, result):
+        from panchi.visualizations import plot_compression
+
+        fig = plot_compression(result, [1])
+        curve_ax = [ax for ax in fig.axes if not ax.images][0]
+        for line in curve_ax.get_lines()[:2]:
+            assert len(line.get_xdata()) == len(result.sigma) + 1
+
+    def test_save_path_writes_file(self, result, tmp_path):
+        from panchi.visualizations import plot_compression
+
+        path = tmp_path / "compression.png"
+        plot_compression(result, [1, 2], save_path=path)
+        assert path.exists()
+
+    def test_rejects_non_svd_result(self):
+        from panchi.visualizations import plot_compression
+
+        with pytest.raises(TypeError, match="SVDResult"):
+            plot_compression(_rectangles_bitmap(), [1])
+
+    def test_rejects_empty_ranks(self, result):
+        from panchi.visualizations import plot_compression
+
+        with pytest.raises(ValueError, match="at least one"):
+            plot_compression(result, [])
+
+    def test_rejects_rank_above_sigma_length(self, result):
+        from panchi.visualizations import plot_compression
+
+        with pytest.raises(ValueError):
+            plot_compression(result, [len(result.sigma) + 1])
+
+    def test_rejects_negative_rank(self, result):
+        from panchi.visualizations import plot_compression
+
+        with pytest.raises(ValueError):
+            plot_compression(result, [-1])

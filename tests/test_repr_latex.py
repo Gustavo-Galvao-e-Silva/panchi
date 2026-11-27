@@ -1,7 +1,7 @@
 from fractions import Fraction
 
 from panchi import Matrix, Vector, VectorSpace, exact_vector
-from panchi.algorithms import eigen_qr, inverse, lu, qr_decomposition, solve
+from panchi.algorithms import eigen_qr, inverse, lu, qr_decomposition, solve, svd
 from panchi.algorithms.reductions import rref
 from panchi.algorithms.row_operations import RowAdd, RowScale, RowSwap
 from panchi.symbolic import sqrt
@@ -108,6 +108,11 @@ class TestResultReprLatex:
     def test_eigen_pairs(self):
         out = eigen_qr(Matrix([[2, 1], [1, 2]]))._repr_latex_()
         assert "\\lambda_{1}" in out
+
+    def test_svd_factorization(self):
+        out = svd(Matrix([[3, 0], [0, 4]]))._repr_latex_()
+        assert out.startswith("$$") and out.endswith("$$")
+        assert " = " in out and "bmatrix" in out and "\\," in out
 
 
 class TestStrUnchanged:

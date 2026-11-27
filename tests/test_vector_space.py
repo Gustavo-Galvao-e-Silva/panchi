@@ -487,6 +487,16 @@ class TestVectorSpaceContains:
         with pytest.raises(ValueError):
             contains(vs, Vector([1, 0, 0]))
 
+    def test_contains_zero_vector_in_zero_subspace(self):
+        vs = VectorSpace([Vector([0, 0])])
+        print("\n✓ [0, 0] is contained in zero subspace of R²")
+        assert contains(vs, Vector([0, 0])) is True
+
+    def test_not_contains_nonzero_vector_in_zero_subspace(self):
+        vs = VectorSpace([Vector([0, 0])])
+        print("\n✓ [0, 0] is contained in zero subspace of R²")
+        assert contains(vs, Vector([1, 0])) is False
+
 
 class TestVectorSpaceSameSubspace:
     """Test cases for mathematical subspace equality comparison."""

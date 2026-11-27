@@ -126,7 +126,11 @@ def contains(space: VectorSpace, v: Vector) -> bool:
             f"R^{space.ambient_dims}. Dimensions must match."
         )
 
-    basis_matrix = vector_column_matrix(basis(space))
+    b = basis(space)
+    if not b:
+        return all(component == 0 for component in v)
+
+    basis_matrix = vector_column_matrix(b)
     return solve(basis_matrix, v).status != "inconsistent"
 
 
