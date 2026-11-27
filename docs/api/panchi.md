@@ -2,6 +2,8 @@
 
 The top-level `panchi` module exports all primitives and factory functions directly. You rarely need to import from submodules.
 
+It also exports the common algorithms, such as `pan.lu(A)`, `pan.qr_decomposition(A)` and `pan.solve(A, b)`. They are documented on the [Algorithms](algorithms.md#panchi.algorithms.lu) page.
+
 ```python
 import panchi as pan
 ```

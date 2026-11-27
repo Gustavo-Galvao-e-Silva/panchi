@@ -9,7 +9,7 @@ __version__ = "3.3.0"
 
 from fractions import Fraction
 
-from panchi.algorithms.decompositions import qr_decomposition, svd
+from panchi.algorithms.decompositions import lu, qr_decomposition, svd
 from panchi.algorithms.eigen import characteristic_polynomial, eigen, eigen_qr
 from panchi.algorithms.matrix_operations import (
     adjugate,
@@ -111,6 +111,7 @@ __all__ = [
     "cofactor_expansion",
     "adjugate",
     "cramer",
+    "lu",
     "qr_decomposition",
     "svd",
     "SVDResult",
