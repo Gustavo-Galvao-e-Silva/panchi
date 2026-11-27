@@ -632,6 +632,11 @@ class _Animator:
                 f"Got {type(vectors).__name__}."
             )
         for v in vectors:
+            if not isinstance(v, Vector):
+                raise TypeError(
+                    f"Expected a list of Vector objects, but got {type(v).__name__}. "
+                    f"Wrap each object as a Vector([1,2])."
+                )
             if v.dims != self._dims:
                 raise ValueError(
                     f"Only {self._dims}D vectors are supported for "
@@ -639,6 +644,11 @@ class _Animator:
                 )
 
     def _validate_matrix(self, matrix: Matrix) -> None:
+        if not isinstance(matrix, Matrix):
+            raise TypeError(
+                f"Expected a Matrix, but got {type(matrix).__name__}. "
+                f"Wrap it as a Matrix([[1,2],[3,4]])."
+            )
         n = self._dims
         if matrix.shape != (n, n):
             raise ValueError(
