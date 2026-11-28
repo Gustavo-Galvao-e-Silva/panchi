@@ -20,13 +20,13 @@ class Matrix:
 
     Parameters
     ----------
-    data : list[list[int | float | Fraction | str]]
+    data : list[list[int | float | Fraction | QuadraticNumber | str]]
         A 2D list representing the matrix. All rows must have the same length.
         Strings like '1/3' are automatically parsed as Fraction values.
 
     Attributes
     ----------
-    data : list[list[int | float | Fraction]]
+    data : list[list[int | float | Fraction | QuadraticNumber]]
         The underlying 2D list of matrix elements.
     shape : tuple[int, int]
         The dimensions of the matrix as (rows, columns).
@@ -71,8 +71,8 @@ class Matrix:
                         parsed_row.append(parse_scalar(elem))
                     except TypeError:
                         raise TypeError(
-                            f"All matrix elements must be numbers (int, float, Fraction, "
-                            f"or string like '1/3'). "
+                            f"All matrix elements must be numbers "
+                            f"(int, float, Fraction, QuadraticNumber, or a string like '1/3'). "
                             f"Found {type(elem).__name__} at position [{i}][{j}]."
                         ) from None
                 parsed_data.append(parsed_row)
@@ -153,7 +153,7 @@ class Matrix:
 
         Returns
         -------
-        list[int | float | Fraction] or int | float | Fraction
+        list[int | float | Fraction | QuadraticNumber] or int | float | Fraction | QuadraticNumber
             A copy of the row for ``m[i]``, or the element for ``m[i, j]``.
 
         Raises
@@ -203,7 +203,7 @@ class Matrix:
         index : int or tuple[int, int]
             A row index ``i`` for whole-row assignment, or an ``(i, j)`` pair
             for a single element. Negative indices are supported.
-        value : list[int | float | Fraction | str] or int | float | Fraction | str
+        value : list[int | float | Fraction | QuadraticNumber | str] or int | float | Fraction | QuadraticNumber | str
             A row (list) for ``m[i]``, or a single scalar for ``m[i, j]``.
 
         Raises
@@ -229,7 +229,8 @@ class Matrix:
                 self.data[i][j] = parse_scalar(value)
             except TypeError:
                 raise TypeError(
-                    f"Matrix elements must be numbers (int, float, or Fraction). "
+                    f"Matrix elements must be numbers "
+                    f"(int, float, Fraction, QuadraticNumber, or a string like '1/3'). "
                     f"Got {type(value).__name__}."
                 ) from None
             return
@@ -249,7 +250,8 @@ class Matrix:
                 new_row.append(parse_scalar(elem))
             except TypeError:
                 raise TypeError(
-                    f"All row elements must be numbers (int, float, or Fraction). "
+                    f"All row elements must be numbers "
+                    f"(int, float, Fraction, QuadraticNumber, or a string like '1/3'). "
                     f"Found {type(elem).__name__} at position [{j}]."
                 ) from None
 
@@ -489,7 +491,7 @@ class Matrix:
 
         Parameters
         ----------
-        other : int | float | Fraction
+        other : int | float | Fraction | QuadraticNumber
             The scalar to multiply by.
 
         Returns
@@ -513,7 +515,7 @@ class Matrix:
         if not isinstance(other, SCALAR_TYPES):
             raise TypeError(
                 f"Cannot multiply Matrix by {type(other).__name__}. "
-                f"Scalar must be a number (int, float, or Fraction)."
+                f"Scalar must be a number (int, float, Fraction, or QuadraticNumber)."
             )
 
         result = []
@@ -534,7 +536,7 @@ class Matrix:
 
         Parameters
         ----------
-        other : int | float | Fraction
+        other : int | float | Fraction | QuadraticNumber
             The scalar to multiply by.
 
         Returns
@@ -877,7 +879,7 @@ class Matrix:
 
         Returns
         -------
-        int | float | Fraction
+        int | float | Fraction | QuadraticNumber
             The sum of the diagonal elements.
 
         Raises
@@ -1047,7 +1049,7 @@ class Matrix:
 
         Returns
         -------
-        list[list[int | float | Fraction]]
+        list[list[int | float | Fraction | QuadraticNumber]]
             A copy of the matrix data as a 2D list.
 
         Examples
@@ -1067,7 +1069,7 @@ class Matrix:
 
         Returns
         -------
-        tuple[tuple[int | float | Fraction, ...], ...]
+        tuple[tuple[int | float | Fraction | QuadraticNumber, ...], ...]
             The matrix data as a tuple of row tuples.
 
         Examples

@@ -34,13 +34,13 @@ class Vector:
 
     Parameters
     ----------
-    data : list[int | float | Fraction | str]
+    data : list[int | float | Fraction | QuadraticNumber | str]
         A list of numbers representing the vector components. Strings
         like '1/3' are automatically parsed as Fraction values.
 
     Attributes
     ----------
-    data : list[int | float | Fraction]
+    data : list[int | float | Fraction | QuadraticNumber]
         The underlying list of vector components.
     shape : tuple[int, int]
         The dimensions of the vector as (dims, 1).
@@ -69,8 +69,9 @@ class Vector:
                 parsed.append(parse_scalar(x))
             except TypeError:
                 raise TypeError(
-                    f"All vector elements must be numbers (int, float, Fraction, "
-                    f"or string like '1/3'). Found {type(x).__name__} at index {i}."
+                    f"All vector elements must be numbers "
+                    f"(int, float, Fraction, QuadraticNumber, or a string like '1/3'). "
+                    f"Found {type(x).__name__} at index {i}."
                 ) from None
 
         self.data = parsed
@@ -87,7 +88,7 @@ class Vector:
 
         Returns
         -------
-        int | float | Fraction
+        int | float | Fraction | QuadraticNumber
             The value at the specified index.
 
         Raises
@@ -116,7 +117,7 @@ class Vector:
         ----------
         key : int
             The index (0-based) of the component to modify.
-        new_value : int | float | Fraction
+        new_value : int | float | Fraction | QuadraticNumber | str
             The new value to assign.
 
         Raises
@@ -137,7 +138,11 @@ class Vector:
         try:
             new_value = parse_scalar(new_value)
         except TypeError:
-            raise TypeError("Vectors can only hold numbers") from None
+            raise TypeError(
+                f"Vector elements must be numbers "
+                f"(int, float, Fraction, QuadraticNumber, or a string like '1/3'). "
+                f"Got {type(new_value).__name__}."
+            ) from None
 
         self.data[key] = new_value
 
@@ -286,7 +291,7 @@ class Vector:
 
         Parameters
         ----------
-        other : int | float | Fraction
+        other : int | float | Fraction | QuadraticNumber
             The scalar to multiply by.
 
         Returns
@@ -324,7 +329,7 @@ class Vector:
 
         Parameters
         ----------
-        other : int | float | Fraction
+        other : int | float | Fraction | QuadraticNumber
             The scalar to multiply by.
 
         Returns
@@ -354,7 +359,7 @@ class Vector:
 
         Parameters
         ----------
-        other : int | float | Fraction
+        other : int | float | Fraction | QuadraticNumber
             The scalar to divide by.
 
         Returns
@@ -509,7 +514,7 @@ class Vector:
 
         Returns
         -------
-        int | float | Fraction
+        int | float | Fraction | QuadraticNumber
             The squared magnitude of the vector.
 
         Examples
@@ -597,7 +602,7 @@ class Vector:
 
         Returns
         -------
-        list[int | float | Fraction]
+        list[int | float | Fraction | QuadraticNumber]
             A copy of the vector components as a list.
 
         Examples
@@ -614,7 +619,7 @@ class Vector:
 
         Returns
         -------
-        tuple[int | float | Fraction, ...]
+        tuple[int | float | Fraction | QuadraticNumber, ...]
             The vector components as a tuple.
 
         Examples

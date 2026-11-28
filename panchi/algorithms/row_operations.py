@@ -324,7 +324,7 @@ class RowOperation(ABC):
         """
         if not isinstance(scalar, SCALAR_TYPES):
             raise TypeError(
-                f"Scalar must be a number (int, float, or Fraction). "
+                f"Scalar must be a number (int, float, Fraction, or QuadraticNumber). "
                 f"Got {type(scalar).__name__}."
             )
 
@@ -472,7 +472,7 @@ class RowScale(RowOperation):
     ----------
     row : int
         Index of the row to scale (0-based).
-    scalar : int | float | Fraction
+    scalar : int | float | Fraction | QuadraticNumber
         The non-zero value to multiply the row by.
 
     Examples
@@ -607,7 +607,7 @@ class RowAdd(RowOperation):
         Index of the row being modified (0-based).
     source : int
         Index of the row being added (0-based). Must differ from target.
-    scalar : int | float | Fraction
+    scalar : int | float | Fraction | QuadraticNumber
         The value to multiply the source row by before adding.
 
     Examples
